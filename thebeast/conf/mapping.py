@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Union, Callable, Dict, Any
 import yaml
@@ -55,5 +56,16 @@ class SourceMapping:
             mapping = schema(mapping)
         except fastjsonschema.exceptions.JsonSchemaValueException as e:
             raise InvalidOverridesException(e)
-        
+
+        # Overriding ftm ontology with a custom one if needed
+        if mapping.get("ftm_ontology", None) is not None:
+            os.environ["FTM_MODEL_PATH"] = mapping["ftm_ontology"]
+
+        # ftm model is a singleton instantiated on the import, we should be careful here
+        from followthemoney import model as ftm # type: ignore
+        self.ftm = ftm
         self.ingestor = import_string(mapping["ingest"]["extractor"])(**mapping["ingest"].get("params", {}))
+
+        # digest.collections.*.path
+        # digest.collections.*.entities[].*.keys[][]
+        # digest.collections.*.entities[].*.properties.*.column[][]

@@ -1,5 +1,115 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
+    "$defs":
+    {
+        "collection":
+        {
+            "$id": "/schemas/collection",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties":
+            {
+                "path":
+                {
+                    "type": "string",
+                    "description": "jmespath to apply to the current level of the document to retrieve a collection"
+                },
+                "entities":
+                {
+                    "type": "object",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/entity"
+                        }
+                    }
+                }
+            },
+            "required":
+            [
+                "path",
+                "entities"
+            ]
+        },
+        "entity":
+        {
+            "$id": "/schemas/entity",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties":
+            {
+                "schema":
+                {
+                    "type": "string",
+                    "description": "Name of the FTM entity to yield"
+                },
+                "keys":
+                {
+                    "type": "array",
+                    "items":
+                    {
+                        "type": "string"
+                    }
+                },
+                "properties":
+                {
+                    "type": "object",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/property"
+                        }
+                    }
+                }
+            }
+        },
+        "property":
+        {
+            "$id": "/schemas/property",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties":
+            {
+                "column":
+                {
+                    "type": "string",
+                    "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument"
+                },
+                "literal":
+                {
+                    "type": "string",
+                    "description": "A string literal to add to all the entities generated from current collection"
+                },
+                "regex":
+                {
+                    "type": "string",
+                    "format": "regex",
+                    "description": "regex to apply to extracted values"
+                }
+            },
+            "oneOf":
+            [
+                {
+                    "required":
+                    [
+                        "column"
+                    ]
+                },
+                {
+                    "required":
+                    [
+                        "literal"
+                    ],
+                    "not":
+                    {
+                        "required": ["regex"]
+                    }
+                }
+            ]
+        }
+    },
     "type": "object",
     "properties":
     {
@@ -67,11 +177,34 @@
             [
                 "extractor"
             ]
+        },
+        "digest":
+        {
+            "type": "object",
+            "properties":
+            {
+                "collections":
+                {
+                    "type": "object",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/collection"
+                        }
+                    }
+                }
+            },
+            "required":
+            [
+                "collections"
+            ]
         }
     },
     "required":
     [
         "id",
-        "ingest"
+        "ingest",
+        "digest"
     ]
 }

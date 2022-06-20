@@ -20,6 +20,7 @@ class MappingReaderTests(unittest.TestCase):
                 "link",
             },
         )
+        self.assertIsNotNone(mapping.ftm)
 
     def test_valid_ingest_overrides(self):
         mapping = SourceMapping(
@@ -47,7 +48,10 @@ class MappingReaderTests(unittest.TestCase):
                 ingest_overrides={"input_uri": 1337})
 
 
-    def test_invalid_mapping(self):
-        with self.assertRaises(InvalidMappingException):
-            mapping = SourceMapping(
-                Path("thebeast/tests/sample/mappings/invalid.yaml"))
+    def test_invalid_mapping_properties(self):
+        for mapping_fname in ["invalid.yaml", "invalid_properties_1.yaml", "invalid_properties_2.yaml"]:
+            with self.assertRaises(InvalidMappingException):
+                mapping = SourceMapping(
+                    Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))
+
+    # TODO: test for nested mappings

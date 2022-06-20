@@ -23,14 +23,4 @@ digest:
           properties:
             name:
               column: name
-            title:
-              literal: "Народний депутат"
-            firstName:
-              column: name
-              regex: "^\\s*[^\\s]{2,}\\s+([^\\s]{2,})\\s+"
-            lastName:
-              column: name
-              regex: "^\\s*([^\\s]{2,})\\s+"
-            fatherName:
-              column: name
-              regex: "^\\s*[^\\s]{2,}\\s+[^\\s]{2,}\\s+([^\\s]{2,})\\s*"
+              literal: "Іван Срака"
