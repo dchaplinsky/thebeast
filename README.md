@@ -13,7 +13,16 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 
 
 ## Current status
-
+- [x] Basic ingest for json/jsonlines/csv, both local and remote, compressed or not, singular or multiple files
+- [x] Tests for the basic ingest
+- [ ] Ingest from databases (mongo, postgres)
+- [ ] Tests for the databases ingest
+- [ ] Mapping reader
+- [ ] Tests for mapping reader
+- [ ] Basic digest routines
+- [ ] Tests for basic digest routines
+- [ ] Basic dump routines (stdout)
+- [ ] Tests for basic dump routines
 
 ## Running tests
 
