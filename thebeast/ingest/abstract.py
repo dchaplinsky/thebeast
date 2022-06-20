@@ -17,14 +17,14 @@ class AbstractIngest:
     more params (for example, credentials for a remote source)
     """
 
-    def __init__(self, input_uri: str, *args, **kwargs):
+    def __init__(self, input_uri: str, *args, **kwargs) -> None:
         self.input_uri = input_uri
         self.filemode = "rt"
 
     def __iter__(self):
         return self.iterator()
 
-    def sourcer(self):
+    def sourcer(self) -> Generator[str, None, None]:
         """
         Converts input_uri and other optional params to the
         generator that yields file uris.
@@ -67,9 +67,11 @@ class AbstractIngest:
         """
         raise NotImplementedError("You have to redefine it")
 
-    def iterator(self):
+    def iterator(self) -> Generator[Dict, None, None]:
         """
         Stitches all the things above together.
+
+        You might want to redefine it for database collections
         """
         for file_uri in self.sourcer():
             with self.opener(file_uri) as fp:

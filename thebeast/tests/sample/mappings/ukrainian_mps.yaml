@@ -1,0 +1,14 @@
+id: ukrainian_mps
+# ftm_ontology: # Again optional path to the directory with ftm
+
+meta:
+  comments: Optional comments on the data source
+  author: Dmytro Chaplynskyi
+  created: "2022-06-20T20:19:00.1Z"
+  modified: "2022-06-20T20:19:00.1Z"
+
+ingest:
+  extractor: thebeast.ingest.CSVDictGlobReader
+  params:
+    input_uri: thebeast/tests/sample/csv/rada*.tsv
+  

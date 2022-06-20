@@ -4,3 +4,4 @@ PyYAML==6.0
 smart-open==6.0.0
 ijson==3.1.4
 pytest
+fastjsonschema==2.15.3

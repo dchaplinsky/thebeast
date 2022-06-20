@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties":
+    {
+        "id":
+        {
+            "type": "string",
+            "description": "(Somewhat) unique id of the mapping"
+        },
+        "meta":
+        {
+            "type": "object",
+            "properties":
+            {
+                "comments":
+                {
+                    "type": "string",
+                    "description": "Optional comments"
+                },
+                "author":
+                {
+                    "type": "string",
+                    "description": "Optional reference to the mapping authors"
+                },
+                "created":
+                {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "modified":
+                {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "ftm_ontology":
+        {
+            "type": "string",
+            "description": "Optional path to the dir with a custom FTM ontology to use"
+        },
+        "ingest":
+        {
+            "type": "object",
+            "properties":
+            {
+                "extractor":
+                {
+                    "type": "string",
+                    "description": "Fully qualified python class name, which is derived from AbstractIngest",
+                    "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
+                },
+                "params":
+                {
+                    "type": "object",
+                    "properties":
+                    {
+                        "input_uri":
+                        {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "required":
+            [
+                "extractor"
+            ]
+        }
+    },
+    "required":
+    [
+        "id",
+        "ingest"
+    ]
+}
