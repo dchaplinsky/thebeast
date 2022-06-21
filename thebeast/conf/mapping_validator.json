@@ -199,12 +199,34 @@
             [
                 "collections"
             ]
+        },
+        "dump": {
+            "type": "object",
+            "properties": {
+                "exporter": {
+                    "type": "string",
+                    "description": "Fully qualified python class name, which is derived from AbstractIngest",
+                    "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
+                },
+                "params":
+                {
+                    "type": "object",
+                    "properties":
+                    {
+                        "output_uri":
+                        {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "required":
     [
         "id",
         "ingest",
-        "digest"
+        "digest",
+        "dump"
     ]
 }

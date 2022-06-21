@@ -34,3 +34,8 @@ digest:
             fatherName:
               column: name
               regex: "^\\s*[^\\s]{2,}\\s+[^\\s]{2,}\\s+([^\\s]{2,})\\s*"
+dump:
+  exporter: beast.dump.FTMJSONWriter
+  params:
+    # Just stdout it, so we can pipe it into the next tool
+    output_uri: "-"
