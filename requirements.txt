@@ -5,3 +5,4 @@ smart-open==6.0.0
 ijson==3.1.4
 pytest
 fastjsonschema==2.15.3
+Jinja2==3.1.2

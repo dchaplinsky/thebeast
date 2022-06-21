@@ -3,7 +3,7 @@ from typing import TextIO, Iterator, Union, Dict, Generator
 import smart_open  # type: ignore
 
 
-class AbstractIngest:
+class AbstractIngestor:
     """
     Abstract class for the data ingestion
 

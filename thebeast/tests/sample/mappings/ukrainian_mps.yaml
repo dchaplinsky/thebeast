@@ -8,13 +8,13 @@ meta:
   modified: "2022-06-20T20:19:00.1Z"
 
 ingest:
-  extractor: thebeast.ingest.CSVDictGlobReader
+  cls: thebeast.ingest.TSVDictGlobReader
   params:
     input_uri: thebeast/tests/sample/csv/rada*.tsv
 digest:
   collections:
     root:
-      path: "[]"
+      path: "[@]"   # Wrap each record into the list
       entities:
         mp:
           schema: Person
@@ -34,8 +34,12 @@ digest:
             fatherName:
               column: name
               regex: "^\\s*[^\\s]{2,}\\s+[^\\s]{2,}\\s+([^\\s]{2,})\\s*"
+            wikipediaUrl:
+              column: link
+            sourceUrl:
+              column: link
 dump:
-  exporter: beast.dump.FTMJSONWriter
+  cls: thebeast.dump.FTMLinesWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
     output_uri: "-"

@@ -1,6 +1,6 @@
-from typing import Iterator, Generator, Dict
+from typing import Iterator, Generator, Dict, Union
 from glob import iglob
-from csv import DictReader
+import csv
 import json
 
 try:
@@ -12,10 +12,12 @@ except ImportError:
 # Naming for mixing is simple. First part is the purpose
 # Second part is the list of pipeline elements that it redefines
 
+
 class GlobSourcerMixin:
     """
     Instead of reading just one file, load multiple files by a file mask
     """
+
     def sourcer(self):
         for fname in iglob(self.input_uri):
             yield fname
@@ -23,18 +25,50 @@ class GlobSourcerMixin:
 
 class CSVDictReaderMixin:
     """
-    Read CSV/TSV with the header
+    Read CSV with the header
     """
-    def reader(self, iterator: Iterator)-> Generator[Dict, None, None]:
-        for l in DictReader(iterator):
+
+    def __init__(
+        self,
+        input_uri: str,
+        delimiter: str = ",",
+        quotechar: str = '"',
+        lineterminator: str = "\r\n",
+        doublequote: bool = True,
+        escapechar: Union[str, None] = None,
+        *args,
+        **kwargs
+    ) -> None:
+        super().__init__(input_uri, *args, **kwargs)
+
+        self.dialect_params = {
+            "delimiter": delimiter,
+            "quotechar": quotechar,
+            "lineterminator": lineterminator,
+            "doublequote": doublequote,
+            "escapechar": escapechar,
+        }
+
+    def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
+        for l in csv.DictReader(iterator, **self.dialect_params):
             yield l
+
+
+class TSVDictReaderMixin(CSVDictReaderMixin):
+    """
+    Read TSV with the header
+    """
+
+    def __init__(self, input_uri: str, *args, **kwargs) -> None:
+        super().__init__(input_uri=input_uri, delimiter="\t", *args, **kwargs)
 
 
 class JSONLinesReaderMixin:
     """
     Read jsonlines
     """
-    def reader(self, iterator: Iterator)-> Generator[Dict, None, None]:
+
+    def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
         for l in iterator:
             yield json.loads(l)
 
@@ -43,6 +77,7 @@ class JSONReaderMixin:
     """
     Read json arrays using ijson lib. Accepts an extra option to filter the content
     """
+
     def __init__(self, input_uri: str, ijson_prefix="item", *args, **kwargs):
         """
         ijson_prefix by default is set to item, which means
@@ -55,7 +90,6 @@ class JSONReaderMixin:
         # ijson requires a binary file
         self.filemode = "rb"
 
-
-    def reader(self, iterator: Iterator)-> Generator[Dict, None, None]:
+    def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
         for l in ijson.items(iterator, self.ijson_prefix):
             yield l

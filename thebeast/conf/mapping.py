@@ -48,9 +48,9 @@ class SourceMapping:
         ingest_params: dict = mapping["ingest"].get("params", {})
         ingest_params.update(ingest_overrides)
         mapping["ingest"]["params"] = ingest_params
-        # dump_params: dict = mapping["dump"].get("params", {})
-        # dump_params.update(dump_overrides)
-        # mapping["dump"]["params"] = dump_params
+        dump_params: dict = mapping["dump"].get("params", {})
+        dump_params.update(dump_overrides)
+        mapping["dump"]["params"] = dump_params
 
         try:
             mapping = schema(mapping)
@@ -64,8 +64,16 @@ class SourceMapping:
         # ftm model is a singleton instantiated on the import, we should be careful here
         from followthemoney import model as ftm # type: ignore
         self.ftm = ftm
-        self.ingestor = import_string(mapping["ingest"]["extractor"])(**mapping["ingest"].get("params", {}))
+        self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
+        self.digestor = import_string(mapping["digest"]["cls"])(
+            mapping_config=mapping["digest"],
+            **mapping["digest"].get("params", {})
+        )
 
+        self.dumper = import_string(mapping["dump"]["cls"])(**mapping["dump"].get("params", {}))
+
+        # Just in case, the list of jmespathes to extract some jmespathes.
         # digest.collections.*.path
         # digest.collections.*.entities[].*.keys[][]
         # digest.collections.*.entities[].*.properties.*.column[][]
+

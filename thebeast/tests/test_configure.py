@@ -53,5 +53,3 @@ class MappingReaderTests(unittest.TestCase):
             with self.assertRaises(InvalidMappingException):
                 mapping = SourceMapping(
                     Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))
-
-    # TODO: test for nested mappings

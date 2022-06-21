@@ -2,6 +2,13 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$defs":
     {
+        "fqcn":
+        {
+            "$id": "/definitions/fqcn",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "string",
+            "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
+        },
         "collection":
         {
             "$id": "/schemas/collection",
@@ -50,7 +57,9 @@
                     "items":
                     {
                         "type": "string"
-                    }
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
                 },
                 "properties":
                 {
@@ -63,7 +72,13 @@
                         }
                     }
                 }
-            }
+            },
+            "required":
+            [
+                "schema",
+                "keys",
+                "properties"
+            ]
         },
         "property":
         {
@@ -76,6 +91,11 @@
                 {
                     "type": "string",
                     "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument"
+                },
+                "template":
+                {
+                    "type": "string",
+                    "description": "Jinja2 template which can resolve variables through the jmespath"
                 },
                 "literal":
                 {
@@ -100,11 +120,20 @@
                 {
                     "required":
                     [
+                        "template"
+                    ]
+                },
+                {
+                    "required":
+                    [
                         "literal"
                     ],
                     "not":
                     {
-                        "required": ["regex"]
+                        "required":
+                        [
+                            "regex"
+                        ]
                     }
                 }
             ]
@@ -155,11 +184,15 @@
             "type": "object",
             "properties":
             {
-                "extractor":
+                "cls":
                 {
-                    "type": "string",
-                    "description": "Fully qualified python class name, which is derived from AbstractIngest",
-                    "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
+                    "description": "Fully qualified python class name, which is derived from AbstractIngestor",
+                    "allOf":
+                    [
+                        {
+                            "$ref": "/definitions/fqcn"
+                        }
+                    ]
                 },
                 "params":
                 {
@@ -175,7 +208,7 @@
             },
             "required":
             [
-                "extractor"
+                "cls"
             ]
         },
         "digest":
@@ -193,6 +226,17 @@
                             "$ref": "/schemas/collection"
                         }
                     }
+                },
+                "cls":
+                {
+                    "description": "Fully qualified python class name for the digestor",
+                    "default": "thebeast.digest.SingleThreadedDigestor",
+                    "allOf":
+                    [
+                        {
+                            "$ref": "/definitions/fqcn"
+                        }
+                    ]
                 }
             },
             "required":
@@ -200,13 +244,20 @@
                 "collections"
             ]
         },
-        "dump": {
+        "dump":
+        {
             "type": "object",
-            "properties": {
-                "exporter": {
-                    "type": "string",
-                    "description": "Fully qualified python class name, which is derived from AbstractIngest",
-                    "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
+            "properties":
+            {
+                "cls":
+                {
+                    "description": "Fully qualified python class name dumper, which is derived from []",
+                    "allOf":
+                    [
+                        {
+                            "$ref": "/definitions/fqcn"
+                        }
+                    ]
                 },
                 "params":
                 {

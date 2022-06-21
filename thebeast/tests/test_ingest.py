@@ -1,5 +1,5 @@
 import unittest
-from thebeast.ingest import CSVDictReader, CSVDictGlobReader, JSONLinesGlobReader, JSONGlobReader
+from thebeast.ingest import CSVDictReader, CSVDictGlobReader, TSVDictGlobReader, JSONLinesGlobReader, JSONGlobReader
 
 
 class CSVDictReaderTests(unittest.TestCase):
@@ -34,7 +34,7 @@ class CSVDictReaderTests(unittest.TestCase):
         )
 
     def test_glob_csv_reader(self):
-        ingestor = CSVDictGlobReader(input_uri="thebeast/tests/sample/csv/rada*.tsv")
+        ingestor = TSVDictGlobReader(input_uri="thebeast/tests/sample/csv/rada*.tsv")
 
         items = list(ingestor)
         self.assertEqual(len(items), 983)
