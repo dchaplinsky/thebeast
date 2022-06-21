@@ -1,4 +1,4 @@
-followthemoney==2.9.6
+followthemoney
 jmespath
 PyYAML==6.0
 smart-open==6.0.0
