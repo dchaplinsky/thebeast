@@ -16,7 +16,7 @@ digest:
     root:
       path: "[@]"   # Wrap each record into the list
       entities:
-        mp:
+        ukrainian_mp_person:  # Also serves as a key_prefix for id
           schema: Person
           keys:
             - name
@@ -38,6 +38,43 @@ digest:
               column: link
             sourceUrl:
               column: link
+  constant_entities:    # Entities that should be generated not from the data but from the nature of data source
+    verkhovna_rada:
+      schema: PublicBody
+      keys:
+        - taxNumber
+      properties:
+        name:
+          literal: Верховна Рада України
+        jurisdiction:
+          literal: Ukraine
+        mainCountry:
+          literal: Ukraine
+        taxNumber:
+          literal: 20064120
+        country:
+          literal: Ukraine
+        wikipediaUrl:
+          literal: https://uk.wikipedia.org/wiki/Верховна_Рада_України
+        website:
+          literal: https://www.rada.gov.ua
+        phone:
+          literal: 044 255 4246
+        incorporationDate:
+          literal: 1990
+    verkhovna_rada_address:
+      schema: Address
+      keys:
+        - foobar
+      properties:
+        full:
+          literal: 01008, м. Київ, вул. М. Грушевського, 5
+        street:
+          literal: вул. М. Грушевського, 5
+        postalCode:
+          literal: 01008
+        country:
+          literal: Ukraine
 dump:
   cls: thebeast.dump.FTMLinesWriter
   params:

@@ -80,6 +80,47 @@
                 "properties"
             ]
         },
+        "constant_entity":
+        {
+            "$id": "/schemas/constant_entity",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties":
+            {
+                "schema":
+                {
+                    "type": "string",
+                    "description": "Name of the FTM entity to yield"
+                },
+                "keys":
+                {
+                    "type": "array",
+                    "items":
+                    {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+                "properties":
+                {
+                    "type": "object",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/constant_property"
+                        }
+                    }
+                }
+            },
+            "required":
+            [
+                "schema",
+                "keys",
+                "properties"
+            ]
+        },
         "property":
         {
             "$id": "/schemas/property",
@@ -99,8 +140,8 @@
                 },
                 "literal":
                 {
-                    "type": "string",
-                    "description": "A string literal to add to all the entities generated from current collection"
+                    "type": ["string", "number"],
+                    "description": "A string literal or number to add to all the entities generated from current collection"
                 },
                 "regex":
                 {
@@ -137,6 +178,25 @@
                     }
                 }
             ]
+        },
+        "constant_property":
+        {
+            "$id": "/schemas/constant_property",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties":
+            {
+                "literal":
+                {
+                    "type": ["string", "number"],
+                    "description": "A string literal or number to add to all the entities generated from current collection"
+                }
+            },
+            "required":
+            [
+                "literal"
+            ]
+
         }
     },
     "type": "object",
@@ -237,6 +297,17 @@
                             "$ref": "/definitions/fqcn"
                         }
                     ]
+                },
+                "constant_entities": {
+                    "type": "object",
+                    "description": "Entities that should be generated for the file, but not from the data",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/entity"
+                        }
+                    }
                 }
             },
             "required":

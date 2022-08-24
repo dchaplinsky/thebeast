@@ -23,7 +23,7 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Tests for mapping reader
 - [x] Basic digest routines
 - [x] Tests for basic digest routines
-- [ ] Advanced ingest routines: constant entities (think Country or Organization)
+- [x] Advanced ingest routines: constant entities (think Country or Organization)
 - [ ] Advanced ingest routines: backreferencing (think talking from subcollections to parent items)
 - [ ] Advanced ingest routines: nested collections (think parsing involved JSON)
 - [ ] Advanced ingest routines: templates (think combining fields when setting the entity field)

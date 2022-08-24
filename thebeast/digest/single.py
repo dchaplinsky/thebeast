@@ -69,6 +69,9 @@ def main_cog(data: Union[List, Dict], config: Dict) -> Generator[Schema, None, N
             for entity in make_entities(record, collection_config["entities"]):
                 yield entity
 
+    for entity in make_entities({}, config.get("constant_entities", {})):
+        yield entity
+
 
 class SingleThreadedDigestor:
     """

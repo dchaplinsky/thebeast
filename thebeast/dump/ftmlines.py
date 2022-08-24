@@ -15,7 +15,7 @@ class FTMLinesWriter:
         if output_uri == "-":
             self.output = sys.stdout
         else:
-            self.output = smart_open.open(output_uri)
+            self.output = smart_open.open(output_uri, "w")
 
     def write_entities(self, entities: Iterable[Schema], flush: bool=True) -> None:
         for entity in entities:

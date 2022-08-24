@@ -20,12 +20,24 @@ class MappingDigestTests(unittest.TestCase):
             }
         ]
 
-        for entity in mapping.digestor.extract(items):
-            self.assertIsNotNone(entity.id)
-            self.assertIn("Ющенко Віктор Андрійович", entity.properties["name"])
-            self.assertIn("Віктор", entity.properties["firstName"])
-            self.assertIn("Ющенко", entity.properties["lastName"])
-            self.assertIn("Андрійович", entity.properties["fatherName"])
-            self.assertEqual("Person", entity.schema.name)
-            self.assertIn("wikipedia", entity.properties["sourceUrl"][0])
-            self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
+        entities = list(mapping.digestor.extract(items))
+        self.assertEqual(len(entities), 3)
+        for entity in entities:
+            if entity.schema.name == "Person":
+                self.assertIsNotNone(entity.id)
+                self.assertIn("Ющенко Віктор Андрійович", entity.properties["name"])
+                self.assertIn("Віктор", entity.properties["firstName"])
+                self.assertIn("Ющенко", entity.properties["lastName"])
+                self.assertIn("Андрійович", entity.properties["fatherName"])
+                self.assertIn("wikipedia", entity.properties["sourceUrl"][0])
+                self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
+
+            if entity.schema.name == "LegalBody":
+                self.assertIsNotNone(entity.id)
+                self.assertIn("Верховна Рада України", entity.properties["name"])
+                self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
+
+            if entity.schema.name == "Address":
+                self.assertIsNotNone(entity.id)
+                self.assertIn("01008", entity.properties["postalCode"])
+                self.assertIn("вул. М. Грушевського, 5", entity.properties["street"])

@@ -1,6 +1,11 @@
 from pathlib import Path
 from thebeast.conf.mapping import SourceMapping
+from tqdm import tqdm
+import sys
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
-    mapping.dumper.write_entities(mapping.digestor.extract(mapping.ingestor))
+
+    mapping.dumper.write_entities(
+        tqdm(mapping.digestor.extract(tqdm(mapping.ingestor, desc="Records in")), desc="Entities outs")
+    )
