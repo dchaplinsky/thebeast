@@ -65,7 +65,8 @@ digest:
     verkhovna_rada_address:
       schema: Address
       keys:
-        - foobar
+        - country
+        - full
       properties:
         full:
           literal: 01008, м. Київ, вул. М. Грушевського, 5

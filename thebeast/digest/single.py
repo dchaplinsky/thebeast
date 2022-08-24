@@ -12,17 +12,8 @@ from followthemoney import model as ftm  # type: ignore
 
 def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator[Schema, None, None]:
     for entity_name, entity_config in entities_config.items():
-        entity = ftm.make_entity(entity_config["schema"])
-
-        key_values = [entity_name]
-        for key in entity_config["keys"]:
-            key_chunk = jmespath.search(key, record) or []
-            if isinstance(key_chunk, list):
-                key_values += key_chunk
-            else:
-                key_values.append(key_chunk)
-
-        entity.make_id(*key_values)
+        entity = ftm.make_entity(entity_config["schema"], key_prefix=entity_name)
+        key_values: List[str] = []
 
         for property_name, property_config in entity_config["properties"].items():
             if "literal" in property_config:
@@ -56,6 +47,11 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
             elif "template" in property_config:
                 # TODO: support for templates
                 pass
+
+        for key in entity_config["keys"]:
+            key_values += entity.get(key)
+
+        entity.make_id(*key_values)
 
         yield entity
 
