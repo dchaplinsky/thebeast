@@ -20,42 +20,50 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
         entity = ftm.make_entity(entity_config["schema"], key_prefix=entity_name)
         key_values: List[str] = []
 
-        for property_name, property_config in entity_config["properties"].items():
-            if "literal" in property_config:
-                entity.set(property_name, property_config["literal"])
-            elif "column" in property_config:
-                property_values = jmespath.search(property_config["column"], record) or []
-                
-                if "regex" in property_config:
-                    extracted_property_values: List[Any] = []
+        for property_name, property_configs in entity_config["properties"].items():
+            if not isinstance(property_configs, list):
+                property_configs = [property_configs]
+            for property_config in property_configs:
+                if "literal" in property_config:
+                    entity.add(property_name, property_config["literal"])
+                elif "column" in property_config:
+                    property_values = jmespath.search(property_config["column"], record) or []
+                    
+                    if "regex" in property_config:
+                        extracted_property_values: List[Any] = []
 
-                    if not isinstance(property_values, list):
-                        property_values = [property_values]
+                        if not isinstance(property_values, list):
+                            property_values = [property_values]
 
-                    for property_value in property_values:
-                        if not property_value:
-                            continue
+                        for property_value in property_values:
+                            if not property_value:
+                                continue
 
-                        m = re.search(property_config["regex"], str(property_value))
-                        if m:
-                            if m.groups():
-                                # We support both, groups
-                                extracted_property_values.append(m.group(1))
-                            else:
-                                # And full match
-                                extracted_property_values.append(m.group(0))
+                            m = re.search(property_config["regex"], str(property_value))
+                            if m:
+                                if m.groups():
+                                    # We support both, groups
+                                    extracted_property_values.append(m.group(1))
+                                else:
+                                    # And full match
+                                    extracted_property_values.append(m.group(0))
 
-                    entity.set(property_name, extracted_property_values)
-                else:
-                    entity.set(property_name, property_values)
+                        entity.add(property_name, extracted_property_values)
+                    else:
+                        entity.add(property_name, property_values)
 
-        for property_name, property_config in entity_config["properties"].items():
-            if "template" in property_config:
-                template = jinja_env.from_string(property_config["template"])
-                entity.set(property_name, template.render(
-                    entity=entity.properties,
-                    record=record
-                ))
+        # Templates are resolved after all other extractors
+        for property_name, property_configs in entity_config["properties"].items():
+            if not isinstance(property_configs, list):
+                property_configs = [property_configs]
+
+            for property_config in property_configs:
+                if "template" in property_config:
+                    template = jinja_env.from_string(property_config["template"])
+                    entity.add(property_name, template.render(
+                        entity=entity.properties,
+                        record=record
+                    ))
 
         for key in entity_config["keys"]:
             key_values += entity.get(key)

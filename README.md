@@ -27,7 +27,7 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [ ] Advanced ingest routines: backreferencing (think talking from subcollections to parent items)
 - [ ] Advanced ingest routines: nested collections (think parsing involved JSON)
 - [x] Advanced ingest routines: templates (think combining fields when setting the entity field)
-- [ ] Advanced ingest routines: multiple values for the entity property
+- [x] Advanced ingest routines: multiple values for the entity property
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI

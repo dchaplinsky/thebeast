@@ -31,11 +31,13 @@ class MappingDigestTests(unittest.TestCase):
                 self.assertIn("Андрійович", entity.properties["fatherName"])
                 self.assertIn("wikipedia", entity.properties["sourceUrl"][0])
                 self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
-                self.assertIn("Віктор Андрійович Ющенко", entity.properties["alias"][0])
+                self.assertIn("Віктор Андрійович Ющенко", entity.properties["alias"])
+                self.assertIn("Віктор Ющенко", entity.properties["alias"])
 
             if entity.schema.name == "LegalBody":
                 self.assertIsNotNone(entity.id)
                 self.assertIn("Верховна Рада України", entity.properties["name"])
+                self.assertIn("ВРУ", entity.properties["name"])
                 self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
 
             if entity.schema.name == "Address":
