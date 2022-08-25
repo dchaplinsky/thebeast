@@ -26,7 +26,8 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Advanced ingest routines: constant entities (think Country or Organization)
 - [ ] Advanced ingest routines: backreferencing (think talking from subcollections to parent items)
 - [ ] Advanced ingest routines: nested collections (think parsing involved JSON)
-- [ ] Advanced ingest routines: templates (think combining fields when setting the entity field)
+- [x] Advanced ingest routines: templates (think combining fields when setting the entity field)
+- [ ] Advanced ingest routines: multiple values for the entity property
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI

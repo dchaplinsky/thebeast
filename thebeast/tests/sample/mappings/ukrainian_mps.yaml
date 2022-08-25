@@ -38,6 +38,8 @@ digest:
               column: link
             sourceUrl:
               column: link
+            alias:
+              template: "{{ entity.firstName[0] }} {{ entity.fatherName[0] }} {{ entity.lastName[0] }}"
   constant_entities:    # Entities that should be generated not from the data but from the nature of data source
     verkhovna_rada:
       schema: PublicBody

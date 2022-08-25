@@ -3,11 +3,16 @@ from typing import Union, List, Dict, Generator, Iterable, Any
 import jmespath  # type: ignore
 import re
 from thebeast.conf import SourceMapping
+from jinja2 import Environment, BaseLoader, select_autoescape
+
 from followthemoney.schema import Schema  # type: ignore
 
 # We are utilizing here the fact that Model is a singletone and set up 
 # in the thebeast.conf.mapping
 from followthemoney import model as ftm  # type: ignore
+
+
+jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
 
 
 def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator[Schema, None, None]:
@@ -44,9 +49,13 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
                 else:
                     entity.set(property_name, property_values)
 
-            elif "template" in property_config:
-                # TODO: support for templates
-                pass
+        for property_name, property_config in entity_config["properties"].items():
+            if "template" in property_config:
+                template = jinja_env.from_string(property_config["template"])
+                entity.set(property_name, template.render(
+                    entity=entity.properties,
+                    record=record
+                ))
 
         for key in entity_config["keys"]:
             key_values += entity.get(key)
