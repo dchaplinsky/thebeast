@@ -1,0 +1,84 @@
+id: ukrainian_mps
+# ftm_ontology: # Again optional path to the directory with ftm
+
+meta:
+  comments: Optional comments on the data source
+  author: Dmytro Chaplynskyi
+  created: "2022-06-20T20:19:00.1Z"
+  modified: "2022-06-20T20:19:00.1Z"
+
+ingest:
+  cls: thebeast.ingest.TSVDictGlobReader
+  params:
+    input_uri: thebeast/tests/sample/csv/rada*.tsv
+    input_encoding: "utf-8"
+digest:
+  collections:
+    root:
+      path: "[@]"   # Wrap each record into the list
+      entities:
+        ukrainian_mp_person:  # Also serves as a key_prefix for id
+          schema: Person
+          keys:
+            - name
+          properties:
+            name:
+              column: name
+            title:
+              literal: "Народний депутат"
+            firstName:
+              column: name
+              regex: "^\\s*[^\\s]{2,}\\s+([^\\s]{2,})\\s+"
+            lastName:
+              column: name
+              regex: "^\\s*([^\\s]{2,})\\s+"
+            fatherName:
+              column: name
+              regex: "^\\s*[^\\s]{2,}\\s+[^\\s]{2,}\\s+([^\\s]{2,})\\s*"
+            wikipediaUrl:
+              column: link
+            sourceUrl:
+              column: link
+  constant_entities:    # Entities that should be generated not from the data but from the nature of data source
+    verkhovna_rada:
+      schema: PublicBody
+      keys:
+        - taxNumber
+      properties:
+        name:
+          literal: Верховна Рада України
+        jurisdiction:
+          literal: Ukraine
+        mainCountry:
+          literal: Ukraine
+        taxNumber:
+          literal: 20064120
+        country:
+          literal: Ukraine
+        wikipediaUrl:
+          literal: https://uk.wikipedia.org/wiki/Верховна_Рада_України
+        website:
+          literal: https://www.rada.gov.ua
+        phone:
+          literal: 044 255 4246
+        incorporationDate:
+          literal: 1990
+    verkhovna_rada_address:
+      schema: Address
+      keys:
+        - country
+        - full
+      properties:
+        full:
+          literal: 01008, м. Київ, вул. М. Грушевського, 5
+        street:
+          literal: вул. М. Грушевського, 5
+        postalCode:
+          literal: 01008
+        country:
+          literal: Ukraine
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    # Just stdout it, so we can pipe it into the next tool
+    output_uri: "-"
