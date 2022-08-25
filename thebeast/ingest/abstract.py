@@ -17,7 +17,7 @@ class AbstractIngestor:
     more params (for example, credentials for a remote source)
     """
 
-    def __init__(self, input_uri: str, input_encoding: str, *args, **kwargs) -> None:
+    def __init__(self, input_uri: str, input_encoding: str = "utf-8", *args, **kwargs) -> None:
         self.input_uri = input_uri
         self.input_encoding = input_encoding
         self.filemode = "rt"
