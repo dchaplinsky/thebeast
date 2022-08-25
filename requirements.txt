@@ -7,3 +7,4 @@ pytest
 fastjsonschema==2.15.3
 Jinja2==3.1.2
 tqdm==4.64.0
+regex==2022.8.17

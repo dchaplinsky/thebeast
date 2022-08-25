@@ -152,6 +152,12 @@
                     "type": "string",
                     "format": "regex",
                     "description": "regex to apply to extracted values"
+                },
+                "split_regex":
+                {
+                    "type": "string",
+                    "format": "regex",
+                    "description": "regex to split extracted values with"
                 }
             },
             "oneOf":
@@ -166,7 +172,15 @@
                     "required":
                     [
                         "template"
-                    ]
+                    ],
+                    "not":
+                    {
+                        "required":
+                        [
+                            "regex",
+                            "split_regex"
+                        ]
+                    }
                 },
                 {
                     "required":
@@ -177,7 +191,8 @@
                     {
                         "required":
                         [
-                            "regex"
+                            "regex",
+                            "split_regex"
                         ]
                     }
                 }

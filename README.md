@@ -28,6 +28,9 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [ ] Advanced ingest routines: nested collections (think parsing involved JSON)
 - [x] Advanced ingest routines: templates (think combining fields when setting the entity field)
 - [x] Advanced ingest routines: multiple values for the entity property
+- [x] Advanced ingest routines: split string into multiple values
+- [ ] Advanced ingest routines: full entity validation with jsonschema and red/green sorting
+- [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI

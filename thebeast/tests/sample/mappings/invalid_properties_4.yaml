@@ -22,5 +22,5 @@ digest:
             - name
           properties:
             name:
-              regex: name
-              literal: "Іван Срака"
+              regex_split: \s+
+              template: "Іван Срака"

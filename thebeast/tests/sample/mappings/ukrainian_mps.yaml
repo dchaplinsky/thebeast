@@ -27,20 +27,25 @@ digest:
               literal: "Народний депутат"
             firstName:
               column: name
-              regex: "^\\s*[^\\s]{2,}\\s+([^\\s]{2,})\\s+"
+              regex: ^\s*[^\s]{2,}\s+([^\s]{2,})\s*
             lastName:
               column: name
-              regex: "^\\s*([^\\s]{2,})\\s+"
+              regex: ^\s*([^\s]{2,})\s*
             fatherName:
               column: name
-              regex: "^\\s*[^\\s]{2,}\\s+[^\\s]{2,}\\s+([^\\s]{2,})\\s*"
+              regex: ^\s*[^\s]{2,}\s+[^\s]{2,}\s+([^\s]{2,})\s*
             wikipediaUrl:
               column: link
             sourceUrl:
               column: link
+            keywords:
+              column: name
+              regex_split: \s+
+            political:
+              column: party
             alias:
               -
-                template: "{{ entity.firstName[0] }} {{ entity.fatherName[0] }} {{ entity.lastName[0] }}"
+                template: "{{ entity.firstName[0] }} {% if entity.fatherName %}{{ entity.fatherName[0] }} {% endif %}{{ entity.lastName[0] }}"
               -
                 template: "{{ entity.firstName[0] }} {{ entity.lastName[0] }}"
   constant_entities:    # Entities that should be generated not from the data but from the nature of data source
