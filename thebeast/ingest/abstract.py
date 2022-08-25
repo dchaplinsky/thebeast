@@ -17,8 +17,9 @@ class AbstractIngestor:
     more params (for example, credentials for a remote source)
     """
 
-    def __init__(self, input_uri: str, *args, **kwargs) -> None:
+    def __init__(self, input_uri: str, input_encoding: str = "utf-8", *args, **kwargs) -> None:
         self.input_uri = input_uri
+        self.input_encoding = input_encoding
         self.filemode = "rt"
 
     def __iter__(self):
@@ -55,14 +56,14 @@ class AbstractIngestor:
         a cursor in mongodb or postgres. In this case reader will be very lean,
         basically converting each item into the dict
         """
-        return smart_open.open(file_uri, self.filemode)
+        return smart_open.open(uri=file_uri, mode=self.filemode, encoding=self.input_encoding)
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
         """
         Iterates over the opened file handle (or any other iterator,
         for example a queryset) and yields dicts from it's content
 
-        You definitelly want to redefine this to turn the file content
+        You definitely want to redefine this to turn the file content
         into the meaningful records (for example to open csv, json, xml etc)
         """
         raise NotImplementedError("You have to redefine it")
