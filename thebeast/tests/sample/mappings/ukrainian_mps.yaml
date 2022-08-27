@@ -24,6 +24,8 @@ digest:
           properties:
             name:
               column: name
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+              augmentor: thebeast.contrib.transformers.names_transliteration
             title:
               literal: "Народний депутат"
             firstName:
@@ -59,8 +61,10 @@ digest:
             startDate:
               # TODO: dates parsing
               column: date_from
+              transformer: thebeast.contrib.transformers.anydate_parser
             endDate:
               column: date_to
+              transformer: thebeast.contrib.transformers.anydate_parser
             organization:
               entity: verkhovna_rada
             member:

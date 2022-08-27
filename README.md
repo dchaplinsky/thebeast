@@ -31,7 +31,7 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Advanced ingest routines: split string into multiple values
 - [ ] Advanced ingest routines: full entity validation with jsonschema and red/green sorting
 - [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
-- [ ] Advanced ingest routines: augmentations
+- [X] Advanced ingest routines: augmentations/transformations
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI

@@ -276,6 +276,16 @@
                     "format": "regex",
                     "type": "string"
                 },
+                "transformer":
+                {
+                    "description": "Fully qualified python function that *applies* a transformation to the list of string values",
+                    "$ref": "/definitions/fqcn"
+                },
+                "augmentor":
+                {
+                    "description": "Fully qualified python function that *appends* a transformation to the list of string values",
+                    "$ref": "/definitions/fqcn"
+                },
                 "template":
                 {
                     "description": "Jinja2 template which can resolve variables through the jmespath",

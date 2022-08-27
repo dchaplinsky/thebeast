@@ -10,7 +10,9 @@ from followthemoney.schema import Schema  # type: ignore
 # in the thebeast.conf.mapping
 from followthemoney import model as ftm  # type: ignore
 from followthemoney.types import registry  # type: ignore
-from followthemoney.util import make_entity_id
+from followthemoney.util import make_entity_id  # type: ignore
+
+from thebeast.conf.utils import import_string
 
 
 # TODO: expose jmespath to templates as a filter?
@@ -117,9 +119,23 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
                                     # And full match
                                     extracted_property_values.append(m.group(0))
 
-                        entity.add(property_name, extracted_property_values)
-                    else:
-                        entity.add(property_name, property_values)
+                        property_values = extracted_property_values
+
+                    # TODO: move after templates rendering
+                    # `transformer` is a python function which (currently) accepts only a list of values
+                    # applies some transform to it and returns the modified list. That list will be
+                    # added to the entity instead of the original values
+                    if "transformer" in property_config:
+                        func = import_string(property_config["transformer"])
+                        property_values = func(property_values)
+
+                    # `augmentor` is a similar concept to the `transformer`, but modified list is added
+                    # to the original values
+                    if "augmentor" in property_config:
+                        func = import_string(property_config["augmentor"])
+                        property_values += func(property_values)
+
+                    entity.add(property_name, property_values)
 
         # Templates are resolved after all other extractors
         for property_name, property_configs in entity_config["properties"].items():

@@ -62,6 +62,8 @@ class MappingDigestTests(unittest.TestCase):
 
         entity = entities_by_schema["Membership"][0]
         self.assertIsNotNone(entity.id)
+        self.assertIn("2002-05-14", entity.properties["startDate"])
+        self.assertIn("2005-01-23", entity.properties["endDate"])
         self.assertIn(entities_by_schema["PublicBody"][0].id, entity.properties["organization"])
         self.assertIn(entities_by_schema["Person"][0].id, entity.properties["member"])
 
@@ -106,5 +108,39 @@ class MappingDigestTests(unittest.TestCase):
 
         self.assertIn(entities_by_schema["Person"][0].id, entities_by_schema["Membership"][0].properties["member"])
         self.assertIn(entities_by_schema["Person"][0].id, entities_by_schema["Membership"][1].properties["member"])
-        self.assertIn(entities_by_schema["PublicBody"][0].id, entities_by_schema["Membership"][0].properties["organization"])
-        self.assertIn(entities_by_schema["PublicBody"][0].id, entities_by_schema["Membership"][1].properties["organization"])
+        self.assertIn(
+            entities_by_schema["PublicBody"][0].id, entities_by_schema["Membership"][0].properties["organization"]
+        )
+        self.assertIn(
+            entities_by_schema["PublicBody"][0].id, entities_by_schema["Membership"][1].properties["organization"]
+        )
+
+    def test_transformation_and_augmentation(self):
+        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
+
+        # There are two different records about the same person so we test now
+        # if their surrogate keys are the same
+        items = [
+            {
+                "name": "Джeмiлєв Мyстaфa",  # Mixed character set
+                "party": "Блок Віктора Ющенка «Наша Україна»",
+                "district": "Багатомандатний округ",
+                "date_from": "14.05.2002",
+                "date_to": "25.05.2006",
+                "link": "https://uk.wikipedia.org/wiki/%D0%94%D0%B6%D0%B5%D0%BC%D1%96%D0%BB%D1%94"
+                "%D0%B2_%D0%9C%D1%83%D1%81%D1%82%D0%B0%D1%84%D0%B0",
+            }
+        ]
+
+        entities = list(mapping.digestor.extract(items))
+        self.assertEqual(len(entities), 4)
+
+        entities_by_schema = defaultdict(list)
+
+        for entity in entities:
+            entities_by_schema[entity.schema.name].append(entity)
+
+        entity = entities_by_schema["Person"][0]
+        self.assertIn("Джемілєв Мустафа", entity.properties["name"])
+        self.assertIn("Dzhemiliev Mustafa", entity.properties["name"])
+        self.assertNotIn("Джeмiлєв Мyстaфa", entity.properties["name"])
