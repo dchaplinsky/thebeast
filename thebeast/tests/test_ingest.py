@@ -1,5 +1,5 @@
 import unittest
-from thebeast.ingest import CSVDictReader, CSVDictGlobReader, TSVDictGlobReader, JSONLinesGlobReader, JSONGlobReader
+from thebeast.ingest import CSVDictReader, TSVDictGlobReader, JSONLinesGlobReader, JSONGlobReader
 
 
 class CSVDictReaderTests(unittest.TestCase):

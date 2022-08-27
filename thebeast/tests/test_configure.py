@@ -45,7 +45,7 @@ class MappingReaderTests(unittest.TestCase):
 
     def test_invalid_overrides(self):
         with self.assertRaises(InvalidOverridesException):
-            mapping = SourceMapping(
+            SourceMapping(
                 Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"), ingest_overrides={"input_uri": 1337}
             )
 
@@ -58,4 +58,4 @@ class MappingReaderTests(unittest.TestCase):
             "invalid_properties_4.yaml",
         ]:
             with self.assertRaises(InvalidMappingException):
-                mapping = SourceMapping(Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))
+                SourceMapping(Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))

@@ -17,7 +17,7 @@ class CaptureStdout:
 
 class MappingDumpTests(unittest.TestCase):
     def test_empty_dump(self):
-        with CaptureStdout() as std:
+        with CaptureStdout():
             dumper = FTMLinesWriter("-")
             dumper.write_entities([], flush=True)
 
@@ -25,7 +25,7 @@ class MappingDumpTests(unittest.TestCase):
             self.assertEqual(sys.stdout.read(), "")
 
     def test_empty_entity_dump(self):
-        with CaptureStdout() as std:
+        with CaptureStdout():
             dumper = FTMLinesWriter("-")
             entity = ftm.make_entity("Person")
             dumper.write_entities([entity])
@@ -34,7 +34,7 @@ class MappingDumpTests(unittest.TestCase):
             self.assertEqual(json.loads(sys.stdout.read()), {"id": None, "properties": {}, "schema": "Person"})
 
     def test_full_entity_dump(self):
-        with CaptureStdout() as std:
+        with CaptureStdout():
             dumper = FTMLinesWriter("-")
             entity = ftm.make_entity("Person")
             entity.set("name", "")
@@ -67,4 +67,3 @@ class MappingDumpTests(unittest.TestCase):
             )
 
     # TODO: tests with real files
-

@@ -50,8 +50,8 @@ class CSVDictReaderMixin:
         }
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
-        for l in csv.DictReader(iterator, **self.dialect_params):
-            yield l
+        for line in csv.DictReader(iterator, **self.dialect_params):
+            yield line
 
 
 class TSVDictReaderMixin(CSVDictReaderMixin):
@@ -69,8 +69,8 @@ class JSONLinesReaderMixin:
     """
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
-        for l in iterator:
-            yield json.loads(l)
+        for line in iterator:
+            yield json.loads(line)
 
 
 class JSONReaderMixin:
@@ -91,5 +91,5 @@ class JSONReaderMixin:
         self.filemode = "rb"
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
-        for l in ijson.items(iterator, self.ijson_prefix):
-            yield l
+        for line in ijson.items(iterator, self.ijson_prefix):
+            yield line

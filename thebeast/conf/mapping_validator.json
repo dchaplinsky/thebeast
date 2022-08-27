@@ -1,121 +1,75 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema#",
     "$defs":
     {
-        "fqcn":
-        {
-            "$id": "/definitions/fqcn",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "string",
-            "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$"
-        },
         "collection":
         {
             "$id": "/schemas/collection",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
             "properties":
             {
-                "path":
-                {
-                    "type": "string",
-                    "description": "jmespath to apply to the current level of the document to retrieve a collection"
-                },
                 "entities":
                 {
-                    "type": "object",
                     "patternProperties":
                     {
                         "":
                         {
                             "$ref": "/schemas/entity"
                         }
-                    }
+                    },
+                    "type": "object"
+                },
+                "path":
+                {
+                    "description": "jmespath to apply to the current level of the document to retrieve a collection",
+                    "type": "string"
                 }
             },
             "required":
             [
                 "path",
                 "entities"
-            ]
-        },
-        "entity":
-        {
-            "$id": "/schemas/entity",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
-            "properties":
-            {
-                "schema":
-                {
-                    "type": "string",
-                    "description": "Name of the FTM entity to yield"
-                },
-                "keys":
-                {
-                    "type": "array",
-                    "items":
-                    {
-                        "type": "string"
-                    },
-                    "minItems": 1,
-                    "uniqueItems": true
-                },
-                "properties":
-                {
-                    "type": "object",
-                    "patternProperties":
-                    {
-                        "": {
-                            "anyOf":[
-                               { "$ref": "/schemas/property" },
-                                { "$ref": "/schemas/properties" }
-                            ]
-                        }
-                    }
-                }
-            },
-            "required":
-            [
-                "schema",
-                "keys",
-                "properties"
-            ]
+            ],
+            "type": "object"
         },
         "constant_entity":
         {
             "$id": "/schemas/constant_entity",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
             "properties":
             {
-                "schema":
-                {
-                    "type": "string",
-                    "description": "Name of the FTM entity to yield"
-                },
                 "keys":
                 {
-                    "type": "array",
                     "items":
                     {
                         "type": "string"
                     },
                     "minItems": 1,
+                    "type": "array",
                     "uniqueItems": true
                 },
                 "properties":
                 {
-                    "type": "object",
                     "patternProperties":
                     {
-                        "": {
-                            "anyOf":[
-                               { "$ref": "/schemas/constant_property" },
-                                { "$ref": "/schemas/constant_properties" }
+                        "":
+                        {
+                            "anyOf":
+                            [
+                                {
+                                    "$ref": "/schemas/constant_property"
+                                },
+                                {
+                                    "$ref": "/schemas/constant_properties"
+                                }
                             ]
                         }
-                    }
+                    },
+                    "type": "object"
+                },
+                "schema":
+                {
+                    "description": "Name of the FTM entity to yield",
+                    "type": "string"
                 }
             },
             "required":
@@ -123,43 +77,129 @@
                 "schema",
                 "keys",
                 "properties"
-            ]
+            ],
+            "type": "object"
+        },
+        "constant_properties":
+        {
+            "$id": "/schemas/constant_properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "items":
+            {
+                "$ref": "/schemas/constant_property"
+            },
+            "minItems": 1,
+            "type": "array"
+        },
+        "constant_property":
+        {
+            "$id": "/schemas/constant_property",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "oneOf":
+            [
+                {
+                    "required":
+                    [
+                        "literal"
+                    ]
+                },
+                {
+                    "required":
+                    [
+                        "entity"
+                    ]
+                }
+            ],
+            "properties":
+            {
+                "entity":
+                {
+                    "description": "A name of the entity in the current context to link to",
+                    "type": "string"
+                },
+                "literal":
+                {
+                    "description": "A string literal or number to add to all the entities generated from current collection",
+                    "type":
+                    [
+                        "string",
+                        "number"
+                    ]
+                }
+            },
+            "type": "object"
+        },
+        "entity":
+        {
+            "$id": "/schemas/entity",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "properties":
+            {
+                "keys":
+                {
+                    "items":
+                    {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                },
+                "properties":
+                {
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "anyOf":
+                            [
+                                {
+                                    "$ref": "/schemas/property"
+                                },
+                                {
+                                    "$ref": "/schemas/properties"
+                                }
+                            ]
+                        }
+                    },
+                    "type": "object"
+                },
+                "schema":
+                {
+                    "description": "Name of the FTM entity to yield",
+                    "type": "string"
+                }
+            },
+            "required":
+            [
+                "schema",
+                "keys",
+                "properties"
+            ],
+            "type": "object"
+        },
+        "fqcn":
+        {
+            "$id": "/definitions/fqcn",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$",
+            "type": "string"
+        },
+        "properties":
+        {
+            "$id": "/schemas/properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "items":
+            {
+                "$ref": "/schemas/property"
+            },
+            "minItems": 1,
+            "type": "array"
         },
         "property":
         {
             "$id": "/schemas/property",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
-            "properties":
-            {
-                "column":
-                {
-                    "type": "string",
-                    "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument"
-                },
-                "template":
-                {
-                    "type": "string",
-                    "description": "Jinja2 template which can resolve variables through the jmespath"
-                },
-                "literal":
-                {
-                    "type": ["string", "number"],
-                    "description": "A string literal or number to add to all the entities generated from current collection"
-                },
-                "regex":
-                {
-                    "type": "string",
-                    "format": "regex",
-                    "description": "regex to apply to extracted values"
-                },
-                "split_regex":
-                {
-                    "type": "string",
-                    "format": "regex",
-                    "description": "regex to split extracted values with"
-                }
-            },
             "oneOf":
             [
                 {
@@ -171,8 +211,10 @@
                 {
                     "required":
                     [
-                        "template"
-                    ],
+                        "entity"
+                    ]
+                },
+                {
                     "not":
                     {
                         "required":
@@ -180,161 +222,100 @@
                             "regex",
                             "split_regex"
                         ]
-                    }
+                    },
+                    "required":
+                    [
+                        "template"
+                    ]
                 },
                 {
+                    "not":
+                    {
+                        "required":
+                        [
+                            "regex",
+                            "split_regex"
+                        ]
+                    },
                     "required":
                     [
                         "literal"
-                    ],
-                    "not":
-                    {
-                        "required":
-                        [
-                            "regex",
-                            "split_regex"
-                        ]
-                    }
+                    ]
                 }
-            ]
-        },
-        "properties":
-        {
-            "$id": "/schemas/properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "array",
-            "minItems": 1,
-            "items": { "$ref": "/schemas/property" }
-        },
-        "constant_property":
-        {
-            "$id": "/schemas/constant_property",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
+            ],
             "properties":
             {
+                "column":
+                {
+                    "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument",
+                    "type": "string"
+                },
+                "entity":
+                {
+                    "description": "A name of the entity in the current context to link to",
+                    "type": "string"
+                },
                 "literal":
                 {
-                    "type": ["string", "number"],
-                    "description": "A string literal or number to add to all the entities generated from current collection"
+                    "description": "A string literal or number to add to all the entities generated from current collection",
+                    "type":
+                    [
+                        "string",
+                        "number"
+                    ]
+                },
+                "regex":
+                {
+                    "description": "regex to apply to extracted values",
+                    "format": "regex",
+                    "type": "string"
+                },
+                "split_regex":
+                {
+                    "description": "regex to split extracted values with",
+                    "format": "regex",
+                    "type": "string"
+                },
+                "template":
+                {
+                    "description": "Jinja2 template which can resolve variables through the jmespath",
+                    "type": "string"
                 }
             },
-            "required":
-            [
-                "literal"
-            ]
-
-        },
-        "constant_properties":
-        {
-            "$id": "/schemas/constant_properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "array",
-            "minItems": 1,
-            "items": { "$ref": "/schemas/constant_property" }
+            "type": "object"
         }
     },
-    "type": "object",
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "properties":
     {
-        "id":
+        "digest":
         {
-            "type": "string",
-            "description": "(Somewhat) unique id of the mapping"
-        },
-        "meta":
-        {
-            "type": "object",
-            "properties":
-            {
-                "comments":
-                {
-                    "type": "string",
-                    "description": "Optional comments"
-                },
-                "author":
-                {
-                    "type": "string",
-                    "description": "Optional reference to the mapping authors"
-                },
-                "created":
-                {
-                    "type": "string",
-                    "format": "date-time"
-                },
-                "modified":
-                {
-                    "type": "string",
-                    "format": "date-time"
-                }
-            }
-        },
-        "ftm_ontology":
-        {
-            "type": "string",
-            "description": "Optional path to the dir with a custom FTM ontology to use"
-        },
-        "ingest":
-        {
-            "type": "object",
             "properties":
             {
                 "cls":
                 {
-                    "description": "Fully qualified python class name, which is derived from AbstractIngestor",
                     "allOf":
                     [
                         {
                             "$ref": "/definitions/fqcn"
                         }
-                    ]
+                    ],
+                    "default": "thebeast.digest.SingleThreadedDigestor",
+                    "description": "Fully qualified python class name for the digestor"
                 },
-                "params":
-                {
-                    "type": "object",
-                    "properties":
-                    {
-                        "input_uri":
-                        {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "required":
-            [
-                "cls"
-            ]
-        },
-        "digest":
-        {
-            "type": "object",
-            "properties":
-            {
                 "collections":
                 {
-                    "type": "object",
                     "patternProperties":
                     {
                         "":
                         {
                             "$ref": "/schemas/collection"
                         }
-                    }
+                    },
+                    "type": "object"
                 },
-                "cls":
+                "constant_entities":
                 {
-                    "description": "Fully qualified python class name for the digestor",
-                    "default": "thebeast.digest.SingleThreadedDigestor",
-                    "allOf":
-                    [
-                        {
-                            "$ref": "/definitions/fqcn"
-                        }
-                    ]
-                },
-                "constant_entities": {
-                    "type": "object",
                     "description": "Entities that should be generated for the file, but not from the data",
                     "patternProperties":
                     {
@@ -342,41 +323,112 @@
                         {
                             "$ref": "/schemas/constant_entity"
                         }
-                    }
+                    },
+                    "type": "object"
                 }
             },
             "required":
             [
                 "collections"
-            ]
+            ],
+            "type": "object"
         },
         "dump":
         {
-            "type": "object",
             "properties":
             {
                 "cls":
                 {
-                    "description": "Fully qualified python class name dumper, which is derived from []",
                     "allOf":
                     [
                         {
                             "$ref": "/definitions/fqcn"
                         }
-                    ]
+                    ],
+                    "description": "Fully qualified python class name dumper, which is derived from []"
                 },
                 "params":
                 {
-                    "type": "object",
                     "properties":
                     {
                         "output_uri":
                         {
                             "type": "string"
                         }
-                    }
+                    },
+                    "type": "object"
                 }
-            }
+            },
+            "type": "object"
+        },
+        "ftm_ontology":
+        {
+            "description": "Optional path to the dir with a custom FTM ontology to use",
+            "type": "string"
+        },
+        "id":
+        {
+            "description": "(Somewhat) unique id of the mapping",
+            "type": "string"
+        },
+        "ingest":
+        {
+            "properties":
+            {
+                "cls":
+                {
+                    "allOf":
+                    [
+                        {
+                            "$ref": "/definitions/fqcn"
+                        }
+                    ],
+                    "description": "Fully qualified python class name, which is derived from AbstractIngestor"
+                },
+                "params":
+                {
+                    "properties":
+                    {
+                        "input_uri":
+                        {
+                            "type": "string"
+                        }
+                    },
+                    "type": "object"
+                }
+            },
+            "required":
+            [
+                "cls"
+            ],
+            "type": "object"
+        },
+        "meta":
+        {
+            "properties":
+            {
+                "author":
+                {
+                    "description": "Optional reference to the mapping authors",
+                    "type": "string"
+                },
+                "comments":
+                {
+                    "description": "Optional comments",
+                    "type": "string"
+                },
+                "created":
+                {
+                    "format": "date-time",
+                    "type": "string"
+                },
+                "modified":
+                {
+                    "format": "date-time",
+                    "type": "string"
+                }
+            },
+            "type": "object"
         }
     },
     "required":
@@ -385,5 +437,6 @@
         "ingest",
         "digest",
         "dump"
-    ]
+    ],
+    "type": "object"
 }

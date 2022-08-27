@@ -1,1 +1,3 @@
-from . mapping import SourceMapping
+from .mapping import SourceMapping
+
+__all__ = ["SourceMapping"]

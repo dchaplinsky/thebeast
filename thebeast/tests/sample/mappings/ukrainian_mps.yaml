@@ -16,10 +16,11 @@ digest:
     root:
       path: "[@]"   # Wrap each record into the list
       entities:
-        ukrainian_mp_person:  # Also serves as a key_prefix for id
+        ukrainian_mp_person:  # Also serves as a key_prefix for id and to reference other entites.
+                              # Must be unique
           schema: Person
           keys:
-            - name
+            - entity.name  # keys can be both, generated fields of the entity and the jmespath over the record
           properties:
             name:
               column: name
@@ -48,11 +49,29 @@ digest:
                 template: "{{ entity.firstName[0] }} {% if entity.fatherName %}{{ entity.fatherName[0] }} {% endif %}{{ entity.lastName[0] }}"
               -
                 template: "{{ entity.firstName[0] }} {{ entity.lastName[0] }}"
+        ukrainian_mp_membership:
+          schema: Membership
+          keys:
+            - record.name
+            - record.date_from
+            - record.date_to
+          properties:
+            startDate:
+              # TODO: dates parsing
+              column: date_from
+            endDate:
+              column: date_to
+            organization:
+              entity: verkhovna_rada
+            member:
+              entity: ukrainian_mp_person
+            role:
+              literal: "Народний депутат"
   constant_entities:    # Entities that should be generated not from the data but from the nature of data source
     verkhovna_rada:
       schema: PublicBody
       keys:
-        - taxNumber
+        - entity.taxNumber
       properties:
         name:
           -
@@ -75,11 +94,16 @@ digest:
           literal: 044 255 4246
         incorporationDate:
           literal: 1990
+        addressEntity:
+          # To link to another entity you have to specify the entity name
+          # as an `entity`. You can only reference entity of the current collection
+          # or an entity of one of it's parent collections or a constant entity (for now)
+          entity: verkhovna_rada_address
     verkhovna_rada_address:
       schema: Address
       keys:
-        - country
-        - full
+        - entity.country
+        - entity.full
       properties:
         full:
           literal: 01008, м. Київ, вул. М. Грушевського, 5

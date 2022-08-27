@@ -17,7 +17,7 @@ class FTMLinesWriter:
         else:
             self.output = smart_open.open(output_uri, "w")
 
-    def write_entities(self, entities: Iterable[Schema], flush: bool=True) -> None:
+    def write_entities(self, entities: Iterable[Schema], flush: bool = True) -> None:
         for entity in entities:
             self.output.write(json.dumps(entity.to_dict(), sort_keys=True) + "\n")
 
