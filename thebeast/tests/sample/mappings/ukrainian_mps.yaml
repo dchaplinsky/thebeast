@@ -25,17 +25,19 @@ digest:
             name:
               column: name
               transformer: thebeast.contrib.transformers.mixed_charset_fixer
-              augmentor: thebeast.contrib.transformers.names_transliteration
             title:
               literal: "Народний депутат"
             firstName:
               column: name
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
               regex: ^\s*[^\s]{2,}\s+([^\s]{2,})\s*
             lastName:
               column: name
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
               regex: ^\s*([^\s]{2,})\s*
             fatherName:
               column: name
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
               regex: ^\s*[^\s]{2,}\s+[^\s]{2,}\s+([^\s]{2,})\s*
             wikipediaUrl:
               column: link
@@ -48,9 +50,17 @@ digest:
               column: party
             alias:
               -
+                column: name
+                transformer: thebeast.contrib.transformers.mixed_charset_fixer
+                augmentor: thebeast.contrib.transformers.names_transliteration
+              -
                 template: "{{ entity.firstName[0] }} {% if entity.fatherName %}{{ entity.fatherName[0] }} {% endif %}{{ entity.lastName[0] }}"
+                transformer: thebeast.contrib.transformers.mixed_charset_fixer
+                augmentor: thebeast.contrib.transformers.names_transliteration
               -
                 template: "{{ entity.firstName[0] }} {{ entity.lastName[0] }}"
+                transformer: thebeast.contrib.transformers.mixed_charset_fixer
+                augmentor: thebeast.contrib.transformers.names_transliteration
         ukrainian_mp_membership:
           schema: Membership
           keys:
@@ -59,11 +69,12 @@ digest:
             - record.date_to
           properties:
             startDate:
-              # TODO: dates parsing
               column: date_from
+              regex: (\d{2}\.\d{2}\.\d{4})
               transformer: thebeast.contrib.transformers.anydate_parser
             endDate:
               column: date_to
+              regex: (\d{2}\.\d{2}\.\d{4})
               transformer: thebeast.contrib.transformers.anydate_parser
             organization:
               entity: verkhovna_rada

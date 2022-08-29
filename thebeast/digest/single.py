@@ -1,4 +1,4 @@
-from typing import Union, List, Dict, Generator, Iterable, Any
+from typing import Union, List, Dict, Generator, Iterable, Any, Callable
 
 import jmespath  # type: ignore
 import regex as re  # type: ignore
@@ -19,9 +19,19 @@ from thebeast.conf.utils import import_string
 jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
 
 ENTITY_TYPE = registry.get("entity")
-
+CALLABLE_CACHE: Dict[str, Callable] = {}
 
 # TODO: move to utils?
+
+
+def resolve_callable(fqfn: str) -> Callable:
+    if fqfn in CALLABLE_CACHE:
+        return CALLABLE_CACHE[fqfn]
+
+    func = import_string(fqfn)
+    CALLABLE_CACHE[fqfn] = func
+
+    return func
 
 
 def jmespath_results_as_array(path: str, record: Union[List, Dict]) -> List[Any]:
@@ -68,49 +78,52 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
         for property_name, property_configs in entity_config["properties"].items():
             if not isinstance(property_configs, list):
                 property_configs = [property_configs]
+
+            property_values = []
             for property_config in property_configs:
-                if "literal" in property_config:
-                    # `literal` is simply a string or number constant used for FTM entity field
-                    entity.add(property_name, property_config["literal"])
-                if "entity" in property_config:
-                    # `entity` is a named reference to another entity available in the current context
-                    # i.e as a constant entity or entity of the current collection and its parents
-                    # For now we just adding the reference to the another entity and we'll resolve it later
-                    # TODO: green/red validate if the property allows to reference to another entity
-                    # i.e entity.schema.properties[property_name].type == entity
-                    # TODO: we probably want to preserve the list of property names to resolve later on
+                for command, command_config in property_config.items():
+                    if command == "literal":
+                        # `literal` is simply a string or number constant used for FTM entity field
+                        property_values.append(command_config)
+                    elif command == "entity":
+                        # `entity` is a named reference to another entity available in the current context
+                        # i.e as a constant entity or entity of the current collection and its parents
+                        # For now we just adding the reference to the another entity and we'll resolve it later
+                        # TODO: green/red validate if the property allows to reference to another entity
+                        # i.e entity.schema.properties[property_name].type == entity
+                        # TODO: we probably want to preserve the list of property names to resolve later on
 
-                    # To fool the FTM we supply something that looks like entity ID which we can
-                    # resolve later
-                    entity.add(property_name, generate_pseudo_id(property_config["entity"]))
-                elif "column" in property_config:
-                    # `column` is a jmespath applied at the current level of the doc
-                    # to collect all the needed values for the field from it
-                    property_values = jmespath_results_as_array(property_config["column"], record)
+                        # To fool the FTM we supply something that looks like entity ID which we can
+                        # resolve later
+                        property_values.append(generate_pseudo_id(command_config))
+                    elif command == "column":
+                        # `column` is a jmespath applied at the current level of the doc
+                        # to collect all the needed values for the field from it
+                        property_values += jmespath_results_as_array(command_config, record)
 
-                    # `regex_split` is an optional regex splitter to extract multiple
-                    # values for the entity field from the single string.
-                    if "regex_split" in property_config:
+                    elif command == "regex_split":
+                        # `regex_split` is an optional regex splitter to extract multiple
+                        # values for the entity field from the single string.
+
                         new_property_values: List[str] = []
 
                         for property_value in property_values:
-                            new_property_values += re.split(
-                                property_config["regex_split"], str(property_value), flags=re.V1
-                            )
+                            new_property_values += re.split(command_config, str(property_value), flags=re.V1)
 
                         property_values = new_property_values
 
-                    # `regex` is an optional regex **matcher** to match the part of the extracted string
-                    # and set it as a value for the entity field. It is being applied after the (optional)
-                    # regex_split
-                    if "regex" in property_config:
+                    elif command == "regex":
+                        # `regex` is an optional regex **matcher** to match the part of the extracted string
+                        # and set it as a value for the entity field. It is being applied after the (optional)
+                        # regex_split
+
                         extracted_property_values: List[Any] = []
 
                         for property_value in property_values:
                             if not property_value:
                                 continue
 
-                            m = re.search(property_config["regex"], str(property_value), flags=re.V1)
+                            m = re.search(command_config, str(property_value), flags=re.V1)
                             if m:
                                 if m.groups():
                                     # We support both, groups
@@ -121,33 +134,23 @@ def make_entities(record: Union[List, Dict], entities_config: Dict) -> Generator
 
                         property_values = extracted_property_values
 
-                    # TODO: move after templates rendering
-                    # `transformer` is a python function which (currently) accepts only a list of values
-                    # applies some transform to it and returns the modified list. That list will be
-                    # added to the entity instead of the original values
-                    if "transformer" in property_config:
-                        func = import_string(property_config["transformer"])
-                        property_values = func(property_values)
+                    elif command == "transformer":
+                        # `transformer` is a python function which (currently) accepts only a list of values
+                        # applies some transform to it and returns the modified list. That list will be
+                        # added to the entity instead of the original values
+                        property_values = resolve_callable(command_config)(property_values)
 
-                    # `augmentor` is a similar concept to the `transformer`, but modified list is added
-                    # to the original values
-                    if "augmentor" in property_config:
-                        func = import_string(property_config["augmentor"])
-                        property_values += func(property_values)
+                    elif command == "augmentor":
+                        # `augmentor` is a similar concept to the `transformer`, but modified list is added
+                        # to the original values
+                        property_values += resolve_callable(command_config)(property_values)
+                    elif command == "template":
+                        # `template` is a jinja template str that will be rendered using the context
+                        # which contains current half-finished entity and original
+                        template = jinja_env.from_string(command_config)
+                        property_values.append(template.render(entity=entity.properties, record=record))
 
-                    entity.add(property_name, property_values)
-
-        # Templates are resolved after all other extractors
-        for property_name, property_configs in entity_config["properties"].items():
-            if not isinstance(property_configs, list):
-                property_configs = [property_configs]
-
-            for property_config in property_configs:
-                # `template` is a jinja template str that will be rendered using the context
-                # which contains current half-finished entity and original
-                if "template" in property_config:
-                    template = jinja_env.from_string(property_config["template"])
-                    entity.add(property_name, template.render(entity=entity.properties, record=record))
+            entity.add(property_name, property_values)
 
         for key in entity_config["keys"]:
             key_type, key_path = key.split(".", 1)

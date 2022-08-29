@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
 from typing import Union, Callable, Dict, Any
-import yaml
 import json
+
 
 import fastjsonschema  # type: ignore
 from .exc import InvalidMappingException, InvalidOverridesException
-from .utils import import_string
+from .utils import import_string, ordered_load
+
 
 
 class SourceMapping:
@@ -38,7 +39,7 @@ class SourceMapping:
             schema: Callable = fastjsonschema.compile(json.load(fp))
 
         with mapping_file.open("r") as fp:
-            mapping: dict = yaml.safe_load(fp)
+            mapping: dict = ordered_load(fp)
 
         # First validate the mapping loaded from the file
         try:
