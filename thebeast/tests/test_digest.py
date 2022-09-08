@@ -67,6 +67,13 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn(entities_by_schema["PublicBody"][0].id, entity.properties["organization"])
         self.assertIn(entities_by_schema["Person"][0].id, entity.properties["member"])
 
+        for entity in entities:
+            for props in entity.properties.values():
+                for prop in props:
+                    self.assertIsNone(prop._meta.locale)
+                    self.assertIsNone(prop._meta.date)
+                    self.assertIsNone(prop._meta.augmentation)
+
     def test_surrogate_key(self):
         mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
 
@@ -144,3 +151,4 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn("Джемілєв Мустафа", entity.properties["name"])
         self.assertNotIn("Джeмiлєв Мyстaфa", entity.properties["name"])
         self.assertIn("Mustafa Dzhemiliev", entity.properties["alias"])
+        self.assertIn("Dzhemiliev Mustafa", entity.properties["alias"])

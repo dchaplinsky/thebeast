@@ -7,7 +7,7 @@ import json
 import fastjsonschema  # type: ignore
 from .exc import InvalidMappingException, InvalidOverridesException
 from .utils import import_string, ordered_load
-
+from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 
 
 class SourceMapping:
@@ -68,6 +68,10 @@ class SourceMapping:
 
         # ftm model is a singleton instantiated on the import, we should be careful here
         from followthemoney import model as ftm  # type: ignore
+
+        if mapping.get("statements_meta", None) is not None:
+            # Setting meta singletone for statements meta
+            get_meta_cls(mapping["statements_meta"])
 
         self.ftm = ftm
         self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))

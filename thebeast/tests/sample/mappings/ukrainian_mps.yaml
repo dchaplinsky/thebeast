@@ -1,5 +1,10 @@
 id: ukrainian_mps
 # ftm_ontology: # Again optional path to the directory with ftm
+statements_meta:
+  - locale
+  - date
+  - augmentation
+  - data_source
 
 meta:
   comments: Optional comments on the data source
@@ -12,6 +17,9 @@ ingest:
   params:
     input_uri: thebeast/tests/sample/csv/rada*.tsv
 digest:
+  statement_meta_values:
+    locale:
+      literal: uk
   collections:
     root:
       path: "[@]"   # Wrap each record into the list

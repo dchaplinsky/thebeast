@@ -189,6 +189,7 @@
         {
             "$id": "/schemas/properties",
             "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "An ordered dict (order matters!) of an operations that will be applied to the source record to extract the property of an entity",
             "items":
             {
                 "$ref": "/schemas/property"
@@ -200,6 +201,7 @@
         {
             "$id": "/schemas/property",
             "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "A list of instructions on how to get the data for the property and modify/validate it",
             "oneOf":
             [
                 {
@@ -245,6 +247,11 @@
             ],
             "properties":
             {
+                "augmentor":
+                {
+                    "$ref": "/definitions/fqcn",
+                    "description": "Fully qualified python function that *appends* a transformation to the list of string values"
+                },
                 "column":
                 {
                     "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument",
@@ -276,20 +283,15 @@
                     "format": "regex",
                     "type": "string"
                 },
-                "transformer":
-                {
-                    "description": "Fully qualified python function that *applies* a transformation to the list of string values",
-                    "$ref": "/definitions/fqcn"
-                },
-                "augmentor":
-                {
-                    "description": "Fully qualified python function that *appends* a transformation to the list of string values",
-                    "$ref": "/definitions/fqcn"
-                },
                 "template":
                 {
                     "description": "Jinja2 template which can resolve variables through the jmespath",
                     "type": "string"
+                },
+                "transformer":
+                {
+                    "$ref": "/definitions/fqcn",
+                    "description": "Fully qualified python function that *applies* a transformation to the list of string values"
                 }
             },
             "type": "object"
@@ -335,6 +337,14 @@
                         }
                     },
                     "type": "object"
+                },
+                "statement_meta_values": {
+                    "description": "Datasource level statement meta values for all the collections",
+                    "patternProperties":
+                    {
+                        "": {"$ref": "/schemas/constant_property"}
+                    },
+                    "type": "object"
                 }
             },
             "required":
@@ -375,6 +385,15 @@
         {
             "description": "Optional path to the dir with a custom FTM ontology to use",
             "type": "string"
+        },
+        "statements_meta":
+        {
+            "description": "Optional list of statements meta fields (if omitted, the default DEFAULT_META_FIELDS is used)",
+            "items":
+            {
+                "type": "string"
+            },
+            "type": "array"
         },
         "id":
         {
