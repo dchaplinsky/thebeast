@@ -1,5 +1,6 @@
 """
-For now it's just mirroring default FTM tests for EntityProxy on RiggedEntityProxy
+For now it's just mirroring default FTM tests for EntityProxy on RiggedEntityProxy with some basic
+additions around meta on StrProxy
 """
 
 from pytest import raises

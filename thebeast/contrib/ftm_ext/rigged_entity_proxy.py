@@ -2,6 +2,7 @@ from typing import Optional, Dict, Any, Union, NamedTuple, Mapping
 
 from followthemoney.proxy import EntityProxy, P  # type: ignore
 from followthemoney.util import value_list  # type: ignore
+from copy import copy
 
 from .meta_factory import get_meta_cls
 
@@ -9,7 +10,7 @@ from .meta_factory import get_meta_cls
 class StrProxy(str):
     def __new__(cls, content: Union[str, Any], meta: Optional[Union[Dict, NamedTuple]] = None):
         if isinstance(content, StrProxy):
-            result = content
+            result = copy(content)
         else:
             result = str.__new__(cls, content)
             result._meta = get_meta_cls()()

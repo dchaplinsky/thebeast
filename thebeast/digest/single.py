@@ -8,7 +8,7 @@ from .resolvers import resolve_entity, resolve_constant_statement_meta
 
 
 def make_entities(
-    record: Union[List, Dict], entities_config: Dict, statements_meta: Dict
+    record: Union[List, Dict], entities_config: Dict, statements_meta: Dict[str, str]
 ) -> Generator[Schema, None, None]:
     """
     Takes the list/dict of records and a config for collection and produces entites
@@ -22,7 +22,12 @@ def make_entities(
             if not isinstance(property_configs, list):
                 property_configs = [property_configs]
 
-            entity.add(property_name, resolve_entity(property_configs=property_configs, record=record, entity=entity))
+            entity.add(
+                property_name,
+                resolve_entity(
+                    property_configs=property_configs, record=record, entity=entity, statements_meta=statements_meta
+                ),
+            )
 
         # Some bizarre parsing of values here, so we can construct an id for the entity from both
         # existing entity fields and records (after jmespathing it)
@@ -39,7 +44,10 @@ def make_entities(
 
 
 def main_cog(
-    data: Union[List, Dict], config: Dict, parent_context_entities: Dict[str, Schema], statements_meta: Dict
+    data: Union[List, Dict],
+    config: Dict,
+    parent_context_entities: Dict[str, Schema],
+    statements_meta: Dict[str, str],
 ) -> Generator[Schema, None, None]:
     for collection_name, collection_config in config.get("collections", {}).items():
         for record in jmespath_results_as_array(collection_config["path"], data):
@@ -64,8 +72,8 @@ class SingleThreadedDigestor:
 
     def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Schema, None, None]:
         # First let's get some global level meta values for our statements
-        statements_meta = {
-            statement_meta_name: resolve_constant_statement_meta(ensure_list(statement_meta_config))
+        statements_meta: Dict[str, str] = {
+            statement_meta_name: "\n".join(resolve_constant_statement_meta(ensure_list(statement_meta_config)))
             for statement_meta_name, statement_meta_config in self.mapping_config.get(
                 "statement_meta_values", {}
             ).items()

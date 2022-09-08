@@ -70,7 +70,7 @@ class MappingDigestTests(unittest.TestCase):
         for entity in entities:
             for props in entity.properties.values():
                 for prop in props:
-                    self.assertIsNone(prop._meta.locale)
+                    self.assertEqual(prop._meta.locale, "uk")
                     self.assertIsNone(prop._meta.date)
                     self.assertIsNone(prop._meta.augmentation)
 

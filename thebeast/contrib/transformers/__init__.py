@@ -1,21 +1,34 @@
 from typing import List
 from dateutil.parser import parse as dt_parse  # type: ignore
+
 from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
+from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
 
 # TODO: split into dates/names/others files
 
 
-def mixed_charset_fixer(values: List[str]) -> List[str]:
-    return [try_to_fix_mixed_charset(value) for value in values]
+def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
+    """
+    Fix values where cyrillic symbols are replaced with similarly looking latin ones
+    And vice versa
+    """
+    # TODO: add different locales in accordance to the way the str was fixed
+    return [value.inject_meta_to_str(try_to_fix_mixed_charset(value)) for value in values]
 
 
-def anydate_parser(values: List[str]) -> List[str]:
-    return [str(dt_parse(value).date()) for value in values]
+def anydate_parser(values: List[StrProxy]) -> List[StrProxy]:
+    """
+    Trying to parse date with dateutil lib
+    """
+    return [value.inject_meta_to_str(dt_parse(value).date()) for value in values]
 
 
-def anydatetime_parser(values: List[str]) -> List[str]:
-    return [str(dt_parse(value)) for value in values]
+def anydatetime_parser(values: List[StrProxy]) -> List[StrProxy]:
+    """
+    Trying to parse datetime with dateutil lib
+    """
+    return [value.inject_meta_to_str(dt_parse(value)) for value in values]
 
 
 def incomplete_date_converter(value: str) -> str:
@@ -35,14 +48,15 @@ def incomplete_date_converter(value: str) -> str:
     return formatted_date
 
 
-def iso_date_parser(values: List[str]) -> List[str]:
-    return [incomplete_date_converter(value) for value in values]
+def iso_date_parser(values: List[StrProxy]) -> List[StrProxy]:
+    return [value.inject_meta_to_str(incomplete_date_converter(value)) for value in values]
 
 
-def names_transliteration(values: List[str]) -> List[str]:
-    result: List[str] = []
+def names_transliteration(values: List[StrProxy]) -> List[StrProxy]:
+    result: List[StrProxy] = []
 
     for value in values:
-        result += parse_and_generate(value)
+        # TODO: add different locales in accordance to the transliteration scheme
+        result += [value.inject_meta_to_str(v) for v in parse_and_generate(value)]
 
     return result
