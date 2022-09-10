@@ -17,17 +17,24 @@ def make_entities(
     for entity_name, entity_config in entities_config.items():
         entity = make_entity(entity_config["schema"], key_prefix=entity_name)
         key_values: List[str] = []
+        variables: Dict[str, List[StrProxy]] = {}
 
         for property_name, property_configs in entity_config["properties"].items():
             if not isinstance(property_configs, list):
                 property_configs = [property_configs]
 
-            entity.add(
-                property_name,
-                resolve_entity(
-                    property_configs=property_configs, record=record, entity=entity, statements_meta=statements_meta
-                ),
+            property_values: List[StrProxy] = resolve_entity(
+                property_configs=property_configs, record=record, entity=entity, statements_meta=statements_meta,
+                variables=variables
             )
+
+            if property_name.startswith("$"):
+                variables[property_name] = property_values
+            else:
+                entity.add(
+                    property_name,
+                    property_values,
+                )
 
         # Some bizarre parsing of values here, so we can construct an id for the entity from both
         # existing entity fields and records (after jmespathing it)

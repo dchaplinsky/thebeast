@@ -149,6 +149,8 @@ class MappingDigestTests(unittest.TestCase):
 
         entity = entities_by_schema["Person"][0]
         self.assertIn("Джемілєв Мустафа", entity.properties["name"])
+        self.assertIn("Джемілєв", entity.properties["lastName"])
+        self.assertIn("Мустафа", entity.properties["firstName"])
         self.assertNotIn("Джeмiлєв Мyстaфa", entity.properties["name"])
         self.assertIn("Mustafa Dzhemiliev", entity.properties["alias"])
         self.assertIn("Dzhemiliev Mustafa", entity.properties["alias"])

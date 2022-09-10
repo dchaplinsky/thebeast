@@ -36,23 +36,20 @@ digest:
             title:
               literal: "Народний депутат"
             firstName:
-              column: name
-              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+              property: name
               regex: ^\s*[^\s]{2,}\s+([^\s]{2,})\s*
             lastName:
-              column: name
-              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+              property: name
               regex: ^\s*([^\s]{2,})\s*
             fatherName:
-              column: name
-              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+              property: name
               regex: ^\s*[^\s]{2,}\s+[^\s]{2,}\s+([^\s]{2,})\s*
             wikipediaUrl:
               column: link
             sourceUrl:
               column: link
             keywords:
-              column: name
+              property: name
               regex_split: \s+
             political:
               column: party
@@ -63,11 +60,9 @@ digest:
                 augmentor: thebeast.contrib.transformers.names_transliteration
               -
                 template: "{{ entity.firstName[0] }} {% if entity.fatherName %}{{ entity.fatherName[0] }} {% endif %}{{ entity.lastName[0] }}"
-                transformer: thebeast.contrib.transformers.mixed_charset_fixer
                 augmentor: thebeast.contrib.transformers.names_transliteration
               -
                 template: "{{ entity.firstName[0] }} {{ entity.lastName[0] }}"
-                transformer: thebeast.contrib.transformers.mixed_charset_fixer
                 augmentor: thebeast.contrib.transformers.names_transliteration
         ukrainian_mp_membership:
           schema: Membership

@@ -19,6 +19,7 @@ class ResolveContext:
     property_values: List[StrProxy]
     entity: Optional[Schema]
     statements_meta: Optional[Dict[str, str]]
+    variables: Optional[Dict[str, str]]
 
 
 CommandConfig = NewType("CommandConfig", Union[str, dict])
@@ -149,10 +150,26 @@ def _resolve_template(command_config: CommandConfig, context: ResolveContext) ->
     template = jinja_env.from_string(command_config)
     return context.property_values + [
         StrProxy(
-            template.render(entity=context.entity.properties, record=context.record, meta=context.statements_meta),
+            template.render(
+                entity=context.entity.properties,
+                record=context.record,
+                meta=context.statements_meta,
+                property_values=context.property_values,
+            ),
             meta=context.statements_meta,
         )
     ]
+
+
+def _resolve_property(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+    """
+    `property` gets the property value from the current entity or $variable
+    """
+
+    if command_config.startswith("$"):
+        return context.property_values + context.variables.get(command_config, [])
+    else:
+        return context.property_values + context.entity.get(command_config)
 
 
 def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callable], **kwargs) -> List[StrProxy]:
@@ -176,7 +193,8 @@ def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callabl
 
 
 def resolve_entity(
-    property_configs: List, record: Union[List, Dict], entity: Schema, statements_meta: Dict[str, List[str]]
+    property_configs: List, record: Union[List, Dict], entity: Schema, statements_meta: Dict[str, List[str]],
+    variables: List[StrProxy]
 ) -> List[StrProxy]:
     """
     A wrapper for _resolve_configs for the entity (all commands are supported)
@@ -193,10 +211,12 @@ def resolve_entity(
             "transformer": _resolve_transformer,
             "augmentor": _resolve_augmentor,
             "template": _resolve_template,
+            "property": _resolve_property,
         },
         record=record,
         entity=entity,
         statements_meta=statements_meta,
+        variables=variables
     )
 
 
@@ -209,4 +229,5 @@ def resolve_constant_statement_meta(property_configs: List) -> List[StrProxy]:
         record=None,
         entity=None,
         statements_meta=None,
+        variables=None,
     )

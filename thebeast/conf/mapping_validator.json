@@ -252,6 +252,12 @@
                     [
                         "literal"
                     ]
+                },
+                {
+                    "required":
+                    [
+                        "property"
+                    ]
                 }
             ],
             "properties":
@@ -301,6 +307,11 @@
                 "template":
                 {
                     "description": "Jinja2 template which can resolve variables through the jmespath",
+                    "type": "string"
+                },
+                "property":
+                {
+                    "description": "Gets the values from a property of the current (incomplete) entity or variable",
                     "type": "string"
                 },
                 "transformer":
