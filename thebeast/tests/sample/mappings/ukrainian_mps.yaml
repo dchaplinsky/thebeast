@@ -79,11 +79,17 @@ digest:
             startDate:
               column: date_from
               regex: (\d{2}\.\d{2}\.\d{4})
-              transformer: thebeast.contrib.transformers.anydate_parser
+              transformer:
+                name: thebeast.contrib.transformers.anydate_parser
+                params:
+                  dayfirst: True
             endDate:
               column: date_to
               regex: (\d{2}\.\d{2}\.\d{4})
-              transformer: thebeast.contrib.transformers.anydate_parser
+              transformer:
+                name: thebeast.contrib.transformers.anydate_parser
+                params:
+                  dayfirst: True
             organization:
               entity: verkhovna_rada
             member:

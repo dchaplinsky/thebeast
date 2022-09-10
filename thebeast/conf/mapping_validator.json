@@ -185,6 +185,31 @@
             "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$",
             "type": "string"
         },
+        "fqfn":
+        {
+            "$id": "/definitions/fqfn",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf":
+            [
+                {
+                    "$ref": "/definitions/fqcn"
+                },
+                {
+                    "properties":
+                    {
+                        "name": {
+                            "$ref": "/definitions/fqcn"
+                        },
+                        "params": {
+                            "type": "object"
+                        }
+                    },
+
+                    "required": ["name"],
+                    "type": "object"
+                }
+            ]
+        },
         "properties":
         {
             "$id": "/schemas/properties",
@@ -249,7 +274,7 @@
             {
                 "augmentor":
                 {
-                    "$ref": "/definitions/fqcn",
+                    "$ref": "/definitions/fqfn",
                     "description": "Fully qualified python function that *appends* a transformation to the list of string values"
                 },
                 "column":
@@ -290,7 +315,7 @@
                 },
                 "transformer":
                 {
-                    "$ref": "/definitions/fqcn",
+                    "$ref": "/definitions/fqfn",
                     "description": "Fully qualified python function that *applies* a transformation to the list of string values"
                 }
             },

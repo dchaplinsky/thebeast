@@ -17,18 +17,18 @@ def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
     return [value.inject_meta_to_str(try_to_fix_mixed_charset(value)) for value in values]
 
 
-def anydate_parser(values: List[StrProxy]) -> List[StrProxy]:
+def anydate_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
     """
     Trying to parse date with dateutil lib
     """
-    return [value.inject_meta_to_str(dt_parse(value).date()) for value in values]
+    return [value.inject_meta_to_str(dt_parse(value, **kwargs).date()) for value in values]
 
 
-def anydatetime_parser(values: List[StrProxy]) -> List[StrProxy]:
+def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
     """
     Trying to parse datetime with dateutil lib
     """
-    return [value.inject_meta_to_str(dt_parse(value)) for value in values]
+    return [value.inject_meta_to_str(dt_parse(value, **kwargs)) for value in values]
 
 
 def incomplete_date_converter(value: str) -> str:
@@ -57,6 +57,6 @@ def names_transliteration(values: List[StrProxy]) -> List[StrProxy]:
 
     for value in values:
         # TODO: add different locales in accordance to the transliteration scheme
-        result += [value.inject_meta_to_str(v) for v in parse_and_generate(value)]
+        result += [value.inject_meta_to_str(v)   for v in parse_and_generate(value)]
 
     return result
