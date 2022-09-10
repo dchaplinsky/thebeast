@@ -2,8 +2,9 @@ from typing import Union, List, Dict, Generator, Iterable
 
 from followthemoney.schema import Schema  # type: ignore
 
-from .utils import generate_pseudo_id, make_entity, jmespath_results_as_array, resolve_entity_refs, ensure_list
+from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
+from .utils import generate_pseudo_id, make_entity, jmespath_results_as_array, resolve_entity_refs, ensure_list
 from .resolvers import resolve_entity, resolve_constant_statement_meta
 
 
