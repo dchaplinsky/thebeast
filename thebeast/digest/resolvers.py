@@ -20,7 +20,9 @@ class ResolveContext:
     entity: Optional[Schema]
     statements_meta: Optional[Dict[str, str]]
 
-CommandConfig = NewType('CommandConfig', Union[str, dict])
+
+CommandConfig = NewType("CommandConfig", Union[str, dict])
+
 
 def _resolve_literal(command_config: CommandConfig, context: ResolveContext) -> List[str]:
     """
@@ -70,11 +72,10 @@ def _resolve_regex_split(command_config: CommandConfig, context: ResolveContext)
     return new_property_values
 
 
-def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_regex_first(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
-    `regex` is an optional regex **matcher** to match the part of the extracted string
-    and set it as a value for the entity field. It is being applied after the (optional)
-    regex_split
+    `regex_first` is an optional regex **matcher** to match the part of the extracted string
+    and set it as a value for the entity field. It returns the first match
     """
 
     extracted_property_values: List[Any] = []
@@ -91,6 +92,25 @@ def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> Li
             else:
                 # And full match
                 extracted_property_values.append(property_value.inject_meta_to_str(m.group(0)))
+
+    return extracted_property_values
+
+
+def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+    """
+    `regex` is an optional regex **matcher** to match the part of the extracted string
+    and set it as a value for the entity field. It returns the first match
+    """
+
+    extracted_property_values: List[Any] = []
+
+    for property_value in context.property_values:
+        if not property_value:
+            continue
+
+        extracted_property_values += [
+            property_value.inject_meta_to_str(v) for v in re.findall(command_config, property_value, flags=re.V1)
+        ]
 
     return extracted_property_values
 
@@ -169,6 +189,7 @@ def resolve_entity(
             "column": _resolve_column,
             "regex_split": _resolve_regex_split,
             "regex": _resolve_regex,
+            "regex_first": _resolve_regex_first,
             "transformer": _resolve_transformer,
             "augmentor": _resolve_augmentor,
             "template": _resolve_template,

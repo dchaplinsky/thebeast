@@ -57,6 +57,6 @@ def names_transliteration(values: List[StrProxy]) -> List[StrProxy]:
 
     for value in values:
         # TODO: add different locales in accordance to the transliteration scheme
-        result += [value.inject_meta_to_str(v)   for v in parse_and_generate(value)]
+        result += [value.inject_meta_to_str(v) for v in parse_and_generate(value)]
 
     return result

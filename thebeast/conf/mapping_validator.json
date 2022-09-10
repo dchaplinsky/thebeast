@@ -242,28 +242,12 @@
                     ]
                 },
                 {
-                    "not":
-                    {
-                        "required":
-                        [
-                            "regex",
-                            "split_regex"
-                        ]
-                    },
                     "required":
                     [
                         "template"
                     ]
                 },
                 {
-                    "not":
-                    {
-                        "required":
-                        [
-                            "regex",
-                            "split_regex"
-                        ]
-                    },
                     "required":
                     [
                         "literal"
@@ -299,6 +283,12 @@
                 "regex":
                 {
                     "description": "regex to apply to extracted values",
+                    "format": "regex",
+                    "type": "string"
+                },
+                "regex_first":
+                {
+                    "description": "regex to apply to extracted values and return first match",
                     "format": "regex",
                     "type": "string"
                 },
