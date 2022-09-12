@@ -63,6 +63,9 @@ def make_entity(schema: Union[str, Schema], key_prefix: Optional[str] = None) ->
 
 
 def resolve_callable(fqfn: str) -> Callable:
+    """
+    Caching callables, resolved by fully qualified function name (fqfn)
+    """
     if fqfn in CALLABLE_CACHE:
         return CALLABLE_CACHE[fqfn]
 

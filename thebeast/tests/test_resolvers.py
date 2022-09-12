@@ -9,9 +9,12 @@ from thebeast.digest.resolvers import (
     _resolve_regex_first,
     _resolve_transformer,
     _resolve_augmentor,
+    _resolve_template,
+    _resolve_property,
     ResolveContext,
 )
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
+from thebeast.digest.utils import make_entity
 
 
 class ResolversTests(unittest.TestCase):
@@ -179,7 +182,49 @@ class ResolversTests(unittest.TestCase):
             variables={},
         )
 
-        vals = _resolve_transformer("thebeast.contrib.transformers.names_transliteration", ctx)
+        vals = _resolve_augmentor("thebeast.contrib.transformers.names_transliteration", ctx)
         self.assertIn("Ігор Гіркін", vals)
         self.assertIn("Ihor Hirkin", vals)
         self.assertIn("Igor Girkin", vals)
+
+    def test_resolve_property(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={"$foobar": [StrProxy("bar")]},
+        )
+
+        val = _resolve_property("$foobar", ctx)[0]
+        self.assertEqual("bar", val)
+        self.assertIsInstance(val, StrProxy)
+
+        ctx.entity = make_entity("Person", "key_prefix")
+        ctx.entity.add("name", ["baz"])
+
+        val = _resolve_property("name", ctx)[0]
+        self.assertEqual("baz", val)
+        self.assertIsInstance(val, StrProxy)
+
+    def test_resolve_template(self):
+        entity = make_entity("Person", "key_prefix")
+        entity.add("name", ["3"])
+
+        ctx = ResolveContext(
+            record={"foo": "1"},
+            property_values=[StrProxy("2")],
+            entity=entity,
+            statements_meta={"locale": 4},
+            variables={"$foo": [StrProxy("5")]},
+        )
+
+        vals = _resolve_template(
+            "{{ record.foo }} {{ property_values|join('') }} {{ entity.name[0] }} {{ meta.locale }} "
+            "{{ variables['$foo']|join('') }}",
+            ctx,
+        )
+        self.assertIn("1 2 3 4 5", vals)
+        self.assertIn("2", vals)
+        self.assertIsInstance(vals[0], StrProxy)
+        self.assertIsInstance(vals[1], StrProxy)

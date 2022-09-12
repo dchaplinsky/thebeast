@@ -155,6 +155,7 @@ def _resolve_template(command_config: CommandConfig, context: ResolveContext) ->
                 record=context.record,
                 meta=context.statements_meta,
                 property_values=context.property_values,
+                variables=context.variables,
             ),
             meta=context.statements_meta,
         )
