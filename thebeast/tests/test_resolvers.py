@@ -6,6 +6,7 @@ from thebeast.digest.resolvers import (
     _resolve_entity,
     _resolve_column,
     _resolve_regex_split,
+    _resolve_regex_first,
     ResolveContext,
 )
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
@@ -90,3 +91,45 @@ class ResolversTests(unittest.TestCase):
                 self.assertEqual(val._meta.locale, "php")
             else:
                 self.assertEqual(val._meta.locale, "py")
+
+    def test_resolve_regex_first(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[StrProxy("1,2,3"), StrProxy("4,5,6")],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        self.assertSetEqual(
+            set(_resolve_regex_first(r"\d+", ctx)),
+            set(
+                [
+                    "1",
+                    "4",
+                ]
+            ),
+        )
+
+        ctx.statements_meta = {"locale": "de"}
+        for val in _resolve_regex_first(r"\d+", ctx):
+            self.assertIsInstance(val, StrProxy)
+            self.assertEqual(val._meta.locale, None)
+
+        ctx.property_values = [StrProxy("1,2,3", meta={"locale": "php"}), StrProxy("4,5,6", meta={"locale": "py"})]
+
+        for val in _resolve_regex_first(r"\d+", ctx):
+            if val < "4":
+                self.assertEqual(val._meta.locale, "php")
+            else:
+                self.assertEqual(val._meta.locale, "py")
+
+        self.assertSetEqual(
+            set(_resolve_regex_first(r"(\d+)(,)", ctx)),
+            set(
+                [
+                    "1",
+                    "4",
+                ]
+            ),
+        )
