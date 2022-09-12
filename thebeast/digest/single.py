@@ -4,7 +4,14 @@ from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
-from .utils import generate_pseudo_id, make_entity, jmespath_results_as_array, resolve_entity_refs, ensure_list
+from .utils import (
+    generate_pseudo_id,
+    make_entity,
+    jmespath_results_as_array,
+    resolve_entity_refs,
+    ensure_list,
+    resolve_callable,
+)
 from .resolvers import resolve_entity, resolve_constant_statement_meta
 
 
@@ -25,8 +32,11 @@ def make_entities(
                 property_configs = [property_configs]
 
             property_values: List[StrProxy] = resolve_entity(
-                property_configs=property_configs, record=record, entity=entity, statements_meta=statements_meta,
-                variables=variables
+                property_configs=property_configs,
+                record=record,
+                entity=entity,
+                statements_meta=statements_meta,
+                variables=variables,
             )
 
             if property_name.startswith("$"):
@@ -58,7 +68,13 @@ def main_cog(
     statements_meta: Dict[str, str],
 ) -> Generator[Schema, None, None]:
     for collection_name, collection_config in config.get("collections", {}).items():
-        for record in jmespath_results_as_array(collection_config["path"], data):
+        record_transformer = (
+            resolve_callable(collection_config["record_transformer"])
+            if "record_transformer" in collection_config
+            else lambda x: x
+        )
+
+        for record in record_transformer(jmespath_results_as_array(collection_config["path"], data)):
             local_context_entities: Dict[str, Schema] = {}
             for entity in make_entities(record, collection_config["entities"], statements_meta):
                 local_context_entities[generate_pseudo_id(entity.key_prefix)] = entity

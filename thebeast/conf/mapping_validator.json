@@ -22,6 +22,10 @@
                 {
                     "description": "jmespath to apply to the current level of the document to retrieve a collection",
                     "type": "string"
+                },
+                "record_transformer": {
+                    "description": "An optional python transformer (function, specified as fully qualified function name) to pre-process records before mapping. Used for hard cases, that involve logic beyond the capabilities of the beast mapping (for example, raw-text parsing)",
+                    "$ref": "/definitions/fqfn"
                 }
             },
             "required":

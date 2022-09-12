@@ -11,6 +11,12 @@ The FTM proposal:
 https://github.com/alephdata/followthemoney/issues/717
 
 The sample mapping with tons of comments to make you understand an idea better (beware, it's just an example, format is the subject to change):
+https://github.com/dchaplinsky/thebeast/blob/main/thebeast/tests/sample/mappings/ukrainian_mps.yaml
+
+Validator for the mappings in [json schema](https://json-schema.org) format (again, work in progress and tons of comments):
+https://github.com/dchaplinsky/thebeast/blob/main/thebeast/conf/mapping_validator.json
+
+First proposal of the mapping (obsolete, but can give you a better idea)
 https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 
 
@@ -32,6 +38,11 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [ ] Advanced ingest routines: full entity validation with jsonschema and red/green sorting
 - [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
 - [X] Advanced ingest routines: augmentations/transformations
+- [X] Advanced ingest routines: records transformations
+- [X] Tests for records transformations
+- [X] Tests for the individual resolvers
+- [ ] Tests for the resolver wrappers
+- [ ] Tests for digest routines
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI

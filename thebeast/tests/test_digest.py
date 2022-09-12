@@ -46,6 +46,7 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
         self.assertIn("Віктор Андрійович Ющенко", entity.properties["alias"])
         self.assertIn("Віктор Ющенко", entity.properties["alias"])
+        self.assertIn("Був депутатов 985 днів", entity.properties["notes"])
         self.assertEqual(set(["Віктор", "Андрійович", "Ющенко"]), set(entity.properties["keywords"]))
 
         entity = entities_by_schema["PublicBody"][0]

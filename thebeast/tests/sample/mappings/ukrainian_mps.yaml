@@ -23,6 +23,7 @@ digest:
   collections:
     root:
       path: "[@]"   # Wrap each record into the list
+      record_transformer: thebeast.tests.test_transformers.mp_record_transformer
       entities:
         ukrainian_mp_person:  # Also serves as a key_prefix for id and to reference other entites.
                               # Must be unique
@@ -53,6 +54,8 @@ digest:
               regex_split: \s+
             political:
               column: party
+            notes:
+              template: "Був депутатов {{ record.days_served }} днів"
             alias:
               -
                 column: name
