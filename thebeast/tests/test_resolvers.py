@@ -7,6 +7,8 @@ from thebeast.digest.resolvers import (
     _resolve_column,
     _resolve_regex_split,
     _resolve_regex_first,
+    _resolve_transformer,
+    _resolve_augmentor,
     ResolveContext,
 )
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
@@ -133,3 +135,51 @@ class ResolversTests(unittest.TestCase):
                 ]
             ),
         )
+
+    def test_resolve_transformer(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[StrProxy("05.06.07")],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        val = _resolve_transformer("thebeast.contrib.transformers.anydate_parser", ctx)[0]
+        self.assertIsInstance(val, StrProxy)
+        self.assertEqual(val, "2007-05-06")
+
+        val = _resolve_transformer({"name": "thebeast.contrib.transformers.anydate_parser"}, ctx)[0]
+        self.assertEqual(val, "2007-05-06")
+
+        val = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"dayfirst": True}}, ctx
+        )[0]
+        self.assertEqual(val, "2007-06-05")
+
+        val = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
+        )[0]
+        self.assertEqual(val, "2005-06-07")
+
+        ctx.property_values = [StrProxy("05.06.07", meta={"locale": "php"})]
+
+        val = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
+        )[0]
+        self.assertEqual(val, "2005-06-07")
+        self.assertEqual(val._meta.locale, "php")
+
+    def test_resolve_augmentor(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[StrProxy("Ігор Гіркін")],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        vals = _resolve_transformer("thebeast.contrib.transformers.names_transliteration", ctx)
+        self.assertIn("Ігор Гіркін", vals)
+        self.assertIn("Ihor Hirkin", vals)
+        self.assertIn("Igor Girkin", vals)

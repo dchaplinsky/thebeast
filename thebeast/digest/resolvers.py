@@ -125,7 +125,7 @@ def _resolve_transformer(command_config: CommandConfig, context: ResolveContext)
 
     if isinstance(command_config, dict):
         fcfn: str = command_config["name"]
-        params: dict = command_config["params"]
+        params: dict = command_config.get("params", {})
     else:
         fcfn = command_config
         params = {}
