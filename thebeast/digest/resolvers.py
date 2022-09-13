@@ -130,7 +130,14 @@ def _resolve_transformer(command_config: CommandConfig, context: ResolveContext)
         fcfn = command_config
         params = {}
 
-    return resolve_callable(fcfn)(context.property_values, **params)
+    params_as_args = ", ".join(f"{param_name}={param_value}" for param_name, param_value in params.items())
+
+    transformer_signature = f"{fcfn}({params_as_args})"
+    property_values = resolve_callable(fcfn)(context.property_values, **params)
+    for property_value in property_values:
+        property_value._meta = property_value._meta._replace(transformation=transformer_signature)
+
+    return property_values
 
 
 def _resolve_augmentor(command_config: CommandConfig, context: ResolveContext) -> List[str]:

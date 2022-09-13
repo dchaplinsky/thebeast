@@ -151,19 +151,23 @@ class ResolversTests(unittest.TestCase):
         val = _resolve_transformer("thebeast.contrib.transformers.anydate_parser", ctx)[0]
         self.assertIsInstance(val, StrProxy)
         self.assertEqual(val, "2007-05-06")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
 
         val = _resolve_transformer({"name": "thebeast.contrib.transformers.anydate_parser"}, ctx)[0]
         self.assertEqual(val, "2007-05-06")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
 
         val = _resolve_transformer(
             {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"dayfirst": True}}, ctx
         )[0]
         self.assertEqual(val, "2007-06-05")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(dayfirst=True)")
 
         val = _resolve_transformer(
             {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
         )[0]
         self.assertEqual(val, "2005-06-07")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
 
         ctx.property_values = [StrProxy("05.06.07", meta={"locale": "php"})]
 
@@ -172,6 +176,7 @@ class ResolversTests(unittest.TestCase):
         )[0]
         self.assertEqual(val, "2005-06-07")
         self.assertEqual(val._meta.locale, "php")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
 
     def test_resolve_augmentor(self):
         ctx = ResolveContext(
@@ -186,6 +191,15 @@ class ResolversTests(unittest.TestCase):
         self.assertIn("Ігор Гіркін", vals)
         self.assertIn("Ihor Hirkin", vals)
         self.assertIn("Igor Girkin", vals)
+
+        transformed_aliases = [prop for prop in vals if prop._meta.transformation is not None]
+        self.assertTrue(len(transformed_aliases) > 0)
+
+        for prop in transformed_aliases:
+            self.assertEqual(
+                prop._meta.transformation,
+                "thebeast.contrib.transformers.names_transliteration()",
+            )
 
     def test_resolve_property(self):
         ctx = ResolveContext(
@@ -226,3 +240,5 @@ class ResolversTests(unittest.TestCase):
         )[0]
         self.assertEqual("1 2 3 4 5", val)
         self.assertIsInstance(val, StrProxy)
+
+    # TODO: test for _resolve_meta

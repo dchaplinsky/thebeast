@@ -3,7 +3,7 @@ id: ukrainian_mps
 meta:
   - locale
   - date
-  - augmentation
+  - transformation
   - test_field
 
 info:

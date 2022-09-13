@@ -1,7 +1,7 @@
 from typing import Optional, List
 from collections import namedtuple
 
-DEFAULT_META_FIELDS: List[str] = ["locale", "augmentation", "date"]
+DEFAULT_META_FIELDS: List[str] = ["locale", "transformation", "date"]
 meta_cls: Optional[type] = None
 
 

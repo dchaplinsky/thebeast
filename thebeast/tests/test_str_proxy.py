@@ -10,7 +10,7 @@ class StrProxyTestCase(TestCase):
     def test_meta(self):
         s = StrProxy("foobar")
         self.assertIsNone(s._meta.date)
-        self.assertIsNone(s._meta.augmentation)
+        self.assertIsNone(s._meta.transformation)
         self.assertIsNone(s._meta.locale)
 
         new_s = StrProxy("foobar", meta={"locale": "uk"})
@@ -19,11 +19,11 @@ class StrProxyTestCase(TestCase):
         even_newer_s = StrProxy(s, meta={"locale": "en"})
         self.assertEqual(even_newer_s._meta.locale, "en")
 
-        supernova_s = StrProxy(even_newer_s, meta={"locale": "de", "augmentation": "noop"})
+        supernova_s = StrProxy(even_newer_s, meta={"locale": "de", "transformation": "noop"})
         self.assertEqual(even_newer_s._meta.locale, "en")
-        self.assertIsNone(even_newer_s._meta.augmentation, "en")
+        self.assertIsNone(even_newer_s._meta.transformation, "en")
         self.assertEqual(supernova_s._meta.locale, "de")
-        self.assertEqual(supernova_s._meta.augmentation, "noop")
+        self.assertEqual(supernova_s._meta.transformation, "noop")
 
     def test_injection(self):
         s = StrProxy("foobar", meta={"locale": "uk"})

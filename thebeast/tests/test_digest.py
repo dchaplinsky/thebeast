@@ -47,9 +47,23 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn("Віктор Андрійович Ющенко", entity.properties["alias"])
         self.assertIn("Виктор Ющенко", entity.properties["alias"])
         self.assertIn("Віктор Ющенко", entity.properties["alias"])
+
+        transformed_aliases = [prop for prop in entity.properties["alias"] if prop._meta.transformation is not None]
+        self.assertTrue(len(transformed_aliases) > 0)
+
+        for prop in transformed_aliases:
+            self.assertIn(
+                prop._meta.transformation,
+                [
+                    "thebeast.contrib.transformers.names_transliteration()",
+                    "thebeast.contrib.transformers.mixed_charset_fixer()",
+                ],
+            )
+
         self.assertIn("Був депутатов 985 днів", entity.properties["notes"])
         self.assertIn(
-            "Початок каденції: 2002-05-14, Блок Віктора Ющенка «Наша Україна»", entity.properties["notes"][0]._meta.test_field
+            "Початок каденції: 2002-05-14, Блок Віктора Ющенка «Наша Україна»",
+            entity.properties["notes"][0]._meta.test_field,
         )
         self.assertEqual(set(["Віктор", "Андрійович", "Ющенко"]), set(entity.properties["keywords"]))
 
@@ -72,6 +86,15 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn(entities_by_schema["PublicBody"][0].id, entity.properties["organization"])
         self.assertIn(entities_by_schema["Person"][0].id, entity.properties["member"])
 
+        self.assertEqual(
+            entity.properties["startDate"][0]._meta.transformation,
+            "thebeast.contrib.transformers.anydate_parser(dayfirst=True)",
+        )
+        self.assertEqual(
+            entity.properties["endDate"][0]._meta.transformation,
+            "thebeast.contrib.transformers.anydate_parser(dayfirst=True)",
+        )
+
         for entity in entities:
             for props in entity.properties.values():
                 for prop in props:
@@ -80,7 +103,6 @@ class MappingDigestTests(unittest.TestCase):
                         self.assertEqual(prop._meta.date, "2005-01-23")
                     else:
                         self.assertEqual(prop._meta.date, None)
-                    self.assertIsNone(prop._meta.augmentation)
 
     def test_surrogate_key(self):
         mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
