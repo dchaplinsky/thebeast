@@ -1,21 +1,15 @@
-import sys
 import json
 from typing import Iterable
 from followthemoney.schema import Schema  # type: ignore
-import smart_open  # type: ignore
+
+from .abstract import AbstractWriter
 
 
-class FTMLinesWriter:
+class FTMLinesWriter(AbstractWriter):
     """
     Class to write FTM jsonlines into any file-like object that smart_open supports
     or stdout (-)
     """
-
-    def __init__(self, output_uri: str) -> None:
-        if output_uri == "-":
-            self.output = sys.stdout
-        else:
-            self.output = smart_open.open(output_uri, "w")
 
     def write_entities(self, entities: Iterable[Schema], flush: bool = True) -> None:
         for entity in entities:

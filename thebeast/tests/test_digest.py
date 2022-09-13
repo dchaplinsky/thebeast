@@ -45,8 +45,12 @@ class MappingDigestTests(unittest.TestCase):
         self.assertIn("wikipedia", entity.properties["sourceUrl"][0])
         self.assertIn("wikipedia", entity.properties["wikipediaUrl"][0])
         self.assertIn("Віктор Андрійович Ющенко", entity.properties["alias"])
+        self.assertIn("Виктор Ющенко", entity.properties["alias"])
         self.assertIn("Віктор Ющенко", entity.properties["alias"])
         self.assertIn("Був депутатов 985 днів", entity.properties["notes"])
+        self.assertIn(
+            "Початок каденції: 2002-05-14, Блок Віктора Ющенка «Наша Україна»", entity.properties["notes"][0]._meta.test_field
+        )
         self.assertEqual(set(["Віктор", "Андрійович", "Ющенко"]), set(entity.properties["keywords"]))
 
         entity = entities_by_schema["PublicBody"][0]
@@ -72,7 +76,10 @@ class MappingDigestTests(unittest.TestCase):
             for props in entity.properties.values():
                 for prop in props:
                     self.assertEqual(prop._meta.locale, "uk")
-                    self.assertIsNone(prop._meta.date)
+                    if entity in entities_by_schema["Person"] or entity in entities_by_schema["Membership"]:
+                        self.assertEqual(prop._meta.date, "2005-01-23")
+                    else:
+                        self.assertEqual(prop._meta.date, None)
                     self.assertIsNone(prop._meta.augmentation)
 
     def test_surrogate_key(self):

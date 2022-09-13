@@ -26,6 +26,14 @@
                 "record_transformer": {
                     "description": "An optional python transformer (function, specified as fully qualified function name) to pre-process records before mapping. Used for hard cases, that involve logic beyond the capabilities of the beast mapping (for example, raw-text parsing)",
                     "$ref": "/definitions/fqfn"
+                },
+                "meta": {
+                    "description": "Record level statement meta values",
+                    "patternProperties":
+                    {
+                        "": {"$ref": "/schemas/property"}
+                    },
+                    "type": "object"
                 }
             },
             "required":
@@ -231,7 +239,7 @@
             "$id": "/schemas/property",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "description": "A list of instructions on how to get the data for the property and modify/validate it",
-            "oneOf":
+            "anyOf":
             [
                 {
                     "required":
@@ -322,6 +330,25 @@
                 {
                     "$ref": "/definitions/fqfn",
                     "description": "Fully qualified python function that *applies* a transformation to the list of string values"
+                },
+                "meta": {
+                    "description": "Property level meta values",
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "anyOf":
+                            [
+                                {
+                                    "$ref": "/schemas/property"
+                                },
+                                {
+                                    "$ref": "/schemas/properties"
+                                }
+                            ]
+                        }
+                    },
+                    "type": "object"
                 }
             },
             "type": "object"
@@ -368,7 +395,7 @@
                     },
                     "type": "object"
                 },
-                "statement_meta_values": {
+                "meta": {
                     "description": "Datasource level statement meta values for all the collections",
                     "patternProperties":
                     {
@@ -416,7 +443,7 @@
             "description": "Optional path to the dir with a custom FTM ontology to use",
             "type": "string"
         },
-        "statements_meta":
+        "meta":
         {
             "description": "Optional list of statements meta fields (if omitted, the default DEFAULT_META_FIELDS is used)",
             "items":
@@ -462,7 +489,7 @@
             ],
             "type": "object"
         },
-        "meta":
+        "info":
         {
             "properties":
             {

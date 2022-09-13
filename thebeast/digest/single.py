@@ -12,7 +12,7 @@ from .utils import (
     ensure_list,
     resolve_callable,
 )
-from .resolvers import resolve_entity, resolve_constant_statement_meta
+from .resolvers import resolve_property_values, resolve_constant_meta_values, resolve_collection_meta_values
 
 
 def make_entities(
@@ -31,7 +31,7 @@ def make_entities(
             if not isinstance(property_configs, list):
                 property_configs = [property_configs]
 
-            property_values: List[StrProxy] = resolve_entity(
+            property_values: List[StrProxy] = resolve_property_values(
                 property_configs=property_configs,
                 record=record,
                 entity=entity,
@@ -68,6 +68,7 @@ def main_cog(
     statements_meta: Dict[str, str],
 ) -> Generator[Schema, None, None]:
     for collection_name, collection_config in config.get("collections", {}).items():
+        # Applying optional record level transformer
         record_transformer = (
             resolve_callable(collection_config["record_transformer"])
             if "record_transformer" in collection_config
@@ -75,8 +76,27 @@ def main_cog(
         )
 
         for record in record_transformer(jmespath_results_as_array(collection_config["path"], data)):
+            # Retrieving some record-level meta
+            local_statements_meta: Dict[str, str] = {}
+
+            if "meta" in collection_config:
+                local_statements_meta: Dict[str, str] = {
+                    statement_meta_name: "\n".join(
+                        resolve_collection_meta_values(
+                            property_configs=ensure_list(statement_meta_config),
+                            record=record,
+                            statements_meta=statements_meta,
+                        ),
+                    )
+                    for statement_meta_name, statement_meta_config in collection_config.get("meta", {}).items()
+                }
+
+            # Updating local copy of a parent meta with a local statements meta
+            combined_statements_meta: Dict[str, str] = statements_meta.copy()
+            combined_statements_meta.update(local_statements_meta)
+
             local_context_entities: Dict[str, Schema] = {}
-            for entity in make_entities(record, collection_config["entities"], statements_meta):
+            for entity in make_entities(record, collection_config["entities"], combined_statements_meta):
                 local_context_entities[generate_pseudo_id(entity.key_prefix)] = entity
 
             combined_context_entites: Dict[str, Schema] = parent_context_entities.copy()
@@ -97,10 +117,8 @@ class SingleThreadedDigestor:
     def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Schema, None, None]:
         # First let's get some global level meta values for our statements
         statements_meta: Dict[str, str] = {
-            statement_meta_name: "\n".join(resolve_constant_statement_meta(ensure_list(statement_meta_config)))
-            for statement_meta_name, statement_meta_config in self.mapping_config.get(
-                "statement_meta_values", {}
-            ).items()
+            statement_meta_name: "\n".join(resolve_constant_meta_values(ensure_list(statement_meta_config)))
+            for statement_meta_name, statement_meta_config in self.mapping_config.get("meta", {}).items()
         }
 
         # Then let's yield constant entities

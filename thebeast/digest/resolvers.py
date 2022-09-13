@@ -7,7 +7,7 @@ from jinja2 import Environment, BaseLoader, select_autoescape
 from followthemoney.schema import Schema  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
-from .utils import generate_pseudo_id, jmespath_results_as_array, resolve_callable
+from .utils import generate_pseudo_id, jmespath_results_as_array, resolve_callable, ensure_list
 
 # TODO: expose jmespath to templates as a filter?
 jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
@@ -148,17 +148,18 @@ def _resolve_template(command_config: CommandConfig, context: ResolveContext) ->
     which contains current half-finished entity and original
     """
     template = jinja_env.from_string(command_config)
-    return context.property_values + [
+    return [
         StrProxy(
             template.render(
                 entity=context.entity.properties,
                 record=context.record,
                 meta=context.statements_meta,
-                property_values=context.property_values,
+                property_value=property_value,
                 variables=context.variables,
             ),
             meta=context.statements_meta,
         )
+        for property_value in context.property_values or [None]
     ]
 
 
@@ -173,6 +174,30 @@ def _resolve_property(command_config: CommandConfig, context: ResolveContext) ->
         return context.property_values + context.entity.get(command_config)
 
 
+def _resolve_meta(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+    """
+    `meta` collects the meta information and sets it for the current property values
+    """
+
+    # TODO: DRY with "meta" in collection_config
+    local_statements_meta: Dict[str, str] = {
+        meta_name: "\n".join(
+            resolve_meta_values(
+                ensure_list(meta_config),
+                record=context.record,
+                statements_meta=context.statements_meta,
+                entity=context.entity,
+            )
+        )
+        for meta_name, meta_config in command_config.items()
+    }
+
+    for property_value in context.property_values:
+        property_value._meta = property_value._meta._replace(**local_statements_meta)
+
+    return context.property_values
+
+
 def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callable], **kwargs) -> List[StrProxy]:
     """
     A general function that applies all the command from the config to the kwargs
@@ -182,20 +207,26 @@ def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callabl
     ctx = ResolveContext(property_values=property_values, **kwargs)
 
     for property_config in property_configs:
+        curr_property_values: List[StrProxy] = []
         for command, command_config in property_config.items():
             if command in commands_mapping:
-                ctx.property_values = property_values
-                property_values = commands_mapping[command](command_config=command_config, context=ctx)
+                ctx.property_values = curr_property_values
+                curr_property_values = commands_mapping[command](command_config=command_config, context=ctx)
             else:
                 pass
                 # TODO: signal to show our disrespect?
 
+        property_values += curr_property_values
+
     return property_values
 
 
-def resolve_entity(
-    property_configs: List, record: Union[List, Dict], entity: Schema, statements_meta: Dict[str, List[str]],
-    variables: List[StrProxy]
+def resolve_property_values(
+    property_configs: List,
+    record: Union[List, Dict],
+    entity: Schema,
+    statements_meta: Dict[str, List[str]],
+    variables: List[StrProxy],
 ) -> List[StrProxy]:
     """
     A wrapper for _resolve_configs for the entity (all commands are supported)
@@ -213,15 +244,71 @@ def resolve_entity(
             "augmentor": _resolve_augmentor,
             "template": _resolve_template,
             "property": _resolve_property,
+            "meta": _resolve_meta,
         },
         record=record,
         entity=entity,
         statements_meta=statements_meta,
-        variables=variables
+        variables=variables,
     )
 
 
-def resolve_constant_statement_meta(property_configs: List) -> List[StrProxy]:
+def resolve_meta_values(
+    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, List[str]], entity: Optional[Schema]
+) -> List[StrProxy]:
+    """
+    A wrapper for _resolve_configs for the meta values on property level (everything except meta is allowed)
+    """
+    return _resolve_configs(
+        property_configs=property_configs,
+        commands_mapping={
+            "literal": _resolve_literal,
+            "column": _resolve_column,
+            "regex_split": _resolve_regex_split,
+            "regex": _resolve_regex,
+            "regex_first": _resolve_regex_first,
+            "transformer": _resolve_transformer,
+            "augmentor": _resolve_augmentor,
+            "property": _resolve_property,
+            "template": _resolve_template,
+        },
+        record=record,
+        statements_meta=statements_meta,
+        entity=entity,
+        variables=None,
+    )
+
+
+def resolve_collection_meta_values(
+    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, List[str]]
+) -> List[StrProxy]:
+    """
+    A wrapper for _resolve_configs for the meta values on collection level
+    (everything except meta and property is allowed)
+    """
+    return _resolve_configs(
+        property_configs=property_configs,
+        commands_mapping={
+            "literal": _resolve_literal,
+            "column": _resolve_column,
+            "regex_split": _resolve_regex_split,
+            "regex": _resolve_regex,
+            "regex_first": _resolve_regex_first,
+            "transformer": _resolve_transformer,
+            "augmentor": _resolve_augmentor,
+            "template": _resolve_template,
+        },
+        record=record,
+        statements_meta=statements_meta,
+        entity=None,
+        variables=None,
+    )
+
+
+def resolve_constant_meta_values(property_configs: List) -> List[StrProxy]:
+    """
+    A wrapper to resolve meta values for statements on a dataset level (supports `literal` only)
+    """
     return _resolve_configs(
         property_configs=property_configs,
         commands_mapping={

@@ -1,13 +1,13 @@
 import os
 from pathlib import Path
-from typing import Union, Callable, Dict, Any
+from typing import Union, Callable, Dict, Any, List
 import json
 
 
 import fastjsonschema  # type: ignore
 from .exc import InvalidMappingException, InvalidOverridesException
 from .utils import import_string, ordered_load
-from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
+from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls, DEFAULT_META_FIELDS
 
 
 class SourceMapping:
@@ -69,9 +69,11 @@ class SourceMapping:
         # ftm model is a singleton instantiated on the import, we should be careful here
         from followthemoney import model as ftm  # type: ignore
 
-        if mapping.get("statements_meta", None) is not None:
+        meta_fields: List[str] = DEFAULT_META_FIELDS
+        if mapping.get("meta", None) is not None:
             # Setting meta singletone for statements meta
-            get_meta_cls(mapping["statements_meta"])
+            meta_fields = mapping["meta"]
+            get_meta_cls(mapping["meta"])
 
         self.ftm = ftm
         self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
@@ -79,7 +81,9 @@ class SourceMapping:
             mapping_config=mapping["digest"], **mapping["digest"].get("params", {})
         )
 
-        self.dumper = import_string(mapping["dump"]["cls"])(**mapping["dump"].get("params", {}))
+        self.dumper = import_string(mapping["dump"]["cls"])(
+            **mapping["dump"].get("params", {}), meta_fields=meta_fields
+        )
 
         # Just in case, the list of jmespathes to extract some jmespathes.
         # digest.collections.*.path

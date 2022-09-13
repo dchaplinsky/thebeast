@@ -18,7 +18,7 @@ class CaptureStdout:
 class MappingDumpTests(unittest.TestCase):
     def test_empty_dump(self):
         with CaptureStdout():
-            dumper = FTMLinesWriter("-")
+            dumper = FTMLinesWriter("-", meta_fields=[])
             dumper.write_entities([], flush=True)
 
             sys.stdout.seek(0)
@@ -26,7 +26,7 @@ class MappingDumpTests(unittest.TestCase):
 
     def test_empty_entity_dump(self):
         with CaptureStdout():
-            dumper = FTMLinesWriter("-")
+            dumper = FTMLinesWriter("-", meta_fields=[])
             entity = ftm.make_entity("Person")
             dumper.write_entities([entity])
 
@@ -35,7 +35,7 @@ class MappingDumpTests(unittest.TestCase):
 
     def test_full_entity_dump(self):
         with CaptureStdout():
-            dumper = FTMLinesWriter("-")
+            dumper = FTMLinesWriter("-", meta_fields=[])
             entity = ftm.make_entity("Person")
             entity.set("name", "")
 

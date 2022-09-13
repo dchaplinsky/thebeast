@@ -1,12 +1,12 @@
 id: ukrainian_mps
 # ftm_ontology: # Again optional path to the directory with ftm
-statements_meta:
+meta:
   - locale
   - date
   - augmentation
-  - data_source
+  - test_field
 
-meta:
+info:
   comments: Optional comments on the data source
   author: Dmytro Chaplynskyi
   created: "2022-06-20T20:19:00.1Z"
@@ -17,13 +17,21 @@ ingest:
   params:
     input_uri: thebeast/tests/sample/csv/rada*.tsv
 digest:
-  statement_meta_values:
+  meta:
     locale:
       literal: uk
   collections:
     root:
       path: "[@]"   # Wrap each record into the list
       record_transformer: thebeast.tests.test_transformers.mp_record_transformer
+      meta:
+        date:
+          column: date_to
+          regex: (\d{2}\.\d{2}\.\d{4})
+          transformer:
+            name: thebeast.contrib.transformers.anydate_parser
+            params:
+              dayfirst: True
       entities:
         ukrainian_mp_person:  # Also serves as a key_prefix for id and to reference other entites.
                               # Must be unique
@@ -51,11 +59,20 @@ digest:
               column: link
             keywords:
               property: name
-              regex_split: \s+
+              regex_split: \s+                  
             political:
               column: party
             notes:
               template: "Був депутатов {{ record.days_served }} днів"
+              meta:
+                test_field:
+                  column: date_from
+                  regex: (\d{2}\.\d{2}\.\d{4})
+                  transformer:
+                    name: thebeast.contrib.transformers.anydate_parser
+                    params:
+                      dayfirst: True
+                  template: "Початок каденції: {{ property_value|join('') }}, {{ entity.political|join('') }}"
             alias:
               -
                 column: name

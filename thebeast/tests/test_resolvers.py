@@ -219,12 +219,10 @@ class ResolversTests(unittest.TestCase):
             variables={"$foo": [StrProxy("5")]},
         )
 
-        vals = _resolve_template(
-            "{{ record.foo }} {{ property_values|join('') }} {{ entity.name[0] }} {{ meta.locale }} "
+        val = _resolve_template(
+            "{{ record.foo }} {{ property_value }} {{ entity.name[0] }} {{ meta.locale }} "
             "{{ variables['$foo']|join('') }}",
             ctx,
-        )
-        self.assertIn("1 2 3 4 5", vals)
-        self.assertIn("2", vals)
-        self.assertIsInstance(vals[0], StrProxy)
-        self.assertIsInstance(vals[1], StrProxy)
+        )[0]
+        self.assertEqual("1 2 3 4 5", val)
+        self.assertIsInstance(val, StrProxy)
