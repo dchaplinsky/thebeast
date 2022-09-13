@@ -46,9 +46,10 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [ ] Advanced ingest routines: multiprocessing
 - [ ] Tests for advanced digest routines
 - [ ] Basic CLI
-- [x] Basic dump routines (stdout)
-- [ ] Basic dump routines: statements
+- [x] Basic dump routines (stdout/files)
+- [x] Basic dump routines: statements
 - [x] Tests for basic dump routines
+- [ ] Tests for basic dump routines: statements
 
 ## Running tests
 
