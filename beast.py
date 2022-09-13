@@ -9,3 +9,5 @@ if __name__ == "__main__":
     mapping.dumper.write_entities(
         tqdm(mapping.digestor.extract(tqdm(mapping.ingestor, desc="Records in")), desc="Entities outs")
     )
+
+    mapping.dumper.close()

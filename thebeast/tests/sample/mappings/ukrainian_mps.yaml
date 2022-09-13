@@ -158,7 +158,7 @@ digest:
         country:
           literal: Ukraine
 dump:
-  cls: thebeast.dump.FTMLinesWriter
+  cls: thebeast.dump.StatementsCSVWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
     output_uri: "-"

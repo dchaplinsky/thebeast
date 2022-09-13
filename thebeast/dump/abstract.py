@@ -12,6 +12,7 @@ class AbstractWriter:
 
     def __init__(self, output_uri: str, meta_fields: List[str]) -> None:
         self.meta_fields: List[str] = meta_fields
+        self.output_uri: str = output_uri
 
         if output_uri == "-":
             self.output = sys.stdout
@@ -20,3 +21,11 @@ class AbstractWriter:
 
     def write_entities(self, entities: Iterable[Schema], flush: bool = True) -> None:
         raise NotImplementedError("You have to redefine it")
+
+    def close(self):
+        if self.output_uri != "-":
+            self.output.close()
+
+
+class AbstractStatementsWriter(AbstractWriter):
+    pass
