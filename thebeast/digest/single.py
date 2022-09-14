@@ -1,4 +1,4 @@
-from typing import Union, List, Dict, Generator, Iterable
+from typing import Union, List, Dict, Generator, Iterable, Callable, Optional, Any
 
 from followthemoney.schema import Schema  # type: ignore
 
@@ -66,10 +66,12 @@ def main_cog(
     config: Dict,
     parent_context_entities: Dict[str, Schema],
     statements_meta: Dict[str, str],
+    # TODO: inject parent record as __parent or something
+    parent_record: Optional[Any],
 ) -> Generator[Schema, None, None]:
     for collection_name, collection_config in config.get("collections", {}).items():
         # Applying optional record level transformer
-        record_transformer = (
+        record_transformer: Callable = (
             resolve_callable(collection_config["record_transformer"])
             if "record_transformer" in collection_config
             else lambda x: x
@@ -80,7 +82,7 @@ def main_cog(
             local_statements_meta: Dict[str, str] = {}
 
             if "meta" in collection_config:
-                local_statements_meta: Dict[str, str] = {
+                local_statements_meta = {
                     statement_meta_name: "\n".join(
                         resolve_collection_meta_values(
                             property_configs=ensure_list(statement_meta_config),
@@ -104,6 +106,16 @@ def main_cog(
 
             for entity in resolve_entity_refs(local_context_entities.values(), combined_context_entites):
                 yield entity
+
+            if "collections" in collection_config:
+                for entity in main_cog(
+                    data=record,
+                    config=collection_config,
+                    parent_context_entities=combined_context_entites,
+                    statements_meta=statements_meta,
+                    parent_record=None,
+                ):
+                    yield entity
 
 
 class SingleThreadedDigestor:
@@ -142,6 +154,7 @@ class SingleThreadedDigestor:
                 config=self.mapping_config,
                 parent_context_entities=context_entities,
                 statements_meta=statements_meta,
+                parent_record=None,
             ):
                 # TODO: green/red sorting for valid records/exceptions here?
                 yield entity

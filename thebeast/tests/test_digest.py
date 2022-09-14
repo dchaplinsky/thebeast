@@ -1,11 +1,23 @@
 import unittest
+import json
 from pathlib import Path
 from collections import defaultdict
+from typing import Dict, List
+
+from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.conf.mapping import SourceMapping
 
 
 class MappingDigestTests(unittest.TestCase):
+    def get_entities_by_schema(self, entities: List[Schema]) -> Dict[str, List[Schema]]:
+        entities_by_schema = defaultdict(list)
+
+        for entity in entities:
+            entities_by_schema[entity.schema.name].append(entity)
+
+        return entities_by_schema
+
     def test_valid_digest(self):
         mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
 
@@ -25,10 +37,7 @@ class MappingDigestTests(unittest.TestCase):
         entities = list(mapping.digestor.extract(items))
         self.assertEqual(len(entities), 4)
 
-        entities_by_schema = defaultdict(list)
-
-        for entity in entities:
-            entities_by_schema[entity.schema.name].append(entity)
+        entities_by_schema = self.get_entities_by_schema(entities)
 
         self.assertEqual(len(entities_by_schema["Person"]), 1)
         self.assertEqual(len(entities_by_schema["PublicBody"]), 1)
@@ -133,10 +142,7 @@ class MappingDigestTests(unittest.TestCase):
         entities = list(mapping.digestor.extract(items))
         self.assertEqual(len(entities), 6)
 
-        entities_by_schema = defaultdict(list)
-
-        for entity in entities:
-            entities_by_schema[entity.schema.name].append(entity)
+        entities_by_schema = self.get_entities_by_schema(entities)
 
         self.assertEqual(len(entities_by_schema["Person"]), 2)
         self.assertEqual(len(entities_by_schema["Membership"]), 2)
@@ -172,10 +178,7 @@ class MappingDigestTests(unittest.TestCase):
         entities = list(mapping.digestor.extract(items))
         self.assertEqual(len(entities), 4)
 
-        entities_by_schema = defaultdict(list)
-
-        for entity in entities:
-            entities_by_schema[entity.schema.name].append(entity)
+        entities_by_schema = self.get_entities_by_schema(entities)
 
         entity = entities_by_schema["Person"][0]
         self.assertIn("Джемілєв Мустафа", entity.properties["name"])
@@ -184,3 +187,19 @@ class MappingDigestTests(unittest.TestCase):
         self.assertNotIn("Джeмiлєв Мyстaфa", entity.properties["name"])
         self.assertIn("Mustafa Dzhemiliev", entity.properties["alias"])
         self.assertIn("Dzhemiliev Mustafa", entity.properties["alias"])
+
+    def test_nested_digest(self):
+        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_edr.yaml"))
+
+        with open("thebeast/tests/sample/json/edr_sample.json", "r") as fp_in:
+            items = json.load(fp_in)
+
+        entities = list(mapping.digestor.extract(items))
+        self.assertEqual(len(entities), 11)
+
+        entities_by_schema = self.get_entities_by_schema(entities)
+
+        self.assertEqual(len(entities_by_schema["Company"]), 2)
+        self.assertEqual(len(entities_by_schema["Person"]), 3)
+        self.assertEqual(len(entities_by_schema["Address"]), 3)
+        self.assertEqual(len(entities_by_schema["Ownership"]), 3)

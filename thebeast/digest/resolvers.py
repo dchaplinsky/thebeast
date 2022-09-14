@@ -19,13 +19,13 @@ class ResolveContext:
     property_values: List[StrProxy]
     entity: Optional[Schema]
     statements_meta: Optional[Dict[str, str]]
-    variables: Optional[Dict[str, str]]
+    variables: Optional[Dict[str, List[StrProxy]]]
 
 
 CommandConfig = NewType("CommandConfig", Union[str, dict])
 
 
-def _resolve_literal(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+def _resolve_literal(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `literal` is simply a string or number constant used for FTM entity field
     """
@@ -140,7 +140,7 @@ def _resolve_transformer(command_config: CommandConfig, context: ResolveContext)
     return property_values
 
 
-def _resolve_augmentor(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+def _resolve_augmentor(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `augmentor` is a similar concept to the `transformer`, but modified list is added
     to the original values
@@ -166,22 +166,22 @@ def _resolve_template(command_config: CommandConfig, context: ResolveContext) ->
             ),
             meta=context.statements_meta,
         )
-        for property_value in context.property_values or [None]
+        for property_value in context.property_values or [StrProxy("")]
     ]
 
 
-def _resolve_property(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+def _resolve_property(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `property` gets the property value from the current entity or $variable
     """
 
-    if command_config.startswith("$"):
+    if command_config.startswith("$") and context.variables is not None:
         return context.property_values + context.variables.get(command_config, [])
-    else:
+    elif context.entity is not None:
         return context.property_values + context.entity.get(command_config)
 
 
-def _resolve_meta(command_config: CommandConfig, context: ResolveContext) -> List[str]:
+def _resolve_meta(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `meta` collects the meta information and sets it for the current property values
     """
@@ -232,7 +232,7 @@ def resolve_property_values(
     property_configs: List,
     record: Union[List, Dict],
     entity: Schema,
-    statements_meta: Dict[str, List[str]],
+    statements_meta: Dict[str, str],
     variables: List[StrProxy],
 ) -> List[StrProxy]:
     """
@@ -261,7 +261,7 @@ def resolve_property_values(
 
 
 def resolve_meta_values(
-    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, List[str]], entity: Optional[Schema]
+    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, str], entity: Optional[Schema]
 ) -> List[StrProxy]:
     """
     A wrapper for _resolve_configs for the meta values on property level (everything except meta is allowed)
@@ -287,7 +287,7 @@ def resolve_meta_values(
 
 
 def resolve_collection_meta_values(
-    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, List[str]]
+    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, str]
 ) -> List[StrProxy]:
     """
     A wrapper for _resolve_configs for the meta values on collection level

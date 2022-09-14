@@ -1,0 +1,99 @@
+id: ukrainian_edr
+# ftm_ontology: # Again optional path to the directory with ftm
+
+info:
+  comments: Optional comments on the data source
+  author: Daniel Horbunov, Dmytro Chaplynskyi
+  created: "2022-06-20T20:19:00.1Z"
+  modified: "2022-06-20T20:19:00.1Z"
+
+ingest:
+  cls: thebeast.ingest.JSONGlobReader
+  params:
+    input_uri: thebeast/tests/sample/json/edr_sample.json
+digest:
+  collections:
+    root:  # Maybe we have to get rid of this object and use a list instead?
+      path: "[@]"   # Wrap each record into the list
+      entities:
+        edr_company:
+          schema: Company
+          keys:
+            - record.RECORD
+          properties:
+            name:
+              column: NAME
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+            alias:
+              column: SHORT_NAME
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+            description:
+              column: OPF
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+            ogrnCode:
+              column: EDRPOU
+            address:
+              column: ADDRESS
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+            notes:
+              column: FOUNDERS_DATA
+              regex: "(?:'Name': '([\\w ]+)')"
+            summary:
+              column: BENEFICIARIES_DATA
+              regex: "(?:'Name': '([\\w ]+)')"
+      collections:
+        edr_founder:
+          path: "FOUNDERS"
+          entities:
+            edr_founder_person:
+              schema: Person
+              keys:
+                # For now
+                - entity.name
+              properties:
+                name:
+                  column: Name
+                  transformer: thebeast.contrib.transformers.mixed_charset_fixer
+                address:
+                  entity: edr_founder_address
+
+            edr_founder_address:
+              schema: Address
+              keys:
+                - entity.country
+                - entity.full
+              properties:
+                full:
+                  column: Address
+                country:
+                  literal: Україна   # For now
+            edr_founder_link:
+              schema: Ownership
+              keys:
+                # TODO: verify that it use resolved keys, not fake
+                - entity.owner
+                - entity.asset
+                - entity.ownershipType
+              properties:
+                owner:
+                  entity: edr_founder_person
+                asset:
+                  entity: edr_company
+                ownershipType:
+                  column: FounderType
+                sharesCurrency:
+                  literal: UAH
+                sharesType:
+                  literal: Частка статутного капіталу
+                sharesValue:
+                  column: Capital
+                sharesValue:
+                  column: Capital
+                sharesCount:
+                  column: Capital
+                percentage:
+                  column: CapitalPart
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    output_uri: "-"

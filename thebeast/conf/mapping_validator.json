@@ -34,6 +34,17 @@
                         "": {"$ref": "/schemas/property"}
                     },
                     "type": "object"
+                },
+                "collections":
+                {
+                    "patternProperties":
+                    {
+                        "":
+                        {
+                            "$ref": "/schemas/collection"
+                        }
+                    },
+                    "type": "object"
                 }
             },
             "required":
@@ -41,7 +52,8 @@
                 "path",
                 "entities"
             ],
-            "type": "object"
+            "type": "object",
+            "additionalProperties": false
         },
         "constant_entity":
         {

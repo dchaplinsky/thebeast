@@ -50,7 +50,7 @@ def resolve_entity_refs(
 
                 # TODO: errors (probably red/green sorting) for the properties that cannot be resolved
                 for prop_val in entity.get(prop):
-                    resolved_properties.append(prop_val.inject_meta_to_str(context_entities.get(prop_val, prop_val).id))
+                    resolved_properties.append(prop_val.inject_meta_to_str(context_entities.get(prop_val).id))
 
                 entity.set(prop, resolved_properties)
 
