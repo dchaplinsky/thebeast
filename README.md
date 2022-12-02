@@ -58,3 +58,8 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 pip install -r requirements.txt
 python -m pytest
 ```
+
+## Running in Docker
+```
+bin/run mapping.yaml
+```
