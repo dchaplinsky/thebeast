@@ -423,34 +423,6 @@
             ],
             "type": "object"
         },
-        "dump":
-        {
-            "properties":
-            {
-                "cls":
-                {
-                    "allOf":
-                    [
-                        {
-                            "$ref": "/definitions/fqcn"
-                        }
-                    ],
-                    "description": "Fully qualified python class name dumper, which is derived from []"
-                },
-                "params":
-                {
-                    "properties":
-                    {
-                        "output_uri":
-                        {
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                }
-            },
-            "type": "object"
-        },
         "ftm_ontology":
         {
             "description": "Optional path to the dir with a custom FTM ontology to use",
@@ -469,38 +441,6 @@
         {
             "description": "(Somewhat) unique id of the mapping",
             "type": "string"
-        },
-        "ingest":
-        {
-            "properties":
-            {
-                "cls":
-                {
-                    "allOf":
-                    [
-                        {
-                            "$ref": "/definitions/fqcn"
-                        }
-                    ],
-                    "description": "Fully qualified python class name, which is derived from AbstractIngestor"
-                },
-                "params":
-                {
-                    "properties":
-                    {
-                        "input_uri":
-                        {
-                            "type": "string"
-                        }
-                    },
-                    "type": "object"
-                }
-            },
-            "required":
-            [
-                "cls"
-            ],
-            "type": "object"
         },
         "info":
         {
@@ -533,9 +473,7 @@
     "required":
     [
         "id",
-        "ingest",
         "digest",
-        "dump"
     ],
     "type": "object"
 }

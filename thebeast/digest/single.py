@@ -16,14 +16,14 @@ from .resolvers import resolve_property_values, resolve_constant_meta_values, re
 
 
 def make_entities(
-    record: Union[List, Dict], entities_config: Dict, statements_meta: Dict[str, str]
+    record: Union[List, Dict], entities_config: Dict, statements_meta: Dict[str, str], ftm
 ) -> Generator[Schema, None, None]:
     """
     Takes the list/dict of records and a config for collection and produces entites
     """
 
     for entity_name, entity_config in entities_config.items():
-        entity = make_entity(entity_config["schema"], key_prefix=entity_name)
+        entity = make_entity(entity_config["schema"], key_prefix=entity_name, ftm=ftm)
         key_values: List[str] = []
         variables: Dict[str, List[StrProxy]] = {}
 
@@ -68,6 +68,7 @@ def main_cog(
     statements_meta: Dict[str, str],
     # TODO: inject parent record as __parent or something
     parent_record: Optional[Any],
+    ftm
 ) -> Generator[Schema, None, None]:
     for collection_name, collection_config in config.get("collections", {}).items():
         # Applying optional record level transformer
@@ -98,7 +99,7 @@ def main_cog(
             combined_statements_meta.update(local_statements_meta)
 
             local_context_entities: Dict[str, Schema] = {}
-            for entity in make_entities(record, collection_config["entities"], combined_statements_meta):
+            for entity in make_entities(record, collection_config["entities"], combined_statements_meta, ftm):
                 local_context_entities[generate_pseudo_id(entity.key_prefix)] = entity
 
             combined_context_entites: Dict[str, Schema] = parent_context_entities.copy()
@@ -114,6 +115,7 @@ def main_cog(
                     parent_context_entities=combined_context_entites,
                     statements_meta=statements_meta,
                     parent_record=None,
+                    ftm=ftm
                 ):
                     yield entity
 
@@ -127,6 +129,8 @@ class SingleThreadedDigestor:
         self.mapping_config = mapping_config
 
     def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Schema, None, None]:
+        from followthemoney.model import Model
+        ftm = Model("/Users/dchaplinsky/Projects/darkmatter/venv/lib/python3.9/site-packages/followthemoney/schema")
         # First let's get some global level meta values for our statements
         statements_meta: Dict[str, str] = {
             statement_meta_name: "\n".join(resolve_constant_meta_values(ensure_list(statement_meta_config)))
@@ -138,14 +142,15 @@ class SingleThreadedDigestor:
 
         # TODO: use a dedicated function to make constant entities maybe?
         for entity in make_entities(
-            record={}, entities_config=self.mapping_config.get("constant_entities", {}), statements_meta=statements_meta
+            record={}, entities_config=self.mapping_config.get("constant_entities", {}), statements_meta=statements_meta,
+            ftm=ftm
         ):
             context_entities[generate_pseudo_id(entity.key_prefix)] = entity
 
         # And resolve entity refererence in constant entities (i.e one constant entity is referencing
         # another in the property)
         for entity in resolve_entity_refs(context_entities.values(), context_entities):
-            yield entity
+            yield entity.to_full_dict()
 
         # Now for the fun part: real entities
         for record in records:
@@ -155,6 +160,7 @@ class SingleThreadedDigestor:
                 parent_context_entities=context_entities,
                 statements_meta=statements_meta,
                 parent_record=None,
+                ftm=ftm
             ):
                 # TODO: green/red sorting for valid records/exceptions here?
-                yield entity
+                yield entity.to_full_dict()

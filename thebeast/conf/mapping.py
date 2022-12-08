@@ -76,14 +76,14 @@ class SourceMapping:
             get_meta_cls(mapping["meta"])
 
         self.ftm = ftm
-        self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
+        # self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
         self.digestor = import_string(mapping["digest"]["cls"])(
             mapping_config=mapping["digest"], **mapping["digest"].get("params", {})
         )
 
-        self.dumper = import_string(mapping["dump"]["cls"])(
-            **mapping["dump"].get("params", {}), meta_fields=meta_fields
-        )
+        # self.dumper = import_string(mapping["dump"]["cls"])(
+        #     **mapping["dump"].get("params", {}), meta_fields=meta_fields
+        # )
 
         # Just in case, the list of jmespathes to extract some jmespathes.
         # digest.collections.*.path

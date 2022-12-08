@@ -54,7 +54,7 @@ digest:
                 name:
                   column: Name
                   transformer: thebeast.contrib.transformers.mixed_charset_fixer
-                address:
+                addressEntity:
                   entity: edr_founder_address
 
             edr_founder_address:
@@ -85,8 +85,6 @@ digest:
                   literal: UAH
                 sharesType:
                   literal: Частка статутного капіталу
-                sharesValue:
-                  column: Capital
                 sharesValue:
                   column: Capital
                 sharesCount:

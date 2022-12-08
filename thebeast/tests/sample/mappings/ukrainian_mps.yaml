@@ -23,7 +23,7 @@ digest:
   collections:
     root:
       path: "[@]"   # Wrap each record into the list
-      record_transformer: thebeast.tests.test_transformers.mp_record_transformer
+      # record_transformer: thebeast.tests.test_transformers.mp_record_transformer
       meta:
         date:
           column: date_to
@@ -64,15 +64,15 @@ digest:
               column: party
             notes:
               template: "Був депутатов {{ record.days_served }} днів"
-              meta:
-                test_field:
-                  column: date_from
-                  regex: (\d{2}\.\d{2}\.\d{4})
-                  transformer:
-                    name: thebeast.contrib.transformers.anydate_parser
-                    params:
-                      dayfirst: True
-                  template: "Початок каденції: {{ property_value|join('') }}, {{ entity.political|join('') }}"
+              # meta:
+              #   test_field:
+              #     column: date_from
+              #     regex: (\d{2}\.\d{2}\.\d{4})
+              #     transformer:
+              #       name: thebeast.contrib.transformers.anydate_parser
+              #       params:
+              #         dayfirst: True
+              #     template: "Початок каденції: {{ property_value|join('') }}, {{ entity.political|join('') }}"
             alias:
               -
                 column: name
@@ -161,4 +161,4 @@ dump:
   cls: thebeast.dump.StatementsCSVWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
-    output_uri: "-"
+    output_uri: "/tmp/statements.csv"

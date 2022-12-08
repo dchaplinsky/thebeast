@@ -4,7 +4,7 @@ import jmespath  # type: ignore
 
 # We are utilizing here the fact that Model is a singletone and set up
 # in the thebeast.conf.mapping
-from followthemoney import model as ftm  # type: ignore
+# from followthemoney import model as ftm  # type: ignore
 from followthemoney.types import registry  # type: ignore
 from followthemoney.util import make_entity_id  # type: ignore
 from followthemoney.schema import Schema  # type: ignore
@@ -57,7 +57,7 @@ def resolve_entity_refs(
         yield entity
 
 
-def make_entity(schema: Union[str, Schema], key_prefix: Optional[str] = None) -> RiggedEntityProxy:
+def make_entity(schema: Union[str, Schema], ftm, key_prefix: Optional[str] = None) -> RiggedEntityProxy:
     """Instantiate an empty entity proxy of the given schema type."""
     return RiggedEntityProxy(ftm, {"schema": schema}, key_prefix=key_prefix)
 

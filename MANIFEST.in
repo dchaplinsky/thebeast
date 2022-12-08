@@ -1,0 +1,7 @@
+include LICENSE
+include README.md
+exclude venv
+
+recursive-include tests *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
