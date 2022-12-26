@@ -8,6 +8,13 @@ from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 # TODO: split into dates/names/others files
 
 
+def trim_string(values: List[StrProxy], strip=" ") -> List[StrProxy]:
+    """
+    Strip garbage from string argument
+    """
+    return [value.inject_meta_to_str(value.strip(strip)) for value in values]
+
+
 def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
     """
     Fix values where cyrillic symbols are replaced with similarly looking latin ones
