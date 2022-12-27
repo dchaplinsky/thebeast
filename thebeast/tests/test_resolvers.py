@@ -178,6 +178,18 @@ class ResolversTests(unittest.TestCase):
         self.assertEqual(val._meta.locale, "php")
         self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
 
+        ctx.property_values = [StrProxy(" foo bar ")]
+        val = _resolve_transformer({"name": "thebeast.contrib.transformers.trim_string", "params": {}}, ctx)[0]
+        self.assertEqual(val, "foo bar")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.trim_string()")
+
+        ctx.property_values = [StrProxy("foo bar,. ")]
+        val = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.trim_string", "params": {"strip": " ,."}}, ctx
+        )[0]
+        self.assertEqual(val, "foo bar")
+        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.trim_string(strip= ,.)")
+
     def test_resolve_augmentor(self):
         ctx = ResolveContext(
             record={},
