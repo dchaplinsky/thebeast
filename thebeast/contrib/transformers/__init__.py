@@ -3,6 +3,7 @@ from dateutil.parser import parse as dt_parse  # type: ignore
 
 from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
+import regex as re
 
 
 # TODO: split into dates/names/others files
@@ -67,3 +68,26 @@ def names_transliteration(values: List[StrProxy]) -> List[StrProxy]:
         result += [value.inject_meta_to_str(v) for v in parse_and_generate(value)]
 
     return result
+
+
+def do_normalize_email(value: str) -> str:
+    """
+    Normalizes email, stripping any plus and dot syntax from user name.
+
+    For example:
+        foo.bar@gmail.com => foobar@gmail.com
+        foo+bar@gmail.com => foo@gmail.com
+    """
+
+    # if it's not a email - return it as is
+    if not re.fullmatch(r"^[0-9a-z._+-]+\@[0-9a-z._+-]+\.[0-9a-z._+-]{2,}$", value, re.IGNORECASE):
+        return value
+
+    name, domain = value.split("@", 1)
+    # remove dots and/or +suffix from name
+    name = re.sub("(\\.|\\+.+$)", "", name)
+    return "@".join([name, domain]).lower()
+
+
+def normalize_email(values: List[StrProxy]) -> List[StrProxy]:
+    return [value.inject_meta_to_str(do_normalize_email(value)) for value in values]
