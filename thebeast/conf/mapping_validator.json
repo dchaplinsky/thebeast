@@ -322,6 +322,25 @@
                     "format": "regex",
                     "type": "string"
                 },
+                "regex_replace":
+                {
+                    "description": "regex to apply to extracted values for replacing substrings",
+                    "properties": {
+                        "regex": {
+                            "format": "regex",
+                            "type": "string"
+                        },
+                        "replace": {
+                            "type": "string"
+                        }
+                    },
+                    "required":
+                    [
+                        "regex",
+                        "replace"
+                    ],
+                    "type": "object"
+                },
                 "split_regex":
                 {
                     "description": "regex to split extracted values with",

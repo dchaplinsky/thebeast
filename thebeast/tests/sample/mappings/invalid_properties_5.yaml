@@ -1,0 +1,31 @@
+id: ukrainian_mps
+# ftm_ontology: # Again optional path to the directory with ftm
+
+info:
+  comments: Optional comments on the data source
+  author: Wishmaster
+  created: "2022-12-27T13:07:00Z"
+  modified: "2022-12-27T13:07:00Z"
+
+ingest:
+  cls: thebeast.ingest.CSVDictGlobReader
+  params:
+    input_uri: thebeast/tests/sample/csv/rada*.tsv
+digest:
+  collections:
+    root:
+      path: "[]"
+      entities:
+        mp:
+          schema: Person
+          keys:
+            - name
+          properties:
+            name:
+              literal: "Іван Срака"
+              regex_replace: "\\s+"
+
+dump:
+  cls: thebeast.dump.StatementsCSVWriter
+  params:
+    output_uri: "-"
