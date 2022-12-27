@@ -77,3 +77,32 @@ class ResolversTests(unittest.TestCase):
         )[0]
         self.assertEqual(val, "foo bar")
         self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.trim_string(strip= ,.)")
+
+    def test_normalize_email(self):
+        param_list = [
+            (StrProxy("foobar@@@@"), "foobar@@@@"),
+            (StrProxy("gmail.com"), "gmail.com"),
+            # it also converts email to lowercase
+            (StrProxy("FooBar@GMail.com"), "foobar@gmail.com"),
+            (StrProxy("foo.dot@gmail.com"), "foodot@gmail.com"),
+            (StrProxy("foo+plus@gmail.com"), "foo@gmail.com"),
+            # we fix inly user name, dont touch the domain
+            (StrProxy("foo+plus@g.mail.com"), "foo@g.mail.com"),
+            # fixme: it contains spaces - so we assume it's not an email and return it as is
+            (StrProxy(" foo.dot@gmail.com "), " foo.dot@gmail.com "),
+        ]
+
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        for input_val, expected_result in param_list:
+            with self.subTest():
+                ctx.property_values = [StrProxy(input_val)]
+
+                actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.normalize_email"}, ctx)[0]
+                self.assertEqual(actual_result, expected_result)
