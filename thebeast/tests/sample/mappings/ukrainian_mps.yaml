@@ -17,6 +17,8 @@ ingest:
   params:
     input_uri: thebeast/tests/sample/csv/rada*.tsv
 digest:
+  cls: thebeast.digest.MultiProcessDigestor
+
   meta:
     locale:
       literal: uk
@@ -161,4 +163,4 @@ dump:
   cls: thebeast.dump.StatementsCSVWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
-    output_uri: "-"
+    output_uri: "/dev/null"

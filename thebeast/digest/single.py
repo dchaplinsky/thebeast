@@ -118,7 +118,7 @@ def main_cog(
                     yield entity
 
 
-class SingleThreadedDigestor:
+class SingleProcessDigestor:
     """
     TODO: review an architecture once it works
     """

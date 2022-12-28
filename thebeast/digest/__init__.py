@@ -1,3 +1,4 @@
-from .single import SingleThreadedDigestor
+from .single import SingleProcessDigestor
+from .multi import MultiProcessDigestor
 
-__all__ = ["SingleThreadedDigestor"]
+__all__ = ["SingleProcessDigestor", "MultiProcessDigestor"]

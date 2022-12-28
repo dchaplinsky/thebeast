@@ -1,6 +1,7 @@
-from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional
-
+from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional, Iterable
+from itertools import islice
 import jmespath  # type: ignore
+
 
 # We are utilizing here the fact that Model is a singletone and set up
 # in the thebeast.conf.mapping
@@ -73,3 +74,9 @@ def resolve_callable(fqfn: str) -> Callable:
     CALLABLE_CACHE[fqfn] = func
 
     return func
+
+
+def chunks(iterable: Iterable, size: int) -> Iterable:
+    """Generate adjacent chunks of data"""
+    it = iter(iterable)
+    return iter(lambda: tuple(islice(it, size)), ())
