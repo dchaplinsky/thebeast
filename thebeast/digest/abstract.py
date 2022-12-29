@@ -107,6 +107,11 @@ def main_cog(
             combined_context_entites_map.update({k: v.id for k, v in local_context_entities.items()})
 
             for entity in resolve_entity_refs(local_context_entities.values(), combined_context_entites_map):
+                # We are conveting entities from Schema to Dict here to overcome
+                # an issue with circular references during pickling (also it'll reduce)
+                # the amount of data needs to be transfered between processed, since
+                # each process now has it's own FTM model and you don't need to
+                # carry a copy around with each entity
                 yield deflate_entity(entity)
 
             if "collections" in collection_config:
@@ -155,7 +160,7 @@ class AbstractDigestor:
         for entity in self.run_the_cog(
             records=records, parent_context_entities_map=context_entities_map, statements_meta=statements_meta
         ):
-            yield entity
+            yield inflate_entity(entity)
 
     def run_the_cog(
         self,

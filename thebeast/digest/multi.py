@@ -5,7 +5,7 @@ from followthemoney.schema import Schema  # type: ignore
 from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 from .abstract import AbstractDigestor, main_cog
 
-from .utils import flatten, inflate_entity
+from .utils import flatten
 
 main_cog_ctx: Dict[str, Any]
 
@@ -85,4 +85,4 @@ class MultiProcessDigestor(AbstractDigestor):
             initargs=(self.mapping_config, parent_context_entities_map, statements_meta, self.meta_fields),
         ) as da_pool:
             for entity in flatten(da_pool.imap(func=task, iterable=records, chunksize=self.batch_size)):
-                yield inflate_entity(entity)
+                yield entity

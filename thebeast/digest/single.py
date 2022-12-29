@@ -27,4 +27,4 @@ class SingleProcessDigestor(AbstractDigestor):
                 parent_record=None,
             ):
                 # TODO: green/red sorting for valid records/exceptions here?
-                yield inflate_entity(entity)
+                yield entity
