@@ -9,7 +9,7 @@ def get_meta_cls(meta_fields: List[str] = DEFAULT_META_FIELDS) -> type:
     global meta_cls
 
     if meta_cls is None:
-        meta_cls = namedtuple("Meta", meta_fields, defaults=[None for _ in meta_fields])
+        meta_cls = namedtuple("meta_cls", meta_fields, defaults=[None for _ in meta_fields])
 
     return meta_cls
 

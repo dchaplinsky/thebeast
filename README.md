@@ -43,13 +43,14 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [X] Tests for the individual resolvers
 - [ ] Tests for the resolver wrappers
 - [ ] Tests for digest routines
-- [ ] Advanced ingest routines: multiprocessing
-- [ ] Tests for advanced digest routines
+- [X] Advanced digest routines: multiprocessing
+- [X] Tests for advanced digest routines
 - [ ] Basic CLI
 - [x] Basic dump routines (stdout/files)
 - [x] Basic dump routines: statements
 - [x] Tests for basic dump routines
 - [ ] Tests for basic dump routines: statements
+- [ ] Remove inflate/deflate and pass dicts rather than entities between digest and dump
 
 ## Running tests
 
