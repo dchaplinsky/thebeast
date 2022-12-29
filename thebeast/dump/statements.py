@@ -1,5 +1,15 @@
 from hashlib import sha1
-from functools import cache
+
+try:
+    from functools import cache
+except ImportError:
+    from functools import lru_cache
+
+    def cache(user_function, /):
+        'Simple lightweight unbounded cache.  Sometimes called "memoize".'
+        return lru_cache(maxsize=None)(user_function)
+
+
 from typing import Dict, Union, List, Iterable, Any
 from csv import DictWriter
 
