@@ -2,15 +2,18 @@ from typing import Union, List, Dict, Generator, Iterable, Any
 from multiprocessing import Pool, cpu_count
 from followthemoney.schema import Schema  # type: ignore
 
+from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 from .abstract import AbstractDigestor, main_cog
 
 from .utils import flatten, inflate_entity
 
 main_cog_ctx: Dict[str, Any]
 
-# task executed in a worker process
+
 def task(record: Union[Dict, List]) -> List[Schema]:
-    # declare global variable
+    # To overcome an issue with passing multiple parameters into the 
+    # mapped function we declare and use global variable main_cog_ctx
+    # https://superfastpython.com/multiprocessing-pool-initializer/
     global main_cog_ctx
 
     return list(
@@ -24,17 +27,21 @@ def task(record: Union[Dict, List]) -> List[Schema]:
     )
 
 
-# initialize a worker in the process pool
+# Here we are storing worker context into the global variable in a worker process
+# and also initializing our meta_cls with a list of meta fields, that came from
+# the mapping
 def worker_init(
     mapping_config: Dict,
     parent_context_entities_map: Dict[str, str],
     statements_meta: Dict[str, str],
     meta_fields: List[str],
 ) -> None:
-    # declare global variable
     global main_cog_ctx
-    from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 
+    # Dynamic class generation trick. The meta_cls used for the StrProxy
+    # is being generated dynamically during the startup and served as a singletone
+    # When doing multiprocessing you cannot access the dynamically initialized class
+    # in the scope of the parent process, so you need to redo it for each process
     get_meta_cls(meta_fields)
 
     # assign the global variable
@@ -73,6 +80,7 @@ class MultiProcessDigestor(AbstractDigestor):
         # Now for the really fun part: real entities with multiprocessing
         with Pool(
             self.processes,
+            # Wiring things together
             initializer=worker_init,
             initargs=(self.mapping_config, parent_context_entities_map, statements_meta, self.meta_fields),
         ) as da_pool:

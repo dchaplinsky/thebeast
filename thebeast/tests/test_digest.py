@@ -21,7 +21,7 @@ class MappingDigestTests(unittest.TestCase):
     def test_valid_digest(self):
         for path in [
             Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"),
-            Path("thebeast/tests/sample/mappings/ukrainian_mps_multithreaded.yaml")
+            Path("thebeast/tests/sample/mappings/ukrainian_mps_multiprocess.yaml")
         ]:
             mapping = SourceMapping(path)
 
@@ -120,7 +120,7 @@ class MappingDigestTests(unittest.TestCase):
     def test_surrogate_key(self):
         for path in [
             Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"),
-            Path("thebeast/tests/sample/mappings/ukrainian_mps_multithreaded.yaml")
+            Path("thebeast/tests/sample/mappings/ukrainian_mps_multiprocess.yaml")
         ]:
             mapping = SourceMapping(path)
 
@@ -169,7 +169,7 @@ class MappingDigestTests(unittest.TestCase):
     def test_transformation_and_augmentation(self):
         for path in [
             Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"),
-            Path("thebeast/tests/sample/mappings/ukrainian_mps_multithreaded.yaml")
+            Path("thebeast/tests/sample/mappings/ukrainian_mps_multiprocess.yaml")
         ]:
             mapping = SourceMapping(path)
 
@@ -201,17 +201,21 @@ class MappingDigestTests(unittest.TestCase):
             self.assertIn("Dzhemiliev Mustafa", entity.properties["alias"])
 
     def test_nested_digest(self):
-        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_edr.yaml"))
+        for path in [
+            Path("thebeast/tests/sample/mappings/ukrainian_edr.yaml"),
+            Path("thebeast/tests/sample/mappings/ukrainian_edr_multiprocess.yaml")
+        ]:
+            mapping = SourceMapping(path)
 
-        with open("thebeast/tests/sample/json/edr_sample.json", "r") as fp_in:
-            items = json.load(fp_in)
+            with open("thebeast/tests/sample/json/edr_sample.json", "r") as fp_in:
+                items = json.load(fp_in)
 
-        entities = list(mapping.digestor.extract(items))
-        self.assertEqual(len(entities), 11)
+            entities = list(mapping.digestor.extract(items))
+            self.assertEqual(len(entities), 11)
 
-        entities_by_schema = self.get_entities_by_schema(entities)
+            entities_by_schema = self.get_entities_by_schema(entities)
 
-        self.assertEqual(len(entities_by_schema["Company"]), 2)
-        self.assertEqual(len(entities_by_schema["Person"]), 3)
-        self.assertEqual(len(entities_by_schema["Address"]), 3)
-        self.assertEqual(len(entities_by_schema["Ownership"]), 3)
+            self.assertEqual(len(entities_by_schema["Company"]), 2)
+            self.assertEqual(len(entities_by_schema["Person"]), 3)
+            self.assertEqual(len(entities_by_schema["Address"]), 3)
+            self.assertEqual(len(entities_by_schema["Ownership"]), 3)
