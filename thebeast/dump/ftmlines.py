@@ -13,7 +13,7 @@ class FTMLinesWriter(AbstractWriter):
 
     def write_entities(self, entities: Iterable[Schema], flush: bool = True) -> None:
         for entity in entities:
-            self.output.write(json.dumps(entity.to_dict(), sort_keys=True) + "\n")
+            self.output.write(json.dumps(entity, sort_keys=True) + "\n")
 
         if flush:
             self.output.flush()

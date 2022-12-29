@@ -2,8 +2,6 @@ from typing import Union, List, Dict, Generator, Iterable
 
 from followthemoney.schema import Schema  # type: ignore
 
-
-from .utils import inflate_entity
 from .abstract import AbstractDigestor, main_cog
 
 

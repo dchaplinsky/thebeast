@@ -11,7 +11,6 @@ from .utils import (
     resolve_entity_refs,
     ensure_list,
     resolve_callable,
-    inflate_entity,
     deflate_entity,
 )
 from .resolvers import resolve_property_values, resolve_constant_meta_values, resolve_collection_meta_values
@@ -134,7 +133,7 @@ class AbstractDigestor:
         self.mapping_config: Dict = mapping_config
         self.meta_fields: List[str] = meta_fields
 
-    def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Schema, None, None]:
+    def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Dict, None, None]:
         # First let's get some global level meta values for our statements
         statements_meta: Dict[str, str] = {
             statement_meta_name: "\n".join(resolve_constant_meta_values(ensure_list(statement_meta_config)))
@@ -155,12 +154,12 @@ class AbstractDigestor:
         # And resolve entity refererence in constant entities (i.e one constant entity is referencing
         # another in the property)
         for entity in resolve_entity_refs(context_entities, context_entities_map):
-            yield entity
+            yield deflate_entity(entity)
 
         for entity in self.run_the_cog(
             records=records, parent_context_entities_map=context_entities_map, statements_meta=statements_meta
         ):
-            yield inflate_entity(entity)
+            yield entity
 
     def run_the_cog(
         self,

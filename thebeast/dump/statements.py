@@ -1,13 +1,20 @@
 from hashlib import sha1
+from functools import cache
 from typing import Dict, Union, List, Iterable, Any
 from csv import DictWriter
 
+from followthemoney import model as ftm
 from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 from .abstract import AbstractStatementsWriter
 
 ID_PROP: str = "id"
+
+
+@cache
+def resolve_schema_propery_type(schema: str, property_name: str) -> str:
+    return ftm.schemata[schema].properties[property_name].type.name
 
 
 def stmt_key(
@@ -49,28 +56,29 @@ class StatementsCSVWriter(AbstractStatementsWriter):
             rows = []
 
             rec: Dict[str, Any] = {
-                "id": stmt_key(entity_id=entity.id, prop=ID_PROP, value=entity.id),
-                "entity_id": entity.id,
+                "id": stmt_key(entity_id=entity["id"], prop=ID_PROP, value=entity["id"]),
+                "entity_id": entity["id"],
                 "prop": ID_PROP,
                 "prop_type": ID_PROP,
-                "schema": entity.schema.name,
-                "value": entity.id,
+                "schema": entity["schema"],
+                "value": entity["id"],
             }
 
             rows.append(rec)
 
-            for prop, value in entity.itervalues():
-                rec = {
-                    "id": stmt_key(entity_id=entity.id, prop=prop.name, value=value),
-                    "entity_id": entity.id,
-                    "prop": prop.name,
-                    "prop_type": prop.type.name,
-                    "schema": entity.schema.name,
-                    "value": value,
-                }
+            for prop, values in entity["properties"].items():
+                for value in values:
+                    rec = {
+                        "id": stmt_key(entity_id=entity["id"], prop=prop, value=value),
+                        "entity_id": entity["id"],
+                        "prop": prop,
+                        "prop_type": resolve_schema_propery_type(schema=entity["schema"], property_name=prop),
+                        "schema": entity["schema"],
+                        "value": value,
+                    }
 
-                rec.update({f"meta:{f}": v for f, v in value._meta._asdict().items()})
-                rows.append(rec)
+                    rec.update({f"meta:{f}": v for f, v in value._meta._asdict().items()})
+                    rows.append(rec)
 
             self.csv_writer.writerows(rows)
 

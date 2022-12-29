@@ -5,6 +5,7 @@ from io import StringIO
 from followthemoney import model as ftm  # type: ignore
 
 from thebeast.dump import FTMLinesWriter
+from thebeast.digest.utils import deflate_entity
 
 
 class CaptureStdout:
@@ -28,7 +29,7 @@ class MappingDumpTests(unittest.TestCase):
         with CaptureStdout():
             dumper = FTMLinesWriter("-", meta_fields=[])
             entity = ftm.make_entity("Person")
-            dumper.write_entities([entity])
+            dumper.write_entities([deflate_entity(entity)])
 
             sys.stdout.seek(0)
             self.assertEqual(json.loads(sys.stdout.read()), {"id": None, "properties": {}, "schema": "Person"})
@@ -47,7 +48,7 @@ class MappingDumpTests(unittest.TestCase):
             entity.set("wikipediaUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович")
             entity.make_id(["foo", "bar"])
 
-            dumper.write_entities([entity])
+            dumper.write_entities([deflate_entity(entity)])
 
             sys.stdout.seek(0)
             self.assertEqual(
