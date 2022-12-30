@@ -4,7 +4,11 @@ from tqdm import tqdm
 import sys
 
 if __name__ == "__main__":
-    mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps_multiprocess.yaml"))
+    if len(sys.argv) < 2:
+        print("No mapping yaml is provided in script arguments")
+        sys.exit(0)
+
+    mapping = SourceMapping(Path(sys.argv[1]))
 
     mapping.dumper.write_entities(
         tqdm(mapping.digestor.extract(tqdm(mapping.ingestor, desc="Records in")), desc="Entities out")
