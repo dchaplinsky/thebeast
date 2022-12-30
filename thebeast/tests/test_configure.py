@@ -11,7 +11,7 @@ class MappingReaderTests(unittest.TestCase):
 
         self.assertEqual(len(items), 983)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "name",
                 "party",
@@ -32,7 +32,7 @@ class MappingReaderTests(unittest.TestCase):
 
         self.assertEqual(len(items), 505)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "name",
                 "party",
