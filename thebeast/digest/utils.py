@@ -1,6 +1,7 @@
-from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional
-
+from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional, Iterable
+from itertools import islice, chain
 import jmespath  # type: ignore
+
 
 # We are utilizing here the fact that Model is a singletone and set up
 # in the thebeast.conf.mapping
@@ -41,7 +42,7 @@ def jmespath_results_as_array(path: str, record: Union[List, Dict]) -> List[Any]
 
 
 def resolve_entity_refs(
-    entities: Iterable[Schema], context_entities: Dict[str, Schema]
+    entities: Iterable[Schema], context_entities: Dict[str, str]
 ) -> Generator[Schema, None, None]:
     for entity in entities:
         for prop in entity.iterprops():
@@ -50,7 +51,7 @@ def resolve_entity_refs(
 
                 # TODO: errors (probably red/green sorting) for the properties that cannot be resolved
                 for prop_val in entity.get(prop):
-                    resolved_properties.append(prop_val.inject_meta_to_str(context_entities.get(prop_val).id))
+                    resolved_properties.append(prop_val.inject_meta_to_str(context_entities.get(prop_val)))
 
                 entity.set(prop, resolved_properties)
 
@@ -59,6 +60,7 @@ def resolve_entity_refs(
 
 def make_entity(schema: Union[str, Schema], key_prefix: Optional[str] = None) -> RiggedEntityProxy:
     """Instantiate an empty entity proxy of the given schema type."""
+
     return RiggedEntityProxy(ftm, {"schema": schema}, key_prefix=key_prefix)
 
 
@@ -73,3 +75,22 @@ def resolve_callable(fqfn: str) -> Callable:
     CALLABLE_CACHE[fqfn] = func
 
     return func
+
+
+def chunks(iterable: Iterable, size: int) -> Iterable:
+    """Generate adjacent chunks of data"""
+    it = iter(iterable)
+    return iter(lambda: tuple(islice(it, size)), ())
+
+
+def flatten(list_of_lists: Iterable[Iterable]) -> Iterable:
+    "Flatten one level of nesting"
+    return chain.from_iterable(list_of_lists)
+
+
+def inflate_entity(entity_dict: Dict) -> RiggedEntityProxy:
+    return RiggedEntityProxy.from_dict(ftm, entity_dict)
+
+
+def deflate_entity(entity: RiggedEntityProxy) -> Dict:
+    return entity.to_dict()

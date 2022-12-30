@@ -400,7 +400,7 @@
                             "$ref": "/definitions/fqcn"
                         }
                     ],
-                    "default": "thebeast.digest.SingleThreadedDigestor",
+                    "default": "thebeast.digest.SingleProcessDigestor",
                     "description": "Fully qualified python class name for the digestor"
                 },
                 "collections":

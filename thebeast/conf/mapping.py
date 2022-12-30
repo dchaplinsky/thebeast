@@ -71,14 +71,15 @@ class SourceMapping:
 
         meta_fields: List[str] = DEFAULT_META_FIELDS
         if mapping.get("meta", None) is not None:
-            # Setting meta singletone for statements meta
             meta_fields = mapping["meta"]
-            get_meta_cls(mapping["meta"])
+
+            # Setting meta singletone for statements meta
+            get_meta_cls(meta_fields)
 
         self.ftm = ftm
         self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
         self.digestor = import_string(mapping["digest"]["cls"])(
-            mapping_config=mapping["digest"], **mapping["digest"].get("params", {})
+            mapping_config=mapping["digest"], meta_fields=meta_fields, **mapping["digest"].get("params", {})
         )
 
         self.dumper = import_string(mapping["dump"]["cls"])(

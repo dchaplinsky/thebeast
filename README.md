@@ -43,13 +43,15 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [X] Tests for the individual resolvers
 - [ ] Tests for the resolver wrappers
 - [ ] Tests for digest routines
-- [ ] Advanced ingest routines: multiprocessing
-- [ ] Tests for advanced digest routines
+- [X] Advanced digest routines: multiprocessing
+- [X] Tests for advanced digest routines
 - [ ] Basic CLI
 - [x] Basic dump routines (stdout/files)
 - [x] Basic dump routines: statements
 - [x] Tests for basic dump routines
 - [ ] Tests for basic dump routines: statements
+- [x] Remove inflate/deflate and pass dicts rather than entities between digest and dump
+- [ ] Python 3.11 support (https://github.com/dchaplinsky/thebeast/actions/runs/3802499820/jobs/6468041810, https://github.com/ICRAR/ijson/issues/80)
 
 ## Running tests
 
