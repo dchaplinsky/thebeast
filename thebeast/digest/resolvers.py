@@ -116,6 +116,29 @@ def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> Li
     return extracted_property_values
 
 
+def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+    """
+    `regex_replace` is an optional regex **replacer** to replace content of extracted string.
+
+    todo: use simplier config with single param - regex - and default "replace" to (empty string) ?
+    i.e.: "regex_replace: \\d+" to remove all non-numeric symbols without having to specify long mapping
+    """
+
+    extracted_property_values: List[Any] = []
+
+    for property_value in context.property_values:
+        if not property_value:
+            continue
+
+        extracted_property_values += [
+            property_value.inject_meta_to_str(
+                re.sub(command_config["regex"], command_config["replace"], property_value, flags=re.V1)
+            )
+        ]
+
+    return extracted_property_values
+
+
 def _resolve_transformer(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `transformer` is a python function which (currently) accepts only a list of values
@@ -247,6 +270,7 @@ def resolve_property_values(
             "regex_split": _resolve_regex_split,
             "regex": _resolve_regex,
             "regex_first": _resolve_regex_first,
+            "regex_replace": _resolve_regex_replace,
             "transformer": _resolve_transformer,
             "augmentor": _resolve_augmentor,
             "template": _resolve_template,
@@ -274,6 +298,7 @@ def resolve_meta_values(
             "regex_split": _resolve_regex_split,
             "regex": _resolve_regex,
             "regex_first": _resolve_regex_first,
+            "regex_replace": _resolve_regex_replace,
             "transformer": _resolve_transformer,
             "augmentor": _resolve_augmentor,
             "property": _resolve_property,

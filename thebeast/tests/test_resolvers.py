@@ -7,6 +7,7 @@ from thebeast.digest.resolvers import (
     _resolve_column,
     _resolve_regex_split,
     _resolve_regex_first,
+    _resolve_regex_replace,
     _resolve_transformer,
     _resolve_augmentor,
     _resolve_template,
@@ -139,44 +140,29 @@ class ResolversTests(unittest.TestCase):
             ),
         )
 
-    def test_resolve_transformer(self):
+    def test_resolve_regex_replace(self):
         ctx = ResolveContext(
             record={},
-            property_values=[StrProxy("05.06.07")],
+            property_values=[],
             entity=None,
             statements_meta={},
             variables={},
         )
 
-        val = _resolve_transformer("thebeast.contrib.transformers.anydate_parser", ctx)[0]
-        self.assertIsInstance(val, StrProxy)
-        self.assertEqual(val, "2007-05-06")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
+        # simple replace: remove all non-alpha symbols
+        ctx.property_values = [StrProxy("foo 123 bar")]
+        self.assertEqual(_resolve_regex_replace({"regex": "[^a-z]", "replace": ""}, ctx)[0], "foobar")
 
-        val = _resolve_transformer({"name": "thebeast.contrib.transformers.anydate_parser"}, ctx)[0]
-        self.assertEqual(val, "2007-05-06")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
+        # test replace groups
+        ctx.property_values = [StrProxy("foo 123 bar")]
+        self.assertEqual(
+            _resolve_regex_replace({"regex": "([a-z]{3})\\s([0-9]{3})\\s([a-z]{3})", "replace": "\\1\\3"}, ctx)[0],
+            "foobar",
+        )
 
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"dayfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2007-06-05")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(dayfirst=True)")
-
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2005-06-07")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
-
-        ctx.property_values = [StrProxy("05.06.07", meta={"locale": "php"})]
-
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2005-06-07")
-        self.assertEqual(val._meta.locale, "php")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
+        # test multiple values
+        ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("456 baz qux")]
+        self.assertEqual(_resolve_regex_replace({"regex": "[^0-9]", "replace": ""}, ctx), ["123", "456"])
 
     def test_resolve_augmentor(self):
         ctx = ResolveContext(

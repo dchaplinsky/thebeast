@@ -60,3 +60,15 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 pip install -r requirements.txt
 python -m pytest
 ```
+
+## Run using Docker
+
+`/bin/` directory contains scripts to run Beast inside Docker container.
+
+Use `/bin/run data/mapping.yaml` to run Beast with selected mapping. 
+Note: mapping and source file(s) must be in Beast root (sub-)directory. E.g. `./data/mapping.yaml`
+You can't point Beast to a file outside it's root directory.
+
+Use `/bin/tests` to run tests.
+
+Use `/bin/black` to run [black](https://github.com/psf/black) to format source files before contributing a pull request.
