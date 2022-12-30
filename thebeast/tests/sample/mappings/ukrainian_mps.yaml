@@ -165,4 +165,4 @@ dump:
   cls: thebeast.dump.FTMLinesWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
-    output_uri: "/tmp/single.jsonlines"
+    output_uri: "-"
