@@ -9,7 +9,7 @@ class CSVDictReaderTests(unittest.TestCase):
         items = list(ingestor)
         self.assertEqual(len(items), 675)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "id",
                 "name",
@@ -33,13 +33,17 @@ class CSVDictReaderTests(unittest.TestCase):
             },
         )
 
+        self.assertEqual(items[0].record_no, 0)
+        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/csv/gb_mps.csv")
+
+
     def test_glob_csv_reader(self):
         ingestor = TSVDictGlobReader(input_uri="thebeast/tests/sample/csv/rada*.tsv")
 
         items = list(ingestor)
         self.assertEqual(len(items), 983)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "name",
                 "party",
@@ -49,6 +53,8 @@ class CSVDictReaderTests(unittest.TestCase):
                 "link",
             },
         )
+        self.assertEqual(items[0].record_no, 0)
+        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/csv/rada4.tsv")
 
 
 class JSONReadersTests(unittest.TestCase):
@@ -59,7 +65,7 @@ class JSONReadersTests(unittest.TestCase):
 
         self.assertEqual(len(items), 67)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "birth_date",
                 "birth_place",
@@ -73,6 +79,9 @@ class JSONReadersTests(unittest.TestCase):
                 "mayor",
             },
         )
+        self.assertEqual(items[0].record_no, 0)
+        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/ru_mayors.jsonl")
+
 
     def test_glob_json_reader(self):
         ingestor = JSONGlobReader(input_uri="thebeast/tests/sample/json/bank_ceos.json")
@@ -81,7 +90,7 @@ class JSONReadersTests(unittest.TestCase):
 
         self.assertEqual(len(items), 81)
         self.assertEqual(
-            set(items[0].keys()),
+            set(items[0].payload.keys()),
             {
                 "appointed",
                 "countryLabel",
@@ -91,3 +100,7 @@ class JSONReadersTests(unittest.TestCase):
                 "personLabel",
             },
         )
+
+        self.assertEqual(items[0].record_no, 0)
+        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/bank_ceos.json")
+

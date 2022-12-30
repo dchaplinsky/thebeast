@@ -11,7 +11,7 @@ main_cog_ctx: Dict[str, Any]
 
 
 def task(record: Union[Dict, List]) -> List[Schema]:
-    # To overcome an issue with passing multiple parameters into the 
+    # To overcome an issue with passing multiple parameters into the
     # mapped function we declare and use global variable main_cog_ctx
     # https://superfastpython.com/multiprocessing-pool-initializer/
     global main_cog_ctx

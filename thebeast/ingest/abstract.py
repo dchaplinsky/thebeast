@@ -1,6 +1,10 @@
-from typing import TextIO, Iterator, Union, Dict, Generator
+from typing import TextIO, Iterator, Union, Dict, Generator, Tuple
+from collections import namedtuple
+
 
 import smart_open  # type: ignore
+
+Record: type = namedtuple("Record", ["payload", "record_no", "input_uri"], defaults=[None, None])
 
 
 class AbstractIngestor:
@@ -68,7 +72,7 @@ class AbstractIngestor:
         """
         raise NotImplementedError("You have to redefine it")
 
-    def iterator(self) -> Generator[Dict, None, None]:
+    def iterator(self) -> Generator[Record, None, None]:
         """
         Stitches all the things above together.
 
@@ -76,5 +80,5 @@ class AbstractIngestor:
         """
         for file_uri in self.sourcer():
             with self.opener(file_uri) as fp:
-                for record in self.reader(fp):
-                    yield record
+                for i, record in enumerate(self.reader(fp)):
+                    yield Record(payload=record, record_no=i, input_uri=file_uri)
