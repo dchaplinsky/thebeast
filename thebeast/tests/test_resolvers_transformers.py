@@ -1,21 +1,10 @@
 import unittest
-import re
 
 from thebeast.digest.resolvers import (
-    _resolve_literal,
-    _resolve_entity,
-    _resolve_column,
-    _resolve_regex_split,
-    _resolve_regex_first,
-    _resolve_regex_replace,
     _resolve_transformer,
-    _resolve_augmentor,
-    _resolve_template,
-    _resolve_property,
     ResolveContext,
 )
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
-from thebeast.digest.utils import make_entity
 
 
 class ResolversTests(unittest.TestCase):

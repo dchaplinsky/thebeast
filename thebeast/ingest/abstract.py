@@ -1,10 +1,8 @@
-from typing import TextIO, Iterator, Union, Dict, Generator, Tuple
-from collections import namedtuple
+from typing import TextIO, Iterator, Union, Dict, Generator
 
 
 import smart_open  # type: ignore
-
-Record: type = namedtuple("Record", ["payload", "record_no", "input_uri"], defaults=[None, None])
+from thebeast.types import Record
 
 
 class AbstractIngestor:

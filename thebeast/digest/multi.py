@@ -1,16 +1,17 @@
-from typing import Union, List, Dict, Generator, Iterable, Any
+from typing import List, Dict, Generator, Iterable, Any
 from multiprocessing import Pool, cpu_count
 from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 from .abstract import AbstractDigestor, main_cog
+from thebeast.types import Record
 
 from .utils import flatten
 
 main_cog_ctx: Dict[str, Any]
 
 
-def task(record: Union[Dict, List]) -> List[Schema]:
+def task(record: Record) -> List[Schema]:
     # To overcome an issue with passing multiple parameters into the
     # mapped function we declare and use global variable main_cog_ctx
     # https://superfastpython.com/multiprocessing-pool-initializer/
@@ -73,7 +74,7 @@ class MultiProcessDigestor(AbstractDigestor):
 
     def run_the_cog(
         self,
-        records: Iterable[Union[List, Dict]],
+        records: Iterable[Record],
         parent_context_entities_map: Dict[str, str],
         statements_meta: Dict[str, str],
     ) -> Generator[Schema, None, None]:

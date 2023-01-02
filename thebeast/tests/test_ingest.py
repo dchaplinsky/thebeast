@@ -36,7 +36,6 @@ class CSVDictReaderTests(unittest.TestCase):
         self.assertEqual(items[0].record_no, 0)
         self.assertEqual(items[0].input_uri, "thebeast/tests/sample/csv/gb_mps.csv")
 
-
     def test_glob_csv_reader(self):
         ingestor = TSVDictGlobReader(input_uri="thebeast/tests/sample/csv/rada*.tsv")
 
@@ -82,7 +81,6 @@ class JSONReadersTests(unittest.TestCase):
         self.assertEqual(items[0].record_no, 0)
         self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/ru_mayors.jsonl")
 
-
     def test_glob_json_reader(self):
         ingestor = JSONGlobReader(input_uri="thebeast/tests/sample/json/bank_ceos.json")
 
@@ -103,4 +101,3 @@ class JSONReadersTests(unittest.TestCase):
 
         self.assertEqual(items[0].record_no, 0)
         self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/bank_ceos.json")
-

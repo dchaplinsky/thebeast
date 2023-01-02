@@ -12,6 +12,9 @@ ingest:
   params:
     input_uri: thebeast/tests/sample/json/edr_sample.json
 digest:
+  meta:
+    locale:
+      literal: uk
   collections:
     root:  # Maybe we have to get rid of this object and use a list instead?
       path: "[@]"   # Wrap each record into the list

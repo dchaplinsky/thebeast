@@ -1,8 +1,9 @@
-from typing import Union, List, Dict, Generator, Iterable, Callable, Optional, Any
+from typing import List, Dict, Generator, Iterable, Callable, Optional, Any
 
 from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
+from thebeast.types import Record
 
 from .utils import (
     generate_pseudo_id,
@@ -17,7 +18,7 @@ from .resolvers import resolve_property_values, resolve_constant_meta_values, re
 
 
 def make_entities(
-    record: Union[List, Dict], entities_config: Dict, statements_meta: Dict[str, str]
+    record: Record, entities_config: Dict, statements_meta: Dict[str, str]
 ) -> Generator[Schema, None, None]:
     """
     Takes the list/dict of records and a config for collection and produces entites
@@ -63,7 +64,7 @@ def make_entities(
 
 
 def main_cog(
-    data: Union[List, Dict],
+    data: Record,
     config: Dict,
     parent_context_entities_map: Dict[str, Schema],
     statements_meta: Dict[str, str],
@@ -78,23 +79,26 @@ def main_cog(
             else lambda x: x
         )
 
-        for record in record_transformer(jmespath_results_as_array(collection_config["path"], data)):
+        for record in record_transformer(jmespath_results_as_array(collection_config["path"], data.payload)):
             # Retrieving some record-level meta
-            local_statements_meta: Dict[str, str] = {}
+            local_statements_meta: Dict[str, str] = {"record_no": data.record_no, "input_uri": data.input_uri}
 
             if "meta" in collection_config:
-                local_statements_meta = {
-                    statement_meta_name: "\n".join(
-                        resolve_collection_meta_values(
-                            property_configs=ensure_list(statement_meta_config),
-                            record=record,
-                            statements_meta=statements_meta,
-                        ),
-                    )
-                    for statement_meta_name, statement_meta_config in collection_config.get("meta", {}).items()
-                }
+                local_statements_meta.update(
+                    {
+                        statement_meta_name: "\n".join(
+                            resolve_collection_meta_values(
+                                property_configs=ensure_list(statement_meta_config),
+                                record=record,
+                                statements_meta=statements_meta,
+                            ),
+                        )
+                        for statement_meta_name, statement_meta_config in collection_config.get("meta", {}).items()
+                    }
+                )
 
             # Updating local copy of a parent meta with a local statements meta
+            # TODO: https://docs.python.org/3/library/collections.html#collections.ChainMap
             combined_statements_meta: Dict[str, str] = statements_meta.copy()
             combined_statements_meta.update(local_statements_meta)
 
@@ -115,7 +119,7 @@ def main_cog(
 
             if "collections" in collection_config:
                 for entity in main_cog(
-                    data=record,
+                    data=Record(payload=record, record_no=data.record_no, input_uri=data.input_uri),
                     config=collection_config,
                     parent_context_entities_map=combined_context_entites_map,
                     statements_meta=statements_meta,
@@ -133,12 +137,20 @@ class AbstractDigestor:
         self.mapping_config: Dict = mapping_config
         self.meta_fields: List[str] = meta_fields
 
-    def extract(self, records: Iterable[Union[List, Dict]]) -> Generator[Dict, None, None]:
+    def extract(self, records: Iterable[Record]) -> Generator[Dict, None, None]:
         # First let's get some global level meta values for our statements
         statements_meta: Dict[str, str] = {
             statement_meta_name: "\n".join(resolve_constant_meta_values(ensure_list(statement_meta_config)))
             for statement_meta_name, statement_meta_config in self.mapping_config.get("meta", {}).items()
         }
+
+        # constant statements will have dummy values for the record_no and input_uri
+        statements_meta.update(
+            {
+                "record_no": 0,
+                "input_uri": "__mapping__",
+            }
+        )
 
         # Then let's yield constant entities
         context_entities_map: Dict[str, str] = {}
@@ -163,7 +175,7 @@ class AbstractDigestor:
 
     def run_the_cog(
         self,
-        records: Iterable[Union[List, Dict]],
+        records: Iterable[Record],
         parent_context_entities_map: Dict[str, str],
         statements_meta: Dict[str, str],
     ) -> Generator[Schema, None, None]:

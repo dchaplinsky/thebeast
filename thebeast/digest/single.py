@@ -1,7 +1,8 @@
-from typing import Union, List, Dict, Generator, Iterable
+from typing import Dict, Generator, Iterable
 
 from followthemoney.schema import Schema  # type: ignore
 
+from thebeast.types import Record
 from .abstract import AbstractDigestor, main_cog
 
 
@@ -12,7 +13,7 @@ class SingleProcessDigestor(AbstractDigestor):
 
     def run_the_cog(
         self,
-        records: Iterable[Union[List, Dict]],
+        records: Iterable[Record],
         parent_context_entities_map: Dict[str, str],
         statements_meta: Dict[str, str],
     ) -> Generator[Schema, None, None]:

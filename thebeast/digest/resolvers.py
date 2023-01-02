@@ -158,7 +158,7 @@ def _resolve_transformer(command_config: CommandConfig, context: ResolveContext)
     transformer_signature = f"{fcfn}({params_as_args})"
     property_values = resolve_callable(fcfn)(context.property_values, **params)
     for property_value in property_values:
-        property_value._meta = property_value._meta._replace(transformation=transformer_signature)
+        property_value._meta = property_value._meta.set_field("transformation", transformer_signature)
 
     return property_values
 

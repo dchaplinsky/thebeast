@@ -4,6 +4,8 @@ meta:
   - locale
   - date
   - transformation
+  - record_no
+  - input_uri
   - test_field
 
 info:
