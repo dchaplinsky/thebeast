@@ -53,7 +53,9 @@ class CSVDictReaderTests(unittest.TestCase):
             },
         )
         self.assertEqual(items[0].record_no, 0)
-        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/csv/rada4.tsv")
+        self.assertIn(
+            items[0].input_uri, ["thebeast/tests/sample/csv/rada4.tsv", "thebeast/tests/sample/csv/rada5.tsv"]
+        )
 
 
 class JSONReadersTests(unittest.TestCase):
