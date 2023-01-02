@@ -9,9 +9,11 @@ from followthemoney import model as ftm  # type: ignore
 from followthemoney.types import registry  # type: ignore
 from followthemoney.util import make_entity_id  # type: ignore
 from followthemoney.schema import Schema  # type: ignore
+from followthemoney.exc import InvalidData
 
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import RiggedEntityProxy
 from thebeast.conf.utils import import_string
+from thebeast.types import RedGreenEntity
 
 
 ENTITY_TYPE = registry.get("entity")
@@ -90,5 +92,12 @@ def inflate_entity(entity_dict: Dict) -> RiggedEntityProxy:
     return RiggedEntityProxy.from_dict(ftm, entity_dict)
 
 
-def deflate_entity(entity: RiggedEntityProxy) -> Dict:
-    return entity.to_dict()
+def deflate_entity(entity: RiggedEntityProxy) -> RedGreenEntity:
+    asdict: Dict = entity.to_dict()
+    valid: bool = True
+    try:
+        entity.schema.validate(asdict)
+    except InvalidData:
+        valid = False
+
+    return RedGreenEntity(payload=asdict, valid=valid)
