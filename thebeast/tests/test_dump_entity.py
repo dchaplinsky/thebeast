@@ -18,6 +18,11 @@ class CaptureStdout:
         sys.stderr = self.err
 
 
+"""
+  Tests for entities dump / FTMLinesWriter
+"""
+
+
 class MappingDumpTests(unittest.TestCase):
     def test_empty_dump(self):
         with CaptureStdout():
@@ -61,10 +66,11 @@ class MappingDumpTests(unittest.TestCase):
 
     def test_full_entity_dump(self):
         with CaptureStdout():
+            # test different streams for dumping entities
             dumper = FTMLinesWriter(output_uri="-", error_uri="/dev/stderr", meta_fields=[])
+
             entity = ftm.make_entity("Person")
             entity.set("name", "")
-
             entity.set("name", "Ющенко Віктор Андрійович")
             entity.set("firstName", "Віктор")
             entity.set("lastName", "Ющенко")
@@ -72,6 +78,7 @@ class MappingDumpTests(unittest.TestCase):
             entity.set("sourceUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович")
             entity.set("wikipediaUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович")
             entity.make_id(["foo", "bar"])
+
             empty_entity = ftm.make_entity("Person")
 
             dumper.write_entities([deflate_entity(entity), deflate_entity(empty_entity)])
@@ -98,6 +105,7 @@ class MappingDumpTests(unittest.TestCase):
             self.assertEqual(json.loads(resp), {"id": None, "properties": {}, "schema": "Person"})
 
         with CaptureStdout():
+            # test both output into same stream
             dumper = FTMLinesWriter(output_uri="-", error_uri="-", meta_fields=[])
 
             dumper.write_entities([deflate_entity(entity), deflate_entity(empty_entity)])
