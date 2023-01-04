@@ -8,16 +8,23 @@ from .meta_factory import get_meta_cls
 
 
 class StrProxy(str):
+    """
+    Oh, that's truly a bread and butter class of everything. Or even a dough for the
+    bread and milk for the butter.
+    """
     def __new__(cls, content: Union[str, Any], meta: Optional[Union[Dict, NamedTuple]] = None):
+        meta_cls = get_meta_cls()
         if isinstance(content, StrProxy):
             result = copy(content)
         else:
             result = str.__new__(cls, content)
-            result._meta = get_meta_cls()()
+            result._meta = meta_cls()
 
         if meta is not None:
             if isinstance(meta, Mapping):
-                result._meta = get_meta_cls()(**meta)
+                # TODO: quickly validate that all the meta provided is in the meta fields declared
+                filtered_meta: Dict = {k: v for k, v in meta.items() if k in meta_cls._fields}
+                result._meta = meta_cls(**filtered_meta)
             else:
                 result._meta = meta
 

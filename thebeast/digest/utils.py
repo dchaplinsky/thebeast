@@ -1,4 +1,4 @@
-from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional, Iterable
+from typing import Any, List, Dict, Union, Iterable, Callable, Generator, Optional
 from itertools import islice, chain
 import jmespath  # type: ignore
 
@@ -41,9 +41,7 @@ def jmespath_results_as_array(path: str, record: Union[List, Dict]) -> List[Any]
     return ensure_list(jmespath.search(path, record) or [])
 
 
-def resolve_entity_refs(
-    entities: Iterable[Schema], context_entities: Dict[str, str]
-) -> Generator[Schema, None, None]:
+def resolve_entity_refs(entities: Iterable[Schema], context_entities: Dict[str, str]) -> Generator[Schema, None, None]:
     for entity in entities:
         for prop in entity.iterprops():
             if prop.type == ENTITY_TYPE:

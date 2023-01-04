@@ -8,7 +8,6 @@ from thebeast.digest.resolvers import (
     _resolve_regex_split,
     _resolve_regex_first,
     _resolve_regex_replace,
-    _resolve_transformer,
     _resolve_augmentor,
     _resolve_template,
     _resolve_property,

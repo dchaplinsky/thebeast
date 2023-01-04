@@ -4,6 +4,8 @@ meta:
   - locale
   - date
   - transformation
+  - record_no
+  - input_uri
   - test_field
 
 info:
@@ -17,10 +19,6 @@ ingest:
   params:
     input_uri: thebeast/tests/sample/csv/rada*.tsv
 digest:
-  cls: thebeast.digest.MultiProcessDigestor
-  params:
-    processes: 1
-
   meta:
     locale:
       literal: uk

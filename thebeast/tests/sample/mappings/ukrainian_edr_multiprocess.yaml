@@ -15,6 +15,9 @@ digest:
   cls: thebeast.digest.MultiProcessDigestor
   params:
     processes: 2
+  meta:
+    locale:
+      literal: uk
   collections:
     root:  # Maybe we have to get rid of this object and use a list instead?
       path: "[@]"   # Wrap each record into the list
