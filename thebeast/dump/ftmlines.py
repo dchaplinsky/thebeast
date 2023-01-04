@@ -1,6 +1,6 @@
 import json
 from typing import Iterable
-from followthemoney.schema import Schema  # type: ignore
+from thebeast.types import RedGreenEntity
 
 from .abstract import AbstractWriter
 
@@ -11,9 +11,16 @@ class FTMLinesWriter(AbstractWriter):
     or stdout (-)
     """
 
-    def write_entities(self, entities: Iterable[Schema], flush: bool = True) -> None:
+    def write_entities(self, entities: Iterable[RedGreenEntity], flush: bool = True) -> None:
         for entity in entities:
-            self.output.write(json.dumps(entity, sort_keys=True) + "\n")
+            line: str = json.dumps(entity.payload, sort_keys=True) + "\n"
+
+            if entity.valid:
+                self.output_fh.write(line)
+            else:
+                self.error_fh.write(line)
 
         if flush:
-            self.output.flush()
+            self.output_fh.flush()
+            if self.error_uri != self.output_uri:
+                self.error_fh.flush()

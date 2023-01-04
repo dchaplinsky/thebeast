@@ -45,4 +45,4 @@ dump:
   cls: thebeast.dump.FTMLinesWriter
   params:
     # Just stdout it, so we can pipe it into the next tool
-    output_uri: "-"
+    output_uri: "/dev/stdout"

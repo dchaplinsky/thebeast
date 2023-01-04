@@ -461,7 +461,14 @@
                     {
                         "output_uri":
                         {
-                            "type": "string"
+                            "type": "string",
+                            "description": "An uri to write valid entities to"
+                        },
+                        "error_uri":
+                        {
+                            "type": "string",
+                            "description": "An uri to write degenerated entities to",
+                            "default": "/dev/null"
                         }
                     },
                     "type": "object"

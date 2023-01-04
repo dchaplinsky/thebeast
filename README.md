@@ -35,14 +35,14 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Advanced ingest routines: templates (think combining fields when setting the entity field)
 - [x] Advanced ingest routines: multiple values for the entity property
 - [x] Advanced ingest routines: split string into multiple values
-- [ ] Advanced ingest routines: full entity validation with jsonschema and red/green sorting
+- [x] Advanced ingest routines: full entity validation and red/green sorting
 - [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
 - [X] Advanced ingest routines: augmentations/transformations
 - [X] Advanced ingest routines: records transformations
 - [X] Tests for records transformations
 - [X] Tests for the individual resolvers
 - [ ] Tests for the resolver wrappers
-- [ ] Tests for digest routines
+- [X] Tests for digest routines
 - [X] Advanced digest routines: multiprocessing
 - [X] Tests for advanced digest routines
 - [ ] Basic CLI

@@ -47,7 +47,7 @@ class MappingDigestTests(unittest.TestCase):
                 )
             ]
 
-            entities = list(mapping.digestor.extract(items))
+            entities = list(ent.payload for ent in mapping.digestor.extract(items))
             self.assertEqual(len(entities), 4)
 
             entities_by_schema = self.get_entities_by_schema(entities)
@@ -173,7 +173,7 @@ class MappingDigestTests(unittest.TestCase):
                 ),
             ]
 
-            entities = list(mapping.digestor.extract(items))
+            entities = list(ent.payload for ent in mapping.digestor.extract(items))
             self.assertEqual(len(entities), 6)
 
             entities_by_schema = self.get_entities_by_schema(entities)
@@ -221,7 +221,7 @@ class MappingDigestTests(unittest.TestCase):
                 )
             ]
 
-            entities = list(mapping.digestor.extract(items))
+            entities = list(ent.payload for ent in mapping.digestor.extract(items))
             self.assertEqual(len(entities), 4)
 
             entities_by_schema = self.get_entities_by_schema(entities)
@@ -247,7 +247,7 @@ class MappingDigestTests(unittest.TestCase):
                     for i, rec in enumerate(json.load(fp_in))
                 ]
 
-            entities = list(mapping.digestor.extract(items))
+            entities = list(ent.payload for ent in mapping.digestor.extract(items))
             self.assertEqual(len(entities), 11)
 
             entities_by_schema = self.get_entities_by_schema(entities)
@@ -283,7 +283,7 @@ class MappingDigestTests(unittest.TestCase):
                     for i, rec in enumerate(fp_in)
                 ]
 
-            entities = list(mapping.digestor.extract(items))
+            entities = list(ent.payload for ent in mapping.digestor.extract(items))
             self.assertEqual(len(entities), 67)
 
             entities_by_schema = self.get_entities_by_schema(entities)

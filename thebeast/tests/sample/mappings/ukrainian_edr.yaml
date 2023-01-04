@@ -99,4 +99,4 @@ digest:
 dump:
   cls: thebeast.dump.FTMLinesWriter
   params:
-    output_uri: "-"
+    output_uri: "/dev/stdout"
