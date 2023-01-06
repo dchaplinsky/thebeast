@@ -1,0 +1,7 @@
+id,entity_id,prop,prop_type,schema,value,meta:record_no,meta:input_uri,meta:locale,meta:date,meta:transformation,meta:test_field
+ce9f79eb46338da0e7d1c216bd860de020a2460b,3c8082874130892b92381b7f5b1a4577a3334e28,id,id,Person,3c8082874130892b92381b7f5b1a4577a3334e28,,,,,,
+e541edaf2f689ec3cc6a126b90375ace68242502,3c8082874130892b92381b7f5b1a4577a3334e28,name,name,Person,Ющенко Віктор Андрійович,,,,,,
+cf9a36934cd44b68a9c0fecdb80bc56578d65c1d,3c8082874130892b92381b7f5b1a4577a3334e28,firstName,string,Person,Віктор,,,,,,
+6cde91f36c0b2f29d26d2b74d360e569890d0bf1,3c8082874130892b92381b7f5b1a4577a3334e28,lastName,string,Person,Ющенко,,,,,,
+e6d8f954917ad5ecacdcc9b222164d8286603e82,3c8082874130892b92381b7f5b1a4577a3334e28,fatherName,string,Person,Андрійович,,,,,,
+413b911ea7f512184bc92befcba133d38d11c50b,3c8082874130892b92381b7f5b1a4577a3334e28,sourceUrl,url,Person,https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович,,,,,,

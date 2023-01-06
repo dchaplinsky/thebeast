@@ -1,0 +1,5 @@
+id,entity_id,prop,prop_type,schema,value,meta:record_no,meta:input_uri,meta:locale,meta:date,meta:transformation,meta:test_field
+ce9f79eb46338da0e7d1c216bd860de020a2460b,3c8082874130892b92381b7f5b1a4577a3334e28,id,id,Person,3c8082874130892b92381b7f5b1a4577a3334e28,,,,,,
+fe8010bfba8e9c074ed41842d4a4b3ba2deb27e8,3c8082874130892b92381b7f5b1a4577a3334e28,name,name,Person,Срака Іван,,,uk,,,
+48cb55b1e401565ca452da2aed38df0a92ea8439,3c8082874130892b92381b7f5b1a4577a3334e28,firstName,string,Person,Іван,,,en,,,
+c449d947b2889e71aa7941793af7a20816406f9a,3c8082874130892b92381b7f5b1a4577a3334e28,lastName,string,Person,Срака,,,uk,01.05.1999,,

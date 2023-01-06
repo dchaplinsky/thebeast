@@ -12,6 +12,7 @@ class StrProxy(str):
     Oh, that's truly a bread and butter class of everything. Or even a dough for the
     bread and milk for the butter.
     """
+
     def __new__(cls, content: Union[str, Any], meta: Optional[Union[Dict, NamedTuple]] = None):
         meta_cls = get_meta_cls()
         if isinstance(content, StrProxy):
