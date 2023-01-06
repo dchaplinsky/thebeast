@@ -49,7 +49,7 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Basic dump routines (stdout/files)
 - [x] Basic dump routines: statements
 - [x] Tests for basic dump routines
-- [ ] Tests for basic dump routines: statements
+- [X] Tests for basic dump routines: statements
 - [x] Remove inflate/deflate and pass dicts rather than entities between digest and dump
 - [x] Python 3.11 support (https://github.com/dchaplinsky/thebeast/actions/runs/3802499820/jobs/6468041810, https://github.com/ICRAR/ijson/issues/80)
 
