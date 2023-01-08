@@ -21,10 +21,26 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 
 
 ## Current status
+
+### High priority
+- [ ] Ingest from databases (mongo, postgres) using SQLAlchemy or PeeWee
+- [ ] Tests for the databases ingest
+- [ ] Basic CLI
+- [ ] Signals on exceptions and policy for the incorrectly parsed entity values (drop, drop all, drop entity, reraise)
+- [ ] Tests for the signals
+- [ ] Stats collector (number of signals of each type, number of invalid entities, etc)
+- [ ] Packaging (partially done in `packaging_and_spark_integration` branch)
+- [ ] Documentation (@legless, your notes will be very valuable)
+
+
+### Low priority
+- [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
+- [ ] Tests for the resolver wrappers
+
+
+Done
 - [x] Basic ingest for json/jsonlines/csv, both local and remote, compressed or not, singular or multiple files
 - [x] Tests for the basic ingest
-- [ ] Ingest from databases (mongo, postgres)
-- [ ] Tests for the databases ingest
 - [x] Mapping reader
 - [x] Tests for mapping reader
 - [x] Basic digest routines
@@ -36,16 +52,13 @@ https://gist.github.com/dchaplinsky/8021b530ea7e44c9443afcc3318042fd
 - [x] Advanced ingest routines: multiple values for the entity property
 - [x] Advanced ingest routines: split string into multiple values
 - [x] Advanced ingest routines: full entity validation and red/green sorting
-- [ ] Advanced ingest routines: regex validation to discard values that do not pass the test?
 - [X] Advanced ingest routines: augmentations/transformations
 - [X] Advanced ingest routines: records transformations
 - [X] Tests for records transformations
 - [X] Tests for the individual resolvers
-- [ ] Tests for the resolver wrappers
 - [X] Tests for digest routines
 - [X] Advanced digest routines: multiprocessing
 - [X] Tests for advanced digest routines
-- [ ] Basic CLI
 - [x] Basic dump routines (stdout/files)
 - [x] Basic dump routines: statements
 - [x] Tests for basic dump routines
