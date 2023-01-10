@@ -55,6 +55,8 @@ def make_entities(
             key_type, key_path = key.split(".", 1)
             if key_type == "entity":
                 key_values += entity.get(key_path)
+            elif key_type == "variable":
+                key_values += variables.get(key_path)
             elif key_type == "record":
                 key_values += jmespath_results_as_array(key_path, record)
 
