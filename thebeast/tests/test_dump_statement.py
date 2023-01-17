@@ -8,6 +8,7 @@ from thebeast.dump import StatementsCSVWriter
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 from thebeast.digest.utils import deflate_entity, make_entity
 from thebeast.tests.test_dump_entity import CaptureStdout
+from thebeast.dump.statements import stmt_key
 
 """
   Tests for entities dump / StatementsCSVWriter
@@ -165,3 +166,38 @@ class MappingDumpTests(unittest.TestCase):
                     self.assertEqual(expected, actual, "Not expected dump statement in stdout")
 
             self.assertEqual("", sys.stdout.readline(), "There is something left in stdout")
+
+    def test_statement_id(self):
+        with CaptureStdout():
+            # test entity id generated
+            key = stmt_key(entity_id="foo", prop="name", value="Іван Срака")
+            self.assertEqual(key, "12747891a8c16675b628513a1c95a32cc501a703")
+
+            # id will be different for StrProxy with same value
+            prop = StrProxy("Іван Срака")
+            key = stmt_key(entity_id="foo", prop="name", value=prop)
+            self.assertEqual(key, "e2bba1355573a34e3058e0a0ec11888c3f3b8a5b")
+
+            # assert default meta is used when generating key
+            prop = StrProxy("Іван Срака", meta={"locale": "ru", "date": "2020-01-01", "transformation": ""})
+            prop2 = StrProxy("Іван Срака", meta={"locale": "ru", "date": "2020-01-01", "transformation": ""})
+
+            key1 = stmt_key(
+                entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["locale", "date", "transformation"]
+            )
+            key2 = stmt_key(entity_id="foo", prop="name", value=prop)
+            self.assertEqual(key1, key2)
+
+            # ensure additional meta values are filtered
+            # we asking only for locale - which is same - so we will get same statement_id
+            prop = StrProxy("Іван Срака", meta={"locale": "ua", "date": "2020-01-01"})
+            prop2 = StrProxy("Іван Срака", meta={"locale": "ua", "date": "1999-01-01"})
+
+            key1 = stmt_key(entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["locale"])
+            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, meta_for_stmt_id=["locale"])
+            self.assertEqual(key1, key2)
+
+            # and for date field ids must be different
+            key1 = stmt_key(entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["date"])
+            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, meta_for_stmt_id=["date"])
+            self.assertNotEqual(key1, key2)
