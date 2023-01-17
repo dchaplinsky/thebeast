@@ -182,7 +182,9 @@ class MappingDumpTests(unittest.TestCase):
             prop = StrProxy("Іван Срака", meta={"locale": "ru", "date": "2020-01-01", "transformation": ""})
             prop2 = StrProxy("Іван Срака", meta={"locale": "ru", "date": "2020-01-01", "transformation": ""})
 
-            key1 = stmt_key(entity_id="foo", prop="name", value=prop, id_use_meta=["locale", "date", "transformation"])
+            key1 = stmt_key(
+                entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["locale", "date", "transformation"]
+            )
             key2 = stmt_key(entity_id="foo", prop="name", value=prop)
             self.assertEqual(key1, key2)
 
@@ -191,10 +193,11 @@ class MappingDumpTests(unittest.TestCase):
             prop = StrProxy("Іван Срака", meta={"locale": "ua", "date": "2020-01-01"})
             prop2 = StrProxy("Іван Срака", meta={"locale": "ua", "date": "1999-01-01"})
 
-            key1 = stmt_key(entity_id="foo", prop="name", value=prop, id_use_meta=["locale"])
-            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, id_use_meta=["locale"])
+            key1 = stmt_key(entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["locale"])
+            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, meta_for_stmt_id=["locale"])
             self.assertEqual(key1, key2)
 
-            key1 = stmt_key(entity_id="foo", prop="name", value=prop, id_use_meta=["date"])
-            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, id_use_meta=["date"])
+            # and for date field ids must be different
+            key1 = stmt_key(entity_id="foo", prop="name", value=prop, meta_for_stmt_id=["date"])
+            key2 = stmt_key(entity_id="foo", prop="name", value=prop2, meta_for_stmt_id=["date"])
             self.assertNotEqual(key1, key2)

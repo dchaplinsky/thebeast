@@ -21,8 +21,8 @@ from .abstract import AbstractStatementsWriter
 from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 
 ID_PROP: str = "id"
-# meta fields o use for statement_id generation by default
-DEFAULT_META_FOR_ID: List[str] = ["locale", "transformation", "date"]
+# meta fields to use for statement_id generation by default
+DEFAULT_META_FOR_STATEMENT_ID: List[str] = ["locale", "transformation", "date"]
 
 
 @cache
@@ -31,7 +31,7 @@ def resolve_schema_propery_type(schema: str, property_name: str) -> str:
 
 
 def stmt_key(
-    entity_id: str, prop: str, value: Union[StrProxy, str], id_use_meta: List[str] = DEFAULT_META_FOR_ID
+    entity_id: str, prop: str, value: Union[StrProxy, str], meta_for_stmt_id: List[str] = DEFAULT_META_FOR_STATEMENT_ID
 ) -> str:
     """Hash the key properties of a statement record to make a unique ID."""
 
@@ -39,12 +39,10 @@ def stmt_key(
         key = f"thebeast.{entity_id}.{prop}.{value}.no_meta"
         return sha1(key.encode("utf-8")).hexdigest()
 
-    # i really dont know what i am doing
-    # hope this works
-
     # filter entity meta based on given properties list
+    # this is also faster than dict comprehension
     filtered_meta = {}
-    for x in id_use_meta:
+    for x in meta_for_stmt_id:
         filtered_meta[x] = getattr(value._meta, x)
 
     # and create a new meta object to keep filtered values
@@ -61,10 +59,10 @@ class StatementsCSVWriter(AbstractStatementsWriter):
         output_uri: str,
         meta_fields: List[str],
         error_uri: str = "/dev/null",
-        id_use_meta: List[str] = DEFAULT_META_FOR_ID,
+        meta_for_stmt_id: List[str] = DEFAULT_META_FOR_STATEMENT_ID,
     ) -> None:
         super().__init__(output_uri, meta_fields, error_uri)
-        self.id_use_meta = id_use_meta
+        self._meta_for_stmt_id = meta_for_stmt_id
 
         fieldnames: List[str] = [
             "id",
@@ -101,7 +99,7 @@ class StatementsCSVWriter(AbstractStatementsWriter):
                     entity_id=entity.payload["id"],
                     prop=ID_PROP,
                     value=entity.payload["id"],
-                    id_use_meta=self.id_use_meta,
+                    meta_for_stmt_id=self._meta_for_stmt_id,
                 ),
                 "entity_id": entity.payload["id"],
                 "prop": ID_PROP,
@@ -116,7 +114,10 @@ class StatementsCSVWriter(AbstractStatementsWriter):
                 for value in values:
                     rec = {
                         "id": stmt_key(
-                            entity_id=entity.payload["id"], prop=prop, value=value, id_use_meta=self.id_use_meta
+                            entity_id=entity.payload["id"],
+                            prop=prop,
+                            value=value,
+                            meta_for_stmt_id=self._meta_for_stmt_id,
                         ),
                         "entity_id": entity.payload["id"],
                         "prop": prop,
