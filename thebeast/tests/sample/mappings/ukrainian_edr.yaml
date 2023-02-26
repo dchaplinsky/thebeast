@@ -2,10 +2,17 @@ id: ukrainian_edr
 # ftm_ontology: # Again optional path to the directory with ftm
 
 info:
+  title: Ukrainian EDR data
   comments: Optional comments on the data source
   author: Daniel Horbunov, Dmytro Chaplynskyi
+  maintainer: Dmytro Chaplynskyi
+  publisher: Ministry of Justice of Ukraine
   created: "2022-06-20T20:19:00.1Z"
-  modified: "2022-06-20T20:19:00.1Z"
+  modified: "2023-02-26T21:40:00.1Z"
+  tags:
+    - companies
+    - official-source
+    - sample-mapping
 
 ingest:
   cls: thebeast.ingest.JSONGlobReader
