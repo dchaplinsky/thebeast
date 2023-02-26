@@ -546,9 +546,30 @@
                     "format": "date-time",
                     "type": "string"
                 },
+                "maintainer":
+                {
+                    "description": "Optional reference to the maintainers of this mapping",
+                    "type": "string"
+                },
                 "modified":
                 {
                     "format": "date-time",
+                    "type": "string"
+                },
+                "publisher":
+                {
+                    "description": "Optional reference to publisher of source data",
+                    "type": "string"
+                },
+                "tags":
+                {
+                    "description": "Optional arbitrary list of mapping tags, e.g. 'unofficial', 'government', etc",
+                    "type": "array",
+                    "uniqueItems": true
+                },
+                "title":
+                {
+                    "description": "Optional title for the mapping",
                     "type": "string"
                 }
             },

@@ -1,0 +1,47 @@
+id: ru_mayors
+
+meta: []
+
+info:
+  comments: No meta test file
+  author: Dmytro Chaplynskyi
+  created: "2023-01-02T20:19:00.1Z"
+  modified: "2023-01-02T20:19:00.1Z"
+  tags: 
+    - foo
+    - foo
+
+ingest:
+  cls: thebeast.ingest.JSONLinesGlobReader
+  params:
+    input_uri: thebeast/tests/sample/json/ru_mayors.jsonl
+digest:
+  meta:
+    locale:
+      literal: ru
+  collections:
+    root:
+      path: "[@]"   # Wrap each record into the list
+
+      entities:
+        ru_mayor:
+          schema: Person
+          keys:
+            - entity.name
+          properties:
+            name:
+              column: mayorLabel
+              transformer: thebeast.contrib.transformers.mixed_charset_fixer
+            title:
+              template: "Мер, {{ record.itemLabel }}"
+            sourceUrl:
+              column: mayor
+            birthDate:
+              column: birth_date
+            birthPlace:
+              column: birth_placeLabel
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    # Just stdout it, so we can pipe it into the next tool
+    output_uri: "/dev/stdout"

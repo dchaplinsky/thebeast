@@ -58,6 +58,8 @@ class MappingReaderTests(unittest.TestCase):
             "invalid_properties_4.yaml",
             "invalid_properties_5.yaml",
             "invalid_properties_6.yaml",
+            "invalid_properties_info_1.yaml",
+            "invalid_properties_info_2.yaml",
         ]:
             with self.assertRaises(InvalidMappingException):
                 SourceMapping(Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))
