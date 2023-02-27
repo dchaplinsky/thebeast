@@ -95,9 +95,13 @@ def inflate_entity(entity_dict: Dict) -> RiggedEntityProxy:
 def deflate_entity(entity: RiggedEntityProxy) -> RedGreenEntity:
     asdict: Dict = entity.to_dict()
     valid: bool = True
-    try:
-        entity.schema.validate(asdict)
-    except InvalidData:
+
+    if entity.id is None:
         valid = False
+    else:
+        try:
+            entity.schema.validate(asdict)
+        except InvalidData:
+            valid = False
 
     return RedGreenEntity(payload=asdict, valid=valid)

@@ -73,10 +73,9 @@ def make_entities(
 
                     if prop.type == ENTITY_TYPE:
                         for val in entity.get(property_name):
-                            key_values += context_entities_map[val]
+                            key_values.append(context_entities_map.get(val))
                     else:
                         key_values += entity.get(property_name)
-
             elif key_type == "variable":
                 key_values += variables.get(key_path)
             elif key_type == "record":
