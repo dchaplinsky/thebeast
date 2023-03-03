@@ -13,7 +13,7 @@ from .utils import (
     ensure_list,
     resolve_callable,
     deflate_entity,
-    ENTITY_TYPE
+    ENTITY_TYPE,
 )
 from .resolvers import resolve_property_values, resolve_constant_meta_values, resolve_collection_meta_values
 

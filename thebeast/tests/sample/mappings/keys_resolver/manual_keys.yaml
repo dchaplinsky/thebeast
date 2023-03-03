@@ -1,0 +1,34 @@
+id: asterisk_keys_manual
+
+info:
+  comments: Config for testing asterisk/wildcard keys resolver
+  author: wm
+
+ingest:
+  cls: thebeast.ingest.TSVDictGlobReader
+  params:
+    input_uri: thebeast/tests/sample/csv/rada*.tsv
+
+digest:
+  collections:
+    root:
+      path: "[@]"
+
+      entities:
+        person:
+          schema: Person
+          keys:
+            - entity.birthDate
+            - entity.name
+          properties:
+            name:
+              column: name
+            birthDate:
+              column: birth_date
+            notes:
+              column: notes
+
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    output_uri: "/dev/stdout"

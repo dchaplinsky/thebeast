@@ -1,0 +1,47 @@
+id: entity_keys
+
+info:
+  comments: Config for testing entity keys resolver
+  author: wm
+
+ingest:
+  cls: thebeast.ingest.TSVDictGlobReader
+  params:
+    input_uri: thebeast/tests/sample/csv/rada*.tsv
+
+digest:
+  collections:
+    root:
+      path: "[@]"
+
+      entities:
+        person:
+          schema: Person
+          keys:
+            - entity.name
+          properties:
+            name:
+              column: name
+
+        company:
+          schema: Company
+          keys:
+            - entity.*
+          properties:
+            name:
+              column: company
+
+        employ:
+          schema: Employment
+          keys:
+            - entity.*
+          properties:
+            employee:
+              entity: person
+            employer:
+              entity: company
+
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    output_uri: "/dev/stdout"
