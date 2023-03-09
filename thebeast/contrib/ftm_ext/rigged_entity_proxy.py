@@ -72,7 +72,6 @@ class RiggedEntityProxy(EntityProxy):
         fuzzy: bool = False,
         format: Optional[str] = None,
     ) -> None:
-
         if not cleaned and value is not None:
             if isinstance(value, str):
                 value = StrProxy(value)

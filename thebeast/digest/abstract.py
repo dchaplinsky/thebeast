@@ -1,4 +1,4 @@
-from typing import List, Dict, Generator, Iterable, Callable, Optional, Any
+from typing import List, Dict, Generator, Iterable, Callable, Optional, Any, Union, Tuple
 
 from followthemoney.schema import Schema  # type: ignore
 
@@ -13,16 +13,23 @@ from .utils import (
     ensure_list,
     resolve_callable,
     deflate_entity,
+    ENTITY_TYPE,
 )
 from .resolvers import resolve_property_values, resolve_constant_meta_values, resolve_collection_meta_values
 
 
 def make_entities(
-    record: Record, entities_config: Dict, statements_meta: Dict[str, str]
-) -> Generator[Schema, None, None]:
+    record: Union[List, Dict],
+    entities_config: Dict,
+    statements_meta: Dict[str, str],
+    parent_context_entities_map: Dict[str, Schema],
+) -> Tuple[List[Schema], Dict[str, Schema]]:
     """
     Takes the list/dict of records and a config for collection and produces entites
     """
+
+    context_entities_map: Dict[str, str] = parent_context_entities_map.copy()
+    context_entities: List[Schema] = []
 
     for entity_name, entity_config in entities_config.items():
         entity = make_entity(entity_config["schema"], key_prefix=entity_name)
@@ -54,7 +61,21 @@ def make_entities(
         for key in entity_config["keys"]:
             key_type, key_path = key.split(".", 1)
             if key_type == "entity":
-                key_values += entity.get(key_path)
+                properties_to_use: List[str] = []
+
+                if key_path == "*":
+                    properties_to_use = sorted(entity.properties)
+                else:
+                    properties_to_use = [key_path]
+
+                for property_name in properties_to_use:
+                    prop = entity.schema.properties[property_name]
+
+                    if prop.type == ENTITY_TYPE:
+                        for val in entity.get(property_name):
+                            key_values.append(context_entities_map.get(val))
+                    else:
+                        key_values += entity.get(property_name)
             elif key_type == "variable":
                 key_values += variables.get(key_path)
             elif key_type == "record":
@@ -62,7 +83,10 @@ def make_entities(
 
         entity.make_id(*key_values)
 
-        yield entity
+        context_entities_map[generate_pseudo_id(entity.key_prefix)] = entity.id
+        context_entities.append(entity)
+
+    return list(resolve_entity_refs(context_entities, context_entities_map)), context_entities_map
 
 
 def main_cog(
@@ -104,15 +128,15 @@ def main_cog(
             combined_statements_meta: Dict[str, str] = statements_meta.copy()
             combined_statements_meta.update(local_statements_meta)
 
-            local_context_entities: Dict[str, Schema] = {}
-            for entity in make_entities(record, collection_config["entities"], combined_statements_meta):
-                local_context_entities[generate_pseudo_id(entity.key_prefix)] = entity
+            local_context_entities, combined_context_entites_map = make_entities(
+                record,
+                collection_config["entities"],
+                statements_meta=combined_statements_meta,
+                parent_context_entities_map=parent_context_entities_map,
+            )
 
-            combined_context_entites_map: Dict[str, Schema] = parent_context_entities_map.copy()
-            combined_context_entites_map.update({k: v.id for k, v in local_context_entities.items()})
-
-            for entity in resolve_entity_refs(local_context_entities.values(), combined_context_entites_map):
-                # We are conveting entities from Schema to Dict here to overcome
+            for entity in local_context_entities:
+                # We are converting entities from Schema to Dict here to overcome
                 # an issue with circular references during pickling (also it'll reduce)
                 # the amount of data needs to be transfered between processed, since
                 # each process now has it's own FTM model and you don't need to
@@ -155,19 +179,14 @@ class AbstractDigestor:
         )
 
         # Then let's yield constant entities
-        context_entities_map: Dict[str, str] = {}
-        context_entities: List[Schema] = []
+        context_entities, context_entities_map = make_entities(
+            record={},
+            entities_config=self.mapping_config.get("constant_entities", {}),
+            statements_meta=statements_meta,
+            parent_context_entities_map={},
+        )
 
-        # TODO: use a dedicated function to make constant entities maybe?
-        for entity in make_entities(
-            record={}, entities_config=self.mapping_config.get("constant_entities", {}), statements_meta=statements_meta
-        ):
-            context_entities_map[generate_pseudo_id(entity.key_prefix)] = entity.id
-            context_entities.append(entity)
-
-        # And resolve entity refererence in constant entities (i.e one constant entity is referencing
-        # another in the property)
-        for entity in resolve_entity_refs(context_entities, context_entities_map):
+        for entity in context_entities:
             yield deflate_entity(entity)
 
         for entity in self.run_the_cog(
