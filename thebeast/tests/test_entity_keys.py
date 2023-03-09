@@ -76,27 +76,35 @@ class EntityKeysTests(unittest.TestCase):
                 Record(payload={"name": "Ivan Sraka"}),
             ]
 
-            entities = list(ent.payload for ent in mapping.digestor.extract(items))
+            entities = [*mapping.digestor.extract(items)]
             self.assertEqual(6, len(entities))
 
-            self.assertEqual("Person", entities[0]["schema"])
-            self.assertEqual("Company", entities[1]["schema"])
-            self.assertEqual("Employment", entities[2]["schema"])
+            self.assertEqual("Person", entities[0].payload["schema"])
+            self.assertEqual("Company", entities[1].payload["schema"])
+            self.assertEqual("Employment", entities[2].payload["schema"])
 
-            self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[0]["id"])
-            self.assertEqual("178e4423135e4b92d81049984b41ff524c1f5641", entities[1]["id"])
-            self.assertEqual("60781e1346aa5d396d3d6ed19743f8ae91dc9058", entities[2]["id"])
+            self.assertTrue(entities[0].valid)
+            self.assertTrue(entities[1].valid)
+            self.assertTrue(entities[2].valid)
 
-            self.assertEqual("Person", entities[3]["schema"])
-            self.assertEqual("Company", entities[4]["schema"])
-            self.assertEqual("Employment", entities[5]["schema"])
+            self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[0].payload["id"])
+            self.assertEqual("178e4423135e4b92d81049984b41ff524c1f5641", entities[1].payload["id"])
+            self.assertEqual("60781e1346aa5d396d3d6ed19743f8ae91dc9058", entities[2].payload["id"])
+
+            self.assertEqual("Person", entities[3].payload["schema"])
+            self.assertEqual("Company", entities[4].payload["schema"])
+            self.assertEqual("Employment", entities[5].payload["schema"])
+
+            self.assertTrue(entities[3].valid)
+            self.assertFalse(entities[4].valid)
+            self.assertFalse(entities[5].valid)
 
             # person keys are the same
-            self.assertEqual(entities[0]["id"], entities[3]["id"])
+            self.assertEqual(entities[0].payload["id"], entities[3].payload["id"])
             # second `company` is not generated
-            self.assertEqual(None, entities[4]["id"], entities[4])
+            self.assertEqual(None, entities[4].payload["id"])
             # `employment` id will differ because second company entity is not degenerated
-            self.assertNotEqual(entities[2]["id"], entities[5]["id"])
+            self.assertNotEqual(entities[2].payload["id"], entities[5].payload["id"])
 
     def test_entity_keys_on_entity_field_with_wrong_mapping_entity_order(self):
         mapping = SourceMapping(Path("thebeast/tests/sample/mappings/keys_resolver/entity_keys_wildcard_shuffled.yaml"))
@@ -106,20 +114,24 @@ class EntityKeysTests(unittest.TestCase):
             Record(payload={"name": "Ivan Sraka"}),
         ]
 
-        entities = list(ent.payload for ent in mapping.digestor.extract(items))
+        entities = [*mapping.digestor.extract(items)]
         self.assertEqual(6, len(entities))
 
-        self.assertEqual("Employment", entities[0]["schema"])
-        self.assertEqual("Company", entities[1]["schema"])
-        self.assertEqual("Person", entities[2]["schema"])
+        self.assertEqual("Employment", entities[0].payload["schema"])
+        self.assertEqual("Company", entities[1].payload["schema"])
+        self.assertEqual("Person", entities[2].payload["schema"])
 
         # both employment ids will be `None` since it can't resolve it's related entities, being before them in mapping
-        self.assertEqual(None, entities[0]["id"])
-        self.assertEqual(None, entities[3]["id"])
+        self.assertEqual(None, entities[0].payload["id"])
+        self.assertEqual(None, entities[3].payload["id"])
 
-        self.assertEqual("178e4423135e4b92d81049984b41ff524c1f5641", entities[1]["id"])
-        self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[2]["id"])
+        # also ensure these entities are invalid
+        self.assertFalse(entities[0].valid)
+        self.assertFalse(entities[3].valid)
+
+        self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[2].payload["id"])
 
         # Second `Company` is also None since it's empty
-        self.assertEqual(None, entities[4]["id"])
-        self.assertEqual(entities[2]["id"], entities[5]["id"])
+        self.assertEqual(None, entities[4].payload["id"])
+        self.assertFalse(entities[4].valid)
+        self.assertEqual(entities[2].payload["id"], entities[5].payload["id"])
