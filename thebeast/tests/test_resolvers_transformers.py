@@ -119,3 +119,36 @@ class ResolversTests(unittest.TestCase):
                     {"name": "thebeast.contrib.transformers.decode_html_entities"}, ctx
                 )[0]
                 self.assertEqual(actual_result, expected_result)
+
+    def test_pad_string(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        ctx.property_values = [StrProxy("1234")]
+        actual_result = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.pad_string", "params": {"length": "5", "pad_char": "0"}}, ctx
+        )[0]
+        self.assertEqual(actual_result, "12340")
+
+        ctx.property_values = [StrProxy("1234")]
+        actual_result = _resolve_transformer(
+            {
+                "name": "thebeast.contrib.transformers.pad_string",
+                "params": {"length": "5", "pad_char": "5", "align": "right"},
+            },
+            ctx,
+        )[0]
+        self.assertEqual(actual_result, "51234")
+
+        ctx.property_values = [StrProxy("1234")]
+        self.assertRaises(
+            ValueError,
+            _resolve_transformer,
+            {"name": "thebeast.contrib.transformers.pad_string", "params": {"length": "5", "align": "foobar"}},
+            ctx,
+        )

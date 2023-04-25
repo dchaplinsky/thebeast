@@ -100,3 +100,20 @@ def decode_html_entities(values: List[StrProxy]) -> List[StrProxy]:
     """
 
     return [value.inject_meta_to_str(html.unescape(value)) for value in values]
+
+
+def do_pad_string(value: str, length, pad_char=" ", align="left") -> str:
+    if align == "left":
+        return value.ljust(length, pad_char)
+    elif align == "right":
+        return value.rjust(length, pad_char)
+    else:
+        raise ValueError("Invalid align value, expecting left or right")
+
+
+def pad_string(values: List[StrProxy], length, pad_char=" ", align="left") -> List[StrProxy]:
+    """
+    Pad string to desired length
+    """
+
+    return [value.inject_meta_to_str(do_pad_string(value, int(length), pad_char, align)) for value in values]
