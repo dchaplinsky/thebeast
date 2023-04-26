@@ -4,6 +4,7 @@ from dateutil.parser import parse as dt_parse  # type: ignore
 from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 import regex as re
+import html
 
 
 # TODO: split into dates/names/others files
@@ -91,3 +92,28 @@ def do_normalize_email(value: str) -> str:
 
 def normalize_email(values: List[StrProxy]) -> List[StrProxy]:
     return [value.inject_meta_to_str(do_normalize_email(value)) for value in values]
+
+
+def decode_html_entities(values: List[StrProxy]) -> List[StrProxy]:
+    """
+    Decode HTML entities
+    """
+
+    return [value.inject_meta_to_str(html.unescape(value)) for value in values]
+
+
+def do_pad_string(value: str, length, pad_char=" ", align="left") -> str:
+    if align == "left":
+        return value.ljust(length, pad_char)
+    elif align == "right":
+        return value.rjust(length, pad_char)
+    else:
+        raise ValueError("Invalid align value, expecting left or right")
+
+
+def pad_string(values: List[StrProxy], length, pad_char=" ", align="left") -> List[StrProxy]:
+    """
+    Pad string to desired length
+    """
+
+    return [value.inject_meta_to_str(do_pad_string(value, int(length), pad_char, align)) for value in values]

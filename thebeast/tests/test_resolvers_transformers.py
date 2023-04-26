@@ -95,3 +95,60 @@ class ResolversTests(unittest.TestCase):
 
                 actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.normalize_email"}, ctx)[0]
                 self.assertEqual(actual_result, expected_result)
+
+    def test_decode_html_entities(self):
+        param_list = [
+            (StrProxy("foobar"), "foobar"),
+            (StrProxy("<foobar>"), "<foobar>"),
+            (StrProxy("&lt;foobar&#62;"), "<foobar>"),
+        ]
+
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        for input_val, expected_result in param_list:
+            with self.subTest():
+                ctx.property_values = [StrProxy(input_val)]
+
+                actual_result = _resolve_transformer(
+                    {"name": "thebeast.contrib.transformers.decode_html_entities"}, ctx
+                )[0]
+                self.assertEqual(actual_result, expected_result)
+
+    def test_pad_string(self):
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        ctx.property_values = [StrProxy("1234")]
+        actual_result = _resolve_transformer(
+            {"name": "thebeast.contrib.transformers.pad_string", "params": {"length": "5", "pad_char": "0"}}, ctx
+        )[0]
+        self.assertEqual(actual_result, "12340")
+
+        ctx.property_values = [StrProxy("1234")]
+        actual_result = _resolve_transformer(
+            {
+                "name": "thebeast.contrib.transformers.pad_string",
+                "params": {"length": "5", "pad_char": "5", "align": "right"},
+            },
+            ctx,
+        )[0]
+        self.assertEqual(actual_result, "51234")
+
+        ctx.property_values = [StrProxy("1234")]
+        self.assertRaises(
+            ValueError,
+            _resolve_transformer,
+            {"name": "thebeast.contrib.transformers.pad_string", "params": {"length": "5", "align": "foobar"}},
+            ctx,
+        )
