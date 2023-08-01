@@ -152,3 +152,34 @@ class ResolversTests(unittest.TestCase):
             {"name": "thebeast.contrib.transformers.pad_string", "params": {"length": "5", "align": "foobar"}},
             ctx,
         )
+
+    def test_convert_case(self):
+        param_list = [
+            (StrProxy("FoObAr"), "upper", "FOOBAR"),
+            (StrProxy("FoObAr"), "lower", "foobar"),
+        ]
+
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        for input_val, case, expected_result in param_list:
+            with self.subTest("Test case convers", case=case):
+                ctx.property_values = [StrProxy(input_val)]
+                actual_result = _resolve_transformer(
+                    {"name": "thebeast.contrib.transformers.convert_case", "params": {"case": case}}, ctx
+                )[0]
+                self.assertEqual(actual_result, expected_result)
+
+        with self.subTest("Test error is thrown"):
+            ctx.property_values = [StrProxy("fooBAR")]
+            self.assertRaises(
+                ValueError,
+                _resolve_transformer,
+                {"name": "thebeast.contrib.transformers.convert_case", "params": {"case": "foobar"}},
+                ctx,
+            )
