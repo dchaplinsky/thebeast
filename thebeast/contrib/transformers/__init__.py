@@ -17,6 +17,20 @@ def trim_string(values: List[StrProxy], strip=" ") -> List[StrProxy]:
     return [value.inject_meta_to_str(value.strip(strip)) for value in values]
 
 
+def convert_case(values: List[StrProxy], case="upper") -> List[StrProxy]:
+    """
+    Converts string case
+    """
+
+    if case == "upper":
+        return [value.inject_meta_to_str(value.upper()) for value in values]
+
+    if case == "lower":
+        return [value.inject_meta_to_str(value.lower()) for value in values]
+
+    raise ValueError("Invalid case value, expecting 'upper' or 'lower'")
+
+
 def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
     """
     Fix values where cyrillic symbols are replaced with similarly looking latin ones
