@@ -1,6 +1,6 @@
 name: The Beast package
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
