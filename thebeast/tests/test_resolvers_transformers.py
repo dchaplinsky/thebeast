@@ -183,3 +183,40 @@ class ResolversTests(unittest.TestCase):
                 {"name": "thebeast.contrib.transformers.convert_case", "params": {"case": "foobar"}},
                 ctx,
             )
+
+    def test_from_unixtime(self):
+        param_list = [
+            ("1643839200", "2022-02-02 22:00:00"),
+            ("1643895202", "2022-02-03 13:33:22"),
+        ]
+
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        for input_val, expected_result in param_list:
+            with self.subTest("Test date from unixtime", expected_result=expected_result):
+                ctx.property_values = [StrProxy(input_val)]
+                actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.from_unixtime"}, ctx)[0]
+                self.assertEqual(actual_result, expected_result)
+                self.assertEqual(actual_result._meta.transformation, "thebeast.contrib.transformers.from_unixtime()")
+
+        with self.subTest("Test error is thrown without silent mode"):
+            ctx.property_values = [StrProxy("fooBAR")]
+            self.assertRaises(
+                ValueError,
+                _resolve_transformer,
+                {"name": "thebeast.contrib.transformers.from_unixtime", "params": {"silent": False}},
+                ctx,
+            )
+
+        with self.subTest("Test error is not thrown with silent mode"):
+            ctx.property_values = [StrProxy("fooBAR")]
+            actual_result = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.from_unixtime", "params": {"silent": True}}, ctx
+            )
+            self.assertEqual(actual_result, [])

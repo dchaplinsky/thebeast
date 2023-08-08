@@ -1,5 +1,6 @@
 from typing import List
 from dateutil.parser import parse as dt_parse  # type: ignore
+import datetime
 
 from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
@@ -52,6 +53,25 @@ def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
     Trying to parse datetime with dateutil lib
     """
     return [value.inject_meta_to_str(dt_parse(value, **kwargs)) for value in values]
+
+
+def from_unixtime(values: List[StrProxy], silent=False) -> List[StrProxy]:
+    """
+    Trying to create datetime from unix timestamp
+    """
+
+    res = []
+
+    for value in values:
+        try:
+            res.append(value.inject_meta_to_str(datetime.datetime.fromtimestamp(int(value))))
+        except Exception:
+            if silent:
+                pass
+            else:
+                raise
+
+    return res
 
 
 def incomplete_date_converter(value: str) -> str:
