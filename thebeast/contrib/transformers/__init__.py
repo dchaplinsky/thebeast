@@ -41,11 +41,23 @@ def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
     return [value.inject_meta_to_str(try_to_fix_mixed_charset(value)) for value in values]
 
 
-def anydate_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
+def anydate_parser(values: List[StrProxy], silent=False, **kwargs) -> List[StrProxy]:
     """
     Trying to parse date with dateutil lib
     """
-    return [value.inject_meta_to_str(dt_parse(value, **kwargs).date()) for value in values]
+
+    res = []
+
+    for value in values:
+        try:
+            res.append(value.inject_meta_to_str(dt_parse(value, **kwargs).date()))
+        except Exception:
+            if silent:
+                pass
+            else:
+                raise
+
+    return res
 
 
 def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:

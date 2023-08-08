@@ -11,41 +11,59 @@ class ResolversTests(unittest.TestCase):
     def test_anydate_parser(self):
         ctx = ResolveContext(
             record={},
-            property_values=[StrProxy("05.06.07")],
+            property_values=[],
             entity=None,
             statements_meta={},
             variables={},
         )
 
-        val = _resolve_transformer("thebeast.contrib.transformers.anydate_parser", ctx)[0]
-        self.assertIsInstance(val, StrProxy)
-        self.assertEqual(val, "2007-05-06")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
+        with self.subTest("Test anydate_parser"):
+            ctx.property_values = [StrProxy("05.06.07")]
+            val = _resolve_transformer("thebeast.contrib.transformers.anydate_parser", ctx)[0]
+            self.assertIsInstance(val, StrProxy)
+            self.assertEqual(val, "2007-05-06")
+            self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
 
-        val = _resolve_transformer({"name": "thebeast.contrib.transformers.anydate_parser"}, ctx)[0]
-        self.assertEqual(val, "2007-05-06")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
+            val = _resolve_transformer({"name": "thebeast.contrib.transformers.anydate_parser"}, ctx)[0]
+            self.assertEqual(val, "2007-05-06")
+            self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser()")
 
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"dayfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2007-06-05")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(dayfirst=True)")
+            val = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"dayfirst": True}}, ctx
+            )[0]
+            self.assertEqual(val, "2007-06-05")
+            self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(dayfirst=True)")
 
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2005-06-07")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
+            val = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
+            )[0]
+            self.assertEqual(val, "2005-06-07")
+            self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
 
-        ctx.property_values = [StrProxy("05.06.07", meta={"locale": "php"})]
+            ctx.property_values = [StrProxy("05.06.07", meta={"locale": "php"})]
 
-        val = _resolve_transformer(
-            {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
-        )[0]
-        self.assertEqual(val, "2005-06-07")
-        self.assertEqual(val._meta.locale, "php")
-        self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
+            val = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"yearfirst": True}}, ctx
+            )[0]
+            self.assertEqual(val, "2005-06-07")
+            self.assertEqual(val._meta.locale, "php")
+            self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
+
+        with self.subTest("Test anydate_parser throws exception on invalid value"):
+            ctx.property_values = [StrProxy("fooBAR")]
+            self.assertRaises(
+                ValueError,
+                _resolve_transformer,
+                {"name": "thebeast.contrib.transformers.anydate_parser"},
+                ctx,
+            )
+
+        with self.subTest("Test error is not thrown with silent mode"):
+            ctx.property_values = [StrProxy("fooBAR")]
+            actual_result = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"silent": True}}, ctx
+            )
+            self.assertEqual(actual_result, [])
 
     def test_trim_string(self):
         ctx = ResolveContext(
