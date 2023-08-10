@@ -4,6 +4,7 @@ PyYAML==6.0
 smart-open==6.0.0
 ijson==3.2.0.post0
 pytest
+pytest-subtests
 fastjsonschema==2.15.3
 Jinja2==3.1.2
 tqdm==4.64.0
