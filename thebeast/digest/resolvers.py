@@ -116,6 +116,23 @@ def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> Li
     return extracted_property_values
 
 
+def regex_replace_multiple(regex_list: list, replace_list: list, property_values: list):
+    extracted_property_values: List[Any] = []
+
+    for property_value in property_values:
+        if not property_value:
+            continue
+
+        string = property_value
+
+        for regex, replace in zip(regex_list, replace_list):
+            string = property_value.inject_meta_to_str(re.sub(regex, replace, string, flags=re.V1))
+
+        extracted_property_values += [string]
+
+    return extracted_property_values
+
+
 def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `regex_replace` is an optional regex **replacer** to replace content of extracted string.
@@ -125,16 +142,28 @@ def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContex
     """
 
     extracted_property_values: List[Any] = []
+    regex_list = command_config["regex"]
+    replace = command_config["replace"]
+
+    if type(regex_list) != list:
+        regex_list = [regex_list]
+
+    if type(replace) == list:
+        if len(replace) != len(regex_list):
+            raise ValueError("If 'replace' is an array, it must have same length as 'regex'")
+        else:
+            return regex_replace_multiple(regex_list, replace, context.property_values)
 
     for property_value in context.property_values:
         if not property_value:
             continue
 
-        extracted_property_values += [
-            property_value.inject_meta_to_str(
-                re.sub(command_config["regex"], command_config["replace"], property_value, flags=re.V1)
-            )
-        ]
+        string = property_value
+
+        for regex in regex_list:
+            string = property_value.inject_meta_to_str(re.sub(regex, replace, string, flags=re.V1))
+
+        extracted_property_values += [string]
 
     return extracted_property_values
 

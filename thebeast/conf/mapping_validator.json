@@ -328,10 +328,17 @@
                     "properties": {
                         "regex": {
                             "format": "regex",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "array"
+                            ]
                         },
                         "replace": {
-                            "type": "string"
+                            "type": "string",
+                             "type": [
+                                "string",
+                                "array"
+                            ]
                         }
                     },
                     "required":

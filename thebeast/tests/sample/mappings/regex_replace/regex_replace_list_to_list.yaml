@@ -1,0 +1,43 @@
+id: ru_mayors
+
+meta: []
+
+info:
+  comments: No meta test file
+  author: Wishmaster
+  created: "2023-08-10T15:19:00.1Z"
+  modified: "2023-08-10T15:19:00.1Z"
+
+ingest:
+  cls: thebeast.ingest.JSONLinesGlobReader
+  params:
+    input_uri: "-"
+digest:
+  meta:
+    locale:
+      literal: ru
+  collections:
+    root:
+      path: "[@]"   # Wrap each record into the list
+
+      entities:
+        person:
+          schema: Person
+          keys:
+            - entity.name
+          properties:
+            name:
+              column: name
+              regex_replace: 
+                regex: 
+                  - "NULL"
+                  - "empty"
+                replace: 
+                  - "foo"
+                  - "bar"
+
+dump:
+  cls: thebeast.dump.FTMLinesWriter
+  params:
+    # Just stdout it, so we can pipe it into the next tool
+    output_uri: "/dev/stdout"
