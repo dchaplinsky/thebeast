@@ -67,7 +67,7 @@ def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
     return [value.inject_meta_to_str(dt_parse(value, **kwargs)) for value in values]
 
 
-def from_unixtime(values: List[StrProxy], silent=False) -> List[StrProxy]:
+def from_unixtime(values: List[StrProxy], silent=False, skip_zero_date=True) -> List[StrProxy]:
     """
     Trying to create datetime from unix timestamp
     """
@@ -76,6 +76,9 @@ def from_unixtime(values: List[StrProxy], silent=False) -> List[StrProxy]:
 
     for value in values:
         try:
+            if skip_zero_date and int(value) == 0:
+                continue
+
             res.append(value.inject_meta_to_str(datetime.datetime.fromtimestamp(int(value))))
         except Exception:
             if silent:

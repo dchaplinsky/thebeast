@@ -203,10 +203,7 @@ class ResolversTests(unittest.TestCase):
             )
 
     def test_from_unixtime(self):
-        param_list = [
-            ("1643839200", "2022-02-02 22:00:00"),
-            ("1643895202", "2022-02-03 13:33:22"),
-        ]
+        param_list = [("1643839200", "2022-02-02 22:00:00"), ("1643895202", "2022-02-03 13:33:22")]
 
         ctx = ResolveContext(
             record={},
@@ -222,6 +219,18 @@ class ResolversTests(unittest.TestCase):
                 actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.from_unixtime"}, ctx)[0]
                 self.assertEqual(actual_result, expected_result)
                 self.assertEqual(actual_result._meta.transformation, "thebeast.contrib.transformers.from_unixtime()")
+
+        with self.subTest("Zero unixtime is ignored by default"):
+            ctx.property_values = [StrProxy("0"), StrProxy("1691528400")]
+            actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.from_unixtime"}, ctx)
+            self.assertEqual(actual_result, ["2023-08-08 21:00:00"])
+
+        with self.subTest("Zero unixtime is not ignored if param is set"):
+            ctx.property_values = [StrProxy("0"), StrProxy("1691528400")]
+            actual_result = _resolve_transformer(
+                {"name": "thebeast.contrib.transformers.from_unixtime", "params": {"skip_zero_date": False}}, ctx
+            )
+            self.assertEqual(actual_result, ["1970-01-01 00:00:00", "2023-08-08 21:00:00"])
 
         with self.subTest("Test error is thrown without silent mode"):
             ctx.property_values = [StrProxy("fooBAR")]
