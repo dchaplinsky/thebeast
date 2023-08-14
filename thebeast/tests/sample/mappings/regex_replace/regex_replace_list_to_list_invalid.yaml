@@ -29,9 +29,7 @@ digest:
             name:
               column: name
               regex_replace: 
-                regex: 
-                  - "NULL"
-                  - "empty"
+                regex: "empty"
                 replace: 
                   - "foo"
                   - "bar"
