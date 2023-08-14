@@ -50,7 +50,7 @@ class ResolversTests(unittest.TestCase):
             self.assertEqual(val._meta.transformation, "thebeast.contrib.transformers.anydate_parser(yearfirst=True)")
 
         with self.subTest("Test anydate_parser throws exception on invalid value"):
-            ctx.property_values = [StrProxy("fooBAR")]
+            ctx.property_values = [StrProxy("05.06.07"), StrProxy("fooBAR")]
             self.assertRaises(
                 ValueError,
                 _resolve_transformer,
@@ -58,12 +58,12 @@ class ResolversTests(unittest.TestCase):
                 ctx,
             )
 
-        with self.subTest("Test error is not thrown with silent mode"):
-            ctx.property_values = [StrProxy("fooBAR")]
+        with self.subTest("Test error is not thrown with silent mode, and only invalid value is skipped"):
+            ctx.property_values = [StrProxy("05.06.07"), StrProxy("fooBAR")]
             actual_result = _resolve_transformer(
                 {"name": "thebeast.contrib.transformers.anydate_parser", "params": {"silent": True}}, ctx
             )
-            self.assertEqual(actual_result, [])
+            self.assertEqual(actual_result, ["2007-05-06"])
 
     def test_trim_string(self):
         ctx = ResolveContext(
@@ -233,7 +233,7 @@ class ResolversTests(unittest.TestCase):
             self.assertEqual(actual_result, ["1970-01-01 00:00:00", "2023-08-08 21:00:00"])
 
         with self.subTest("Test error is thrown without silent mode"):
-            ctx.property_values = [StrProxy("fooBAR")]
+            ctx.property_values = [StrProxy("1691528400"), StrProxy("fooBAR")]
             self.assertRaises(
                 ValueError,
                 _resolve_transformer,
@@ -241,9 +241,9 @@ class ResolversTests(unittest.TestCase):
                 ctx,
             )
 
-        with self.subTest("Test error is not thrown with silent mode"):
-            ctx.property_values = [StrProxy("fooBAR")]
+        with self.subTest("Test error is not thrown with silent mode, and only invalid value is skipped"):
+            ctx.property_values = [StrProxy("1691528400"), StrProxy("fooBAR")]
             actual_result = _resolve_transformer(
                 {"name": "thebeast.contrib.transformers.from_unixtime", "params": {"silent": True}}, ctx
             )
-            self.assertEqual(actual_result, [])
+            self.assertEqual(actual_result, ["2023-08-08 21:00:00"])
