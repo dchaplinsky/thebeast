@@ -324,14 +324,21 @@
                 },
                 "regex_replace":
                 {
-                    "description": "regex to apply to extracted values for replacing substrings",
+                    "description": "regex or regex list to apply to extracted values for replacing substring(-s)",
                     "properties": {
                         "regex": {
                             "format": "regex",
-                            "type": "string"
+                            "type": [
+                                "string",
+                                "array"
+                            ]
                         },
                         "replace": {
-                            "type": "string"
+                            "type": "string",
+                             "type": [
+                                "string",
+                                "array"
+                            ]
                         }
                     },
                     "required":

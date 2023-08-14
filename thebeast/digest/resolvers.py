@@ -116,25 +116,60 @@ def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> Li
     return extracted_property_values
 
 
+def regex_replace_multiple(regex_list: list, replace_list: list, property_values: list) -> List[StrProxy]:
+    """
+    `regex_list` is a list of regex expression to apply to input.
+    `replace list` is a list of replacement strings, it MUST have length equal to `regex_list`.
+    """
+
+    extracted_property_values: List[Any] = []
+
+    for property_value in property_values:
+        if not property_value:
+            continue
+
+        string = property_value
+
+        for regex, replace in zip(regex_list, replace_list):
+            string = property_value.inject_meta_to_str(re.sub(regex, replace, string, flags=re.V1))
+
+        extracted_property_values += [string]
+
+    return extracted_property_values
+
+
 def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
     """
     `regex_replace` is an optional regex **replacer** to replace content of extracted string.
 
-    todo: use simplier config with single param - regex - and default "replace" to (empty string) ?
-    i.e.: "regex_replace: \\d+" to remove all non-numeric symbols without having to specify long mapping
+    It accepts a single regex or regex list, and a single replace value or list of replaces for each given regex.
+    In case of single value, all regexes will be replaced with it. In other case, length of `replace` list must
+    be equal to length of `regex` list, or ValueError will be thrown.
+
+    fixme: can/should we validate both lengths in mapping_validator or keep it there?
     """
 
     extracted_property_values: List[Any] = []
+    regex_list = command_config["regex"]
+    replace = command_config["replace"]
+
+    if not isinstance(regex_list, list):
+        regex_list = [regex_list]
+
+    if isinstance(replace, list):
+        if len(replace) != len(regex_list):
+            raise ValueError("If 'replace' is an array, it must have same length as 'regex'")
+        else:
+            return regex_replace_multiple(regex_list, replace, context.property_values)
 
     for property_value in context.property_values:
         if not property_value:
             continue
 
-        extracted_property_values += [
-            property_value.inject_meta_to_str(
-                re.sub(command_config["regex"], command_config["replace"], property_value, flags=re.V1)
-            )
-        ]
+        for regex in regex_list:
+            property_value = property_value.inject_meta_to_str(re.sub(regex, replace, property_value, flags=re.V1))
+
+        extracted_property_values += [property_value]
 
     return extracted_property_values
 

@@ -148,20 +148,47 @@ class ResolversTests(unittest.TestCase):
             variables={},
         )
 
-        # simple replace: remove all non-alpha symbols
-        ctx.property_values = [StrProxy("foo 123 bar")]
-        self.assertEqual(_resolve_regex_replace({"regex": "[^a-z]", "replace": ""}, ctx)[0], "foobar")
+        with self.subTest("Test string regex"):
+            ctx.property_values = [StrProxy("foo 123 bar")]
+            self.assertEqual(_resolve_regex_replace({"regex": "[^a-z]", "replace": ""}, ctx)[0], "foobar")
 
-        # test replace groups
-        ctx.property_values = [StrProxy("foo 123 bar")]
-        self.assertEqual(
-            _resolve_regex_replace({"regex": "([a-z]{3})\\s([0-9]{3})\\s([a-z]{3})", "replace": "\\1\\3"}, ctx)[0],
-            "foobar",
-        )
+        with self.subTest("Test replace groups"):
+            ctx.property_values = [StrProxy("foo 123 bar")]
+            self.assertEqual(
+                _resolve_regex_replace({"regex": "([a-z]{3})\\s([0-9]{3})\\s([a-z]{3})", "replace": "\\1\\3"}, ctx)[0],
+                "foobar",
+            )
 
-        # test multiple values
-        ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("456 baz qux")]
-        self.assertEqual(_resolve_regex_replace({"regex": "[^0-9]", "replace": ""}, ctx), ["123", "456"])
+        with self.subTest("Test replace for multiple inputs"):
+            ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("456 baz qux")]
+            self.assertEqual(_resolve_regex_replace({"regex": "[^0-9]", "replace": ""}, ctx), ["123", "456"])
+
+        with self.subTest("Test replace with multiple regex"):
+            ctx.property_values = [StrProxy("foo 123 bar")]
+            self.assertEqual(_resolve_regex_replace({"regex": ["foo", "bar"], "replace": ""}, ctx)[0], " 123 ")
+
+        with self.subTest("Test replace with multiple regex and multiple replaces"):
+            ctx.property_values = [StrProxy("foo 123 bar")]
+            self.assertEqual(
+                _resolve_regex_replace({"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx), ["baz 123 qux"]
+            )
+
+        with self.subTest("Test replace with multiple regex and multiple replaces and multiple inputs"):
+            ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("bar 321 foo")]
+            self.assertEqual(
+                _resolve_regex_replace({"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx),
+                ["baz 123 qux", "qux 321 baz"],
+            )
+
+        with self.subTest("Test replace throws error if replace count differs from regex count"):
+            ctx.property_values = [StrProxy("foo 123 bar")]
+
+            self.assertRaises(
+                ValueError,
+                _resolve_regex_replace,
+                {"regex": ["foo", "bar"], "replace": ["baz"]},
+                ctx,
+            )
 
     def test_resolve_augmentor(self):
         ctx = ResolveContext(
