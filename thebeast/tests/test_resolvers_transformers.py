@@ -114,6 +114,30 @@ class ResolversTests(unittest.TestCase):
                 actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.normalize_email"}, ctx)[0]
                 self.assertEqual(actual_result, expected_result)
 
+    def test_normalize_phone(self):
+        param_list = [
+            (StrProxy("1234"), "+1234"),
+            (StrProxy("+1234"), "+1234"),
+            (StrProxy("79787458007"), "+79787458007"),
+            (StrProxy("+79787458007"), "+79787458007"),
+        ]
+
+        ctx = ResolveContext(
+            record={},
+            property_values=[],
+            entity=None,
+            statements_meta={},
+            variables={},
+        )
+
+        for input_val, expected_result in param_list:
+            with self.subTest():
+                ctx.property_values = [StrProxy(input_val)]
+
+                actual_result = _resolve_transformer({"name": "thebeast.contrib.transformers.normalize_phone"}, ctx)[0]
+                self.assertEqual(actual_result, expected_result)
+                self.assertEqual(actual_result._meta.transformation, "thebeast.contrib.transformers.normalize_phone()")
+
     def test_decode_html_entities(self):
         param_list = [
             (StrProxy("foobar"), "foobar"),

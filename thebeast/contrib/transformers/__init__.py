@@ -143,6 +143,17 @@ def normalize_email(values: List[StrProxy]) -> List[StrProxy]:
     return [value.inject_meta_to_str(do_normalize_email(value)) for value in values]
 
 
+def normalize_phone(values: List[StrProxy]) -> List[StrProxy]:
+    """
+    Normalizes phone number, prepending a plus symbol to it.
+    This is needed because FtM expects phone to start with plus, and phones with just nmumbers will be skipepd.
+
+    For example:
+        79787458007 => +79787458007
+    """
+    return [value.inject_meta_to_str("+" + value) if not value.startswith("+") else value for value in values]
+
+
 def decode_html_entities(values: List[StrProxy]) -> List[StrProxy]:
     """
     Decode HTML entities
