@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 
 from jinja2 import Environment, BaseLoader, select_autoescape
+from thebeast.contrib.jinja_custom_filters import regex_search, regex_match, regex_replace
+
 from followthemoney.schema import Schema  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
@@ -11,6 +13,9 @@ from .utils import generate_pseudo_id, jmespath_results_as_array, resolve_callab
 
 # TODO: expose jmespath to templates as a filter?
 jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
+jinja_env.filters['regex_search'] = regex_search
+jinja_env.filters['regex_match'] = regex_match
+jinja_env.filters['regex_replace'] = regex_replace
 
 
 @dataclass
