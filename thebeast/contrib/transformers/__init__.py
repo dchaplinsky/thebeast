@@ -69,7 +69,14 @@ def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
 
 def from_unixtime(values: List[StrProxy], silent=False, skip_zero_date=True) -> List[StrProxy]:
     """
-    Trying to create datetime from unix timestamp
+    Trying to create datetime from unix timestamp (utc)
+
+    Args:
+        values: list of unix timestamps as strings
+        silent: if True, will not raise exceptions and just skip the value
+        skip_zero_date: if True, will skip 0 unix timestamps
+    Returns:
+        list of datetime objects
     """
 
     res = []
@@ -79,7 +86,11 @@ def from_unixtime(values: List[StrProxy], silent=False, skip_zero_date=True) -> 
             if skip_zero_date and int(value) == 0:
                 continue
 
-            res.append(value.inject_meta_to_str(datetime.datetime.fromtimestamp(int(value))))
+            # This one was implemented incorrectly and was giving different naive datetimes
+            # according to the timezone of the machine it was run on.
+            # To keep the same behavior, we need to replace the timezone with UTC and
+            # then remove tzinfo.
+            res.append(value.inject_meta_to_str(datetime.datetime.fromtimestamp(int(value), tz=datetime.timezone.utc).replace(tzinfo=None)))
         except Exception:
             if silent:
                 pass
