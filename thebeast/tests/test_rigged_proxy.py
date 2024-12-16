@@ -2,7 +2,7 @@
 For now it's just mirroring default FTM tests for EntityProxy on RiggedEntityProxy with some basic
 additions around meta on StrProxy
 """
-
+import pickle
 from pytest import raises
 from unittest import TestCase
 from followthemoney.exc import InvalidData  # type: ignore
@@ -87,6 +87,25 @@ class ProxyTestCase(TestCase):
         with raises(InvalidData):
             EntityProxy.from_dict(model, {})
 
+    def test_unsafe_add(self):
+        schema = model.schemata["Person"]
+        prop = schema.properties["phone"]
+
+        proxy = model.make_entity("Person")
+        value = proxy.unsafe_add(prop, "+12025557612")
+        assert value == "+12025557612"
+        assert proxy.get("phone") == ["+12025557612"]
+
+        proxy = model.make_entity("Person")
+        value = proxy.unsafe_add(prop, "+1 (202) 555-7612")
+        assert value == "+12025557612"
+        assert proxy.get("phone") == ["+12025557612"]
+
+        proxy = model.make_entity("Person")
+        value = proxy.unsafe_add(prop, "(202) 555-7612")
+        assert value == None
+        assert proxy.get("phone") == []
+
     def test_pop(self):
         proxy = EntityProxy.from_dict(model, ENTITY)
         get_ids = proxy.get("idNumber")
@@ -135,11 +154,11 @@ class ProxyTestCase(TestCase):
             proxy.has("banana")
         assert not proxy.has("banana", quiet=True)
 
-    def test_max_size(self):
+    def test_total_size(self):
         t = registry.name
         proxy = EntityProxy.from_dict(model, ENTITY)
-        prev_size = t.max_size
-        t.max_size = len(proxy) + 10
+        prev_size = t.total_size
+        t.total_size = len(proxy) + 10
         assert len(proxy.get("name")) == 1
         proxy.add("name", "Louis George Maurice Adolphe Roche Albert Abel")
         assert len(proxy.get("name")) == 1
@@ -150,7 +169,12 @@ class ProxyTestCase(TestCase):
         assert len(proxy.get("name")) == 2, proxy.get("name")
         proxy.add("name", "George")
         assert len(proxy.get("name")) == 2, proxy.get("name")
-        t.max_size = prev_size
+        t.total_size = prev_size
+
+    def test_max_length(self):
+        t = registry.name
+        assert t.max_length is not None
+        assert t.max_length > 128
 
     def test_len(self):
         proxy = EntityProxy.from_dict(model, ENTITY)
@@ -232,6 +256,122 @@ class ProxyTestCase(TestCase):
         proxy = model.make_entity("Person")
         assert 0 == len(list(proxy.triples()))
 
+    def test_temporal_start(self):
+        proxy = model.get_proxy({"schema": "Event"})
+        assert proxy.temporal_start is None
+
+        proxy = model.get_proxy(
+            {
+                "schema": "Event",
+                "properties": {
+                    "startDate": ["2022-01-01", "2022-02-01"],
+                    "date": ["2022-03-01"],
+                },
+            }
+        )
+
+        assert proxy.temporal_start is not None
+        prop, value = proxy.temporal_start
+        assert prop == proxy.schema.get("startDate")
+        assert value == ("2022-01-01")
+
+    def test_temporal_end(self):
+        proxy = EntityProxy.from_dict(model, {"schema": "Event"})
+        assert proxy.temporal_start is None
+
+        proxy = EntityProxy.from_dict(
+            model,
+            {
+                "schema": "Event",
+                "properties": {
+                    "endDate": ["2022-01-01", "2022-02-01"],
+                },
+            },
+        )
+
+        assert proxy.temporal_end is not None
+        prop, value = proxy.temporal_end
+        assert prop == proxy.schema.get("endDate")
+        assert value == "2022-02-01"
+
+    def test_pickle(self):
+        proxy = EntityProxy.from_dict(model, dict(ENTITY))
+        data = pickle.dumps(proxy)
+        proxy2 = pickle.loads(data)
+        assert proxy.id == proxy2.id
+        assert hash(proxy) == hash(proxy2)
+        assert proxy2.schema.name == ENTITY["schema"]
+
+    def test_value_order(self):
+        one = EntityProxy.from_dict(
+            model,
+            {
+                "id": "one",
+                "schema": "Email",
+                "properties": {
+                    "bodyHtml": ["Hello", "World"],
+                },
+            },
+        )
+
+        two = EntityProxy.from_dict(
+            model,
+            {
+                "id": "one",
+                "schema": "Email",
+                "properties": {
+                    "bodyHtml": ["World", "Hello"],
+                },
+            },
+        )
+
+        assert one.get("bodyHtml") == ["Hello", "World"]
+        assert two.get("bodyHtml") == ["World", "Hello"]
+
+    def test_value_deduplication(self):
+        proxy = EntityProxy.from_dict(
+            model,
+            {
+                "id": "acme-inc",
+                "schema": "Company",
+                "properties": {
+                    "name": ["ACME, Inc.", "ACME, Inc."],
+                },
+            },
+        )
+
+        assert proxy.get("name") == ["ACME, Inc."]
+
+        proxy = EntityProxy.from_dict(
+            model,
+            {
+                "id": "acme-inc",
+                "schema": "Company",
+            },
+        )
+
+        assert proxy.get("name") == []
+        proxy.add("name", "ACME, Inc.")
+        assert proxy.get("name") == ["ACME, Inc."]
+        proxy.add("name", "ACME, Inc.")
+        assert proxy.get("name") == ["ACME, Inc."]
+
+    def test_value_deduplication_cleaned(self):
+        proxy = EntityProxy.from_dict(
+            model,
+            {
+                "id": "acme-inc",
+                "schema": "Company",
+                "properties": {
+                    "name": ["ACME, Inc.", "ACME, Inc."],
+                },
+            },
+            cleaned=True,
+        )
+
+        assert proxy.get("name") == ["ACME, Inc."]
+
+    # This one is an extra one.
     def test_adding_meta(self):
         pers = EntityProxy(model, {"schema": "Person"}, key_prefix="key_prefix")
         pers.add("name", [StrProxy("foobar", meta={"locale": "uk"}), "barfoo"])
