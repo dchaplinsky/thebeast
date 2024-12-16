@@ -19,7 +19,9 @@ class StrProxyTestCase(TestCase):
         even_newer_s = StrProxy(s, meta={"locale": "en"})
         self.assertEqual(even_newer_s._meta.locale, "en")
 
-        supernova_s = StrProxy(even_newer_s, meta={"locale": "de", "transformation": "noop"})
+        supernova_s = StrProxy(
+            even_newer_s, meta={"locale": "de", "transformation": "noop"}
+        )
         self.assertEqual(even_newer_s._meta.locale, "en")
         self.assertIsNone(even_newer_s._meta.transformation, "en")
         self.assertEqual(supernova_s._meta.locale, "de")

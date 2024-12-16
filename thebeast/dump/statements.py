@@ -31,7 +31,10 @@ def resolve_schema_propery_type(schema: str, property_name: str) -> str:
 
 
 def stmt_key(
-    entity_id: str, prop: str, value: Union[StrProxy, str], meta_for_stmt_id: List[str] = DEFAULT_META_FOR_STATEMENT_ID
+    entity_id: str,
+    prop: str,
+    value: Union[StrProxy, str],
+    meta_for_stmt_id: List[str] = DEFAULT_META_FOR_STATEMENT_ID,
 ) -> str:
     """Hash the key properties of a statement record to make a unique ID."""
 
@@ -90,7 +93,9 @@ class StatementsCSVWriter(AbstractStatementsWriter):
         else:
             self.csv_error_writer = self.csv_writer
 
-    def write_entities(self, entities: Iterable[RedGreenEntity], flush: bool = True) -> None:
+    def write_entities(
+        self, entities: Iterable[RedGreenEntity], flush: bool = True
+    ) -> None:
         for entity in entities:
             rows = []
 
@@ -121,12 +126,16 @@ class StatementsCSVWriter(AbstractStatementsWriter):
                         ),
                         "entity_id": entity.payload["id"],
                         "prop": prop,
-                        "prop_type": resolve_schema_propery_type(schema=entity.payload["schema"], property_name=prop),
+                        "prop_type": resolve_schema_propery_type(
+                            schema=entity.payload["schema"], property_name=prop
+                        ),
                         "schema": entity.payload["schema"],
                         "value": value,
                     }
 
-                    rec.update({f"meta:{f}": v for f, v in value._meta._asdict().items()})
+                    rec.update(
+                        {f"meta:{f}": v for f, v in value._meta._asdict().items()}
+                    )
                     rows.append(rec)
 
             if entity.valid:

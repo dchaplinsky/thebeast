@@ -19,7 +19,9 @@ from thebeast.digest.utils import make_entity
 
 class ResolversTests(unittest.TestCase):
     def test_resolve_literal(self):
-        ctx = ResolveContext(record={}, property_values=[], entity=None, statements_meta={}, variables={})
+        ctx = ResolveContext(
+            record={}, property_values=[], entity=None, statements_meta={}, variables={}
+        )
 
         self.assertEqual(_resolve_literal("foobar", ctx), ["foobar"])
         self.assertEqual(_resolve_literal(StrProxy("foobar"), ctx), ["foobar"])
@@ -27,18 +29,32 @@ class ResolversTests(unittest.TestCase):
 
         ctx.statements_meta = {"locale": "de"}
         self.assertEqual(_resolve_literal("foobar", ctx)[0]._meta.locale, "de")
-        self.assertEqual(_resolve_literal(StrProxy("foobar"), ctx)[0]._meta.locale, "de")
+        self.assertEqual(
+            _resolve_literal(StrProxy("foobar"), ctx)[0]._meta.locale, "de"
+        )
 
         ctx.property_values = [StrProxy("Hell yeah")]
 
-        self.assertSetEqual(set(_resolve_literal("foobar", ctx)), set(["foobar", "Hell yeah"]))
+        self.assertSetEqual(
+            set(_resolve_literal("foobar", ctx)), set(["foobar", "Hell yeah"])
+        )
 
     def test_resolve_entity(self):
-        ctx = ResolveContext(record={}, property_values=[], entity=None, statements_meta={}, variables={})
+        ctx = ResolveContext(
+            record={}, property_values=[], entity=None, statements_meta={}, variables={}
+        )
 
-        self.assertTrue(re.match(r"^[0-9a-zA-Z]([0-9a-zA-Z\.\-]*[0-9a-zA-Z])?$", _resolve_entity("foobar", ctx)[0]))
         self.assertTrue(
-            re.match(r"^[0-9a-zA-Z]([0-9a-zA-Z\.\-]*[0-9a-zA-Z])?$", _resolve_entity(StrProxy("foobar"), ctx)[0])
+            re.match(
+                r"^[0-9a-zA-Z]([0-9a-zA-Z\.\-]*[0-9a-zA-Z])?$",
+                _resolve_entity("foobar", ctx)[0],
+            )
+        )
+        self.assertTrue(
+            re.match(
+                r"^[0-9a-zA-Z]([0-9a-zA-Z\.\-]*[0-9a-zA-Z])?$",
+                _resolve_entity(StrProxy("foobar"), ctx)[0],
+            )
         )
 
         ctx.statements_meta = {"locale": "de"}
@@ -82,14 +98,19 @@ class ResolversTests(unittest.TestCase):
             variables={},
         )
 
-        self.assertSetEqual(set(_resolve_regex_split(",", ctx)), set(["1", "2", "3", "4", "5", "6"]))
+        self.assertSetEqual(
+            set(_resolve_regex_split(",", ctx)), set(["1", "2", "3", "4", "5", "6"])
+        )
 
         ctx.statements_meta = {"locale": "de"}
         for val in _resolve_regex_split(",", ctx):
             self.assertIsInstance(val, StrProxy)
             self.assertEqual(val._meta.locale, None)
 
-        ctx.property_values = [StrProxy("1,2,3", meta={"locale": "php"}), StrProxy("4,5,6", meta={"locale": "py"})]
+        ctx.property_values = [
+            StrProxy("1,2,3", meta={"locale": "php"}),
+            StrProxy("4,5,6", meta={"locale": "py"}),
+        ]
 
         for val in _resolve_regex_split(",", ctx):
             if val < "4":
@@ -121,7 +142,10 @@ class ResolversTests(unittest.TestCase):
             self.assertIsInstance(val, StrProxy)
             self.assertEqual(val._meta.locale, None)
 
-        ctx.property_values = [StrProxy("1,2,3", meta={"locale": "php"}), StrProxy("4,5,6", meta={"locale": "py"})]
+        ctx.property_values = [
+            StrProxy("1,2,3", meta={"locale": "php"}),
+            StrProxy("4,5,6", meta={"locale": "py"}),
+        ]
 
         for val in _resolve_regex_first(r"\d+", ctx):
             if val < "4":
@@ -150,37 +174,63 @@ class ResolversTests(unittest.TestCase):
 
         with self.subTest("Test string regex"):
             ctx.property_values = [StrProxy("foo 123 bar")]
-            self.assertEqual(_resolve_regex_replace({"regex": "[^a-z]", "replace": ""}, ctx)[0], "foobar")
+            self.assertEqual(
+                _resolve_regex_replace({"regex": "[^a-z]", "replace": ""}, ctx)[0],
+                "foobar",
+            )
 
         with self.subTest("Test replace groups"):
             ctx.property_values = [StrProxy("foo 123 bar")]
             self.assertEqual(
-                _resolve_regex_replace({"regex": "([a-z]{3})\\s([0-9]{3})\\s([a-z]{3})", "replace": "\\1\\3"}, ctx)[0],
+                _resolve_regex_replace(
+                    {
+                        "regex": "([a-z]{3})\\s([0-9]{3})\\s([a-z]{3})",
+                        "replace": "\\1\\3",
+                    },
+                    ctx,
+                )[0],
                 "foobar",
             )
 
         with self.subTest("Test replace for multiple inputs"):
             ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("456 baz qux")]
-            self.assertEqual(_resolve_regex_replace({"regex": "[^0-9]", "replace": ""}, ctx), ["123", "456"])
+            self.assertEqual(
+                _resolve_regex_replace({"regex": "[^0-9]", "replace": ""}, ctx),
+                ["123", "456"],
+            )
 
         with self.subTest("Test replace with multiple regex"):
             ctx.property_values = [StrProxy("foo 123 bar")]
-            self.assertEqual(_resolve_regex_replace({"regex": ["foo", "bar"], "replace": ""}, ctx)[0], " 123 ")
+            self.assertEqual(
+                _resolve_regex_replace({"regex": ["foo", "bar"], "replace": ""}, ctx)[
+                    0
+                ],
+                " 123 ",
+            )
 
         with self.subTest("Test replace with multiple regex and multiple replaces"):
             ctx.property_values = [StrProxy("foo 123 bar")]
             self.assertEqual(
-                _resolve_regex_replace({"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx), ["baz 123 qux"]
+                _resolve_regex_replace(
+                    {"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx
+                ),
+                ["baz 123 qux"],
             )
 
-        with self.subTest("Test replace with multiple regex and multiple replaces and multiple inputs"):
+        with self.subTest(
+            "Test replace with multiple regex and multiple replaces and multiple inputs"
+        ):
             ctx.property_values = [StrProxy("foo 123 bar"), StrProxy("bar 321 foo")]
             self.assertEqual(
-                _resolve_regex_replace({"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx),
+                _resolve_regex_replace(
+                    {"regex": ["foo", "bar"], "replace": ["baz", "qux"]}, ctx
+                ),
                 ["baz 123 qux", "qux 321 baz"],
             )
 
-        with self.subTest("Test replace throws error if replace count differs from regex count"):
+        with self.subTest(
+            "Test replace throws error if replace count differs from regex count"
+        ):
             ctx.property_values = [StrProxy("foo 123 bar")]
 
             self.assertRaises(
@@ -199,12 +249,16 @@ class ResolversTests(unittest.TestCase):
             variables={},
         )
 
-        vals = _resolve_augmentor("thebeast.contrib.transformers.names_transliteration", ctx)
+        vals = _resolve_augmentor(
+            "thebeast.contrib.transformers.names_transliteration", ctx
+        )
         self.assertIn("Ігор Гіркін", vals)
         self.assertIn("Ihor Hirkin", vals)
         self.assertIn("Igor Girkin", vals)
 
-        transformed_aliases = [prop for prop in vals if prop._meta.transformation is not None]
+        transformed_aliases = [
+            prop for prop in vals if prop._meta.transformation is not None
+        ]
         self.assertTrue(len(transformed_aliases) > 0)
 
         for prop in transformed_aliases:

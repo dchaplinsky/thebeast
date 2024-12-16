@@ -13,7 +13,9 @@ class StrProxy(str):
     bread and milk for the butter.
     """
 
-    def __new__(cls, content: Union[str, Any], meta: Optional[Union[Dict, NamedTuple]] = None):
+    def __new__(
+        cls, content: Union[str, Any], meta: Optional[Union[Dict, NamedTuple]] = None
+    ):
         meta_cls = get_meta_cls()
         if isinstance(content, StrProxy):
             result = copy(content)
@@ -24,7 +26,9 @@ class StrProxy(str):
         if meta is not None:
             if isinstance(meta, Mapping):
                 # TODO: quickly validate that all the meta provided is in the meta fields declared
-                filtered_meta: Dict = {k: v for k, v in meta.items() if k in meta_cls._fields}
+                filtered_meta: Dict = {
+                    k: v for k, v in meta.items() if k in meta_cls._fields
+                }
                 result._meta = meta_cls(**filtered_meta)
             else:
                 result._meta = meta
@@ -56,7 +60,9 @@ class RiggedEntityProxy(EntityProxy):
 
             values = [
                 StrProxy(value).inject_meta_to_str(
-                    resolved_prop.type.clean(value, proxy=self, fuzzy=fuzzy, format=format)
+                    resolved_prop.type.clean(
+                        value, proxy=self, fuzzy=fuzzy, format=format
+                    )
                 )
                 for value in value_list(values)
             ]
@@ -76,7 +82,9 @@ class RiggedEntityProxy(EntityProxy):
             if isinstance(value, str):
                 value = StrProxy(value)
 
-            value = value.inject_meta_to_str(prop.type.clean_text(value, fuzzy=fuzzy, format=format, proxy=self))
+            value = value.inject_meta_to_str(
+                prop.type.clean_text(value, fuzzy=fuzzy, format=format, proxy=self)
+            )
             cleaned = True
 
         return super().unsafe_add(prop, value, cleaned, fuzzy, format)

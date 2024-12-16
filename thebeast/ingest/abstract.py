@@ -19,7 +19,9 @@ class AbstractIngestor:
     more params (for example, credentials for a remote source)
     """
 
-    def __init__(self, input_uri: str, input_encoding: str = "utf-8", *args, **kwargs) -> None:
+    def __init__(
+        self, input_uri: str, input_encoding: str = "utf-8", *args, **kwargs
+    ) -> None:
         self.input_uri = input_uri
         self.input_encoding = input_encoding
         self.filemode = "rt"
@@ -58,7 +60,9 @@ class AbstractIngestor:
         a cursor in mongodb or postgres. In this case reader will be very lean,
         basically converting each item into the dict
         """
-        return smart_open.open(uri=file_uri, mode=self.filemode, encoding=self.input_encoding)
+        return smart_open.open(
+            uri=file_uri, mode=self.filemode, encoding=self.input_encoding
+        )
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
         """

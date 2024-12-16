@@ -1,4 +1,14 @@
-from typing import List, Dict, Generator, Iterable, Callable, Optional, Any, Union, Tuple
+from typing import (
+    List,
+    Dict,
+    Generator,
+    Iterable,
+    Callable,
+    Optional,
+    Any,
+    Union,
+    Tuple,
+)
 
 from followthemoney.schema import Schema  # type: ignore
 
@@ -15,7 +25,11 @@ from .utils import (
     deflate_entity,
     ENTITY_TYPE,
 )
-from .resolvers import resolve_property_values, resolve_constant_meta_values, resolve_collection_meta_values
+from .resolvers import (
+    resolve_property_values,
+    resolve_constant_meta_values,
+    resolve_collection_meta_values,
+)
 
 
 def make_entities(
@@ -86,7 +100,10 @@ def make_entities(
         context_entities_map[generate_pseudo_id(entity.key_prefix)] = entity.id
         context_entities.append(entity)
 
-    return list(resolve_entity_refs(context_entities, context_entities_map)), context_entities_map
+    return (
+        list(resolve_entity_refs(context_entities, context_entities_map)),
+        context_entities_map,
+    )
 
 
 def main_cog(
@@ -105,9 +122,14 @@ def main_cog(
             else lambda x: x
         )
 
-        for record in record_transformer(jmespath_results_as_array(collection_config["path"], data.payload)):
+        for record in record_transformer(
+            jmespath_results_as_array(collection_config["path"], data.payload)
+        ):
             # Retrieving some record-level meta
-            local_statements_meta: Dict[str, str] = {"record_no": data.record_no, "input_uri": data.input_uri}
+            local_statements_meta: Dict[str, str] = {
+                "record_no": data.record_no,
+                "input_uri": data.input_uri,
+            }
 
             if "meta" in collection_config:
                 local_statements_meta.update(
@@ -119,7 +141,9 @@ def main_cog(
                                 statements_meta=statements_meta,
                             ),
                         )
-                        for statement_meta_name, statement_meta_config in collection_config.get("meta", {}).items()
+                        for statement_meta_name, statement_meta_config in collection_config.get(
+                            "meta", {}
+                        ).items()
                     }
                 )
 
@@ -145,7 +169,11 @@ def main_cog(
 
             if "collections" in collection_config:
                 for entity in main_cog(
-                    data=Record(payload=record, record_no=data.record_no, input_uri=data.input_uri),
+                    data=Record(
+                        payload=record,
+                        record_no=data.record_no,
+                        input_uri=data.input_uri,
+                    ),
                     config=collection_config,
                     parent_context_entities_map=combined_context_entites_map,
                     statements_meta=statements_meta,
@@ -166,8 +194,12 @@ class AbstractDigestor:
     def extract(self, records: Iterable[Record]) -> Generator[Dict, None, None]:
         # First let's get some global level meta values for our statements
         statements_meta: Dict[str, str] = {
-            statement_meta_name: "\n".join(resolve_constant_meta_values(ensure_list(statement_meta_config)))
-            for statement_meta_name, statement_meta_config in self.mapping_config.get("meta", {}).items()
+            statement_meta_name: "\n".join(
+                resolve_constant_meta_values(ensure_list(statement_meta_config))
+            )
+            for statement_meta_name, statement_meta_config in self.mapping_config.get(
+                "meta", {}
+            ).items()
         }
 
         # constant statements will have dummy values for the record_no and input_uri
@@ -190,7 +222,9 @@ class AbstractDigestor:
             yield deflate_entity(entity)
 
         for entity in self.run_the_cog(
-            records=records, parent_context_entities_map=context_entities_map, statements_meta=statements_meta
+            records=records,
+            parent_context_entities_map=context_entities_map,
+            statements_meta=statements_meta,
         ):
             yield entity
 

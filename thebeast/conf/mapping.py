@@ -77,9 +77,13 @@ class SourceMapping:
             get_meta_cls(meta_fields)
 
         self.ftm = ftm
-        self.ingestor = import_string(mapping["ingest"]["cls"])(**mapping["ingest"].get("params", {}))
+        self.ingestor = import_string(mapping["ingest"]["cls"])(
+            **mapping["ingest"].get("params", {})
+        )
         self.digestor = import_string(mapping["digest"]["cls"])(
-            mapping_config=mapping["digest"], meta_fields=meta_fields, **mapping["digest"].get("params", {})
+            mapping_config=mapping["digest"],
+            meta_fields=meta_fields,
+            **mapping["digest"].get("params", {})
         )
 
         self.dumper = import_string(mapping["dump"]["cls"])(

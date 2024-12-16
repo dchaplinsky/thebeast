@@ -33,7 +33,9 @@ def generate_pseudo_id(temporary_entity_id: str):
     """
     Generates pseudo id for the entity to fool FTM, which is going to be resolved later
     """
-    return make_entity_id(temporary_entity_id, key_prefix="thebeast_temporary_entity_id")
+    return make_entity_id(
+        temporary_entity_id, key_prefix="thebeast_temporary_entity_id"
+    )
 
 
 def jmespath_results_as_array(path: str, record: Union[List, Dict]) -> List[Any]:
@@ -43,7 +45,9 @@ def jmespath_results_as_array(path: str, record: Union[List, Dict]) -> List[Any]
     return ensure_list(jmespath.search(path, record) or [])
 
 
-def resolve_entity_refs(entities: Iterable[Schema], context_entities: Dict[str, str]) -> Generator[Schema, None, None]:
+def resolve_entity_refs(
+    entities: Iterable[Schema], context_entities: Dict[str, str]
+) -> Generator[Schema, None, None]:
     for entity in entities:
         for prop in entity.iterprops():
             if prop.type == ENTITY_TYPE:
@@ -51,14 +55,18 @@ def resolve_entity_refs(entities: Iterable[Schema], context_entities: Dict[str, 
 
                 # TODO: errors (probably red/green sorting) for the properties that cannot be resolved
                 for prop_val in entity.get(prop):
-                    resolved_properties.append(prop_val.inject_meta_to_str(context_entities.get(prop_val)))
+                    resolved_properties.append(
+                        prop_val.inject_meta_to_str(context_entities.get(prop_val))
+                    )
 
                 entity.set(prop, resolved_properties)
 
         yield entity
 
 
-def make_entity(schema: Union[str, Schema], key_prefix: Optional[str] = None) -> RiggedEntityProxy:
+def make_entity(
+    schema: Union[str, Schema], key_prefix: Optional[str] = None
+) -> RiggedEntityProxy:
     """Instantiate an empty entity proxy of the given schema type."""
 
     return RiggedEntityProxy(ftm, {"schema": schema}, key_prefix=key_prefix)

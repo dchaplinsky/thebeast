@@ -58,7 +58,13 @@ class MultiProcessDigestor(AbstractDigestor):
     TODO: review an architecture once it works
     """
 
-    def __init__(self, mapping_config: Dict, meta_fields: List[str], batch_size: int = 1, processes: int = -1) -> None:
+    def __init__(
+        self,
+        mapping_config: Dict,
+        meta_fields: List[str],
+        batch_size: int = 1,
+        processes: int = -1,
+    ) -> None:
         """
         processes: the number of processes to launch in the pool
         batch_size: the number of the records to throw into the pool
@@ -83,7 +89,14 @@ class MultiProcessDigestor(AbstractDigestor):
             self.processes,
             # Wiring things together
             initializer=worker_init,
-            initargs=(self.mapping_config, parent_context_entities_map, statements_meta, self.meta_fields),
+            initargs=(
+                self.mapping_config,
+                parent_context_entities_map,
+                statements_meta,
+                self.meta_fields,
+            ),
         ) as da_pool:
-            for entity in flatten(da_pool.imap(func=task, iterable=records, chunksize=self.batch_size)):
+            for entity in flatten(
+                da_pool.imap(func=task, iterable=records, chunksize=self.batch_size)
+            ):
                 yield entity

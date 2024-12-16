@@ -62,7 +62,9 @@ class MappingDigestTests(unittest.TestCase):
             self.assertIn("Ющенко Віктор Андрійович", entity["properties"]["name"])
             self.assertIn("Віктор", entity["properties"]["firstName"])
             self.assertIn("Ющенко", entity["properties"]["lastName"])
-            self.assertIn("Блок Віктора Ющенка «Наша Україна»", entity["properties"]["political"])
+            self.assertIn(
+                "Блок Віктора Ющенка «Наша Україна»", entity["properties"]["political"]
+            )
             self.assertIn("Андрійович", entity["properties"]["fatherName"])
             self.assertIn("wikipedia", entity["properties"]["sourceUrl"][0])
             self.assertIn("wikipedia", entity["properties"]["wikipediaUrl"][0])
@@ -71,7 +73,9 @@ class MappingDigestTests(unittest.TestCase):
             self.assertIn("Віктор Ющенко", entity["properties"]["alias"])
 
             transformed_aliases = [
-                prop for prop in entity["properties"]["alias"] if prop._meta.transformation is not None
+                prop
+                for prop in entity["properties"]["alias"]
+                if prop._meta.transformation is not None
             ]
             self.assertTrue(len(transformed_aliases) > 0)
 
@@ -89,14 +93,20 @@ class MappingDigestTests(unittest.TestCase):
                 "Початок каденції: 2002-05-14, Блок Віктора Ющенка «Наша Україна»",
                 entity["properties"]["notes"][0]._meta.test_field,
             )
-            self.assertEqual(set(["Віктор", "Андрійович", "Ющенко"]), set(entity["properties"]["keywords"]))
+            self.assertEqual(
+                set(["Віктор", "Андрійович", "Ющенко"]),
+                set(entity["properties"]["keywords"]),
+            )
 
             entity = entities_by_schema["PublicBody"][0]
             self.assertIsNotNone(entity["id"])
             self.assertIn("Верховна Рада України", entity["properties"]["name"])
             self.assertIn("ВРУ", entity["properties"]["name"])
             self.assertIn("wikipedia", entity["properties"]["wikipediaUrl"][0])
-            self.assertIn(entities_by_schema["Address"][0]["id"], entity["properties"]["addressEntity"])
+            self.assertIn(
+                entities_by_schema["Address"][0]["id"],
+                entity["properties"]["addressEntity"],
+            )
 
             entity = entities_by_schema["Address"][0]
             self.assertIsNotNone(entity["id"])
@@ -107,8 +117,13 @@ class MappingDigestTests(unittest.TestCase):
             self.assertIsNotNone(entity["id"])
             self.assertIn("2002-05-14", entity["properties"]["startDate"])
             self.assertIn("2005-01-23", entity["properties"]["endDate"])
-            self.assertIn(entities_by_schema["PublicBody"][0]["id"], entity["properties"]["organization"])
-            self.assertIn(entities_by_schema["Person"][0]["id"], entity["properties"]["member"])
+            self.assertIn(
+                entities_by_schema["PublicBody"][0]["id"],
+                entity["properties"]["organization"],
+            )
+            self.assertIn(
+                entities_by_schema["Person"][0]["id"], entity["properties"]["member"]
+            )
 
             self.assertEqual(
                 entity["properties"]["startDate"][0]._meta.transformation,
@@ -123,7 +138,10 @@ class MappingDigestTests(unittest.TestCase):
                 for props in entity["properties"].values():
                     for prop in props:
                         self.assertEqual(prop._meta.locale, "uk")
-                        if entity in entities_by_schema["Person"] or entity in entities_by_schema["Membership"]:
+                        if (
+                            entity in entities_by_schema["Person"]
+                            or entity in entities_by_schema["Membership"]
+                        ):
                             self.assertEqual(prop._meta.date, "2005-01-23")
                             self.assertEqual(
                                 "/dev/random",
@@ -181,13 +199,18 @@ class MappingDigestTests(unittest.TestCase):
             self.assertEqual(len(entities_by_schema["Person"]), 2)
             self.assertEqual(len(entities_by_schema["Membership"]), 2)
 
-            self.assertEqual(entities_by_schema["Person"][0]["id"], entities_by_schema["Person"][1]["id"])
+            self.assertEqual(
+                entities_by_schema["Person"][0]["id"],
+                entities_by_schema["Person"][1]["id"],
+            )
 
             self.assertIn(
-                entities_by_schema["Person"][0]["id"], entities_by_schema["Membership"][0]["properties"]["member"]
+                entities_by_schema["Person"][0]["id"],
+                entities_by_schema["Membership"][0]["properties"]["member"],
             )
             self.assertIn(
-                entities_by_schema["Person"][0]["id"], entities_by_schema["Membership"][1]["properties"]["member"]
+                entities_by_schema["Person"][0]["id"],
+                entities_by_schema["Membership"][1]["properties"]["member"],
             )
             self.assertIn(
                 entities_by_schema["PublicBody"][0]["id"],
@@ -279,7 +302,11 @@ class MappingDigestTests(unittest.TestCase):
 
             with open("thebeast/tests/sample/json/ru_mayors.jsonl", "r") as fp_in:
                 items = [
-                    Record(payload=json.loads(rec), input_uri="ru_mayors.jsonl", record_no=i)
+                    Record(
+                        payload=json.loads(rec),
+                        input_uri="ru_mayors.jsonl",
+                        record_no=i,
+                    )
                     for i, rec in enumerate(fp_in)
                 ]
 

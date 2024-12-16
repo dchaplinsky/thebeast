@@ -11,7 +11,10 @@ if __name__ == "__main__":
     mapping = SourceMapping(Path(sys.argv[1]))
 
     mapping.dumper.write_entities(
-        tqdm(mapping.digestor.extract(tqdm(mapping.ingestor, desc="Records in")), desc="Entities out")
+        tqdm(
+            mapping.digestor.extract(tqdm(mapping.ingestor, desc="Records in")),
+            desc="Entities out",
+        )
     )
 
     mapping.dumper.close()

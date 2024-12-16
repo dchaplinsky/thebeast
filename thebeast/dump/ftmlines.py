@@ -11,7 +11,9 @@ class FTMLinesWriter(AbstractWriter):
     or stdout (-)
     """
 
-    def write_entities(self, entities: Iterable[RedGreenEntity], flush: bool = True) -> None:
+    def write_entities(
+        self, entities: Iterable[RedGreenEntity], flush: bool = True
+    ) -> None:
         for entity in entities:
             line: str = json.dumps(entity.payload, sort_keys=True) + "\n"
 

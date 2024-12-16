@@ -1,5 +1,11 @@
 from .abstract import AbstractIngestor
-from .mixins import CSVDictReaderMixin, GlobSourcerMixin, JSONLinesReaderMixin, JSONReaderMixin, TSVDictReaderMixin
+from .mixins import (
+    CSVDictReaderMixin,
+    GlobSourcerMixin,
+    JSONLinesReaderMixin,
+    JSONReaderMixin,
+    TSVDictReaderMixin,
+)
 
 
 class CSVDictReader(CSVDictReaderMixin, AbstractIngestor):

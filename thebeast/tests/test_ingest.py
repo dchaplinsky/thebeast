@@ -1,5 +1,10 @@
 import unittest
-from thebeast.ingest import CSVDictReader, TSVDictGlobReader, JSONLinesGlobReader, JSONGlobReader
+from thebeast.ingest import (
+    CSVDictReader,
+    TSVDictGlobReader,
+    JSONLinesGlobReader,
+    JSONGlobReader,
+)
 
 
 class CSVDictReaderTests(unittest.TestCase):
@@ -54,7 +59,11 @@ class CSVDictReaderTests(unittest.TestCase):
         )
         self.assertEqual(items[0].record_no, 0)
         self.assertIn(
-            items[0].input_uri, ["thebeast/tests/sample/csv/rada4.tsv", "thebeast/tests/sample/csv/rada5.tsv"]
+            items[0].input_uri,
+            [
+                "thebeast/tests/sample/csv/rada4.tsv",
+                "thebeast/tests/sample/csv/rada5.tsv",
+            ],
         )
 
 
@@ -81,7 +90,9 @@ class JSONReadersTests(unittest.TestCase):
             },
         )
         self.assertEqual(items[0].record_no, 0)
-        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/ru_mayors.jsonl")
+        self.assertEqual(
+            items[0].input_uri, "thebeast/tests/sample/json/ru_mayors.jsonl"
+        )
 
     def test_glob_json_reader(self):
         ingestor = JSONGlobReader(input_uri="thebeast/tests/sample/json/bank_ceos.json")
@@ -102,4 +113,6 @@ class JSONReadersTests(unittest.TestCase):
         )
 
         self.assertEqual(items[0].record_no, 0)
-        self.assertEqual(items[0].input_uri, "thebeast/tests/sample/json/bank_ceos.json")
+        self.assertEqual(
+            items[0].input_uri, "thebeast/tests/sample/json/bank_ceos.json"
+        )

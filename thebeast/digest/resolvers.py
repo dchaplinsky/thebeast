@@ -7,7 +7,12 @@ from jinja2 import Environment, BaseLoader, select_autoescape
 from followthemoney.schema import Schema  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
-from .utils import generate_pseudo_id, jmespath_results_as_array, resolve_callable, ensure_list
+from .utils import (
+    generate_pseudo_id,
+    jmespath_results_as_array,
+    resolve_callable,
+    ensure_list,
+)
 
 # TODO: expose jmespath to templates as a filter?
 jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
@@ -25,14 +30,20 @@ class ResolveContext:
 CommandConfig = NewType("CommandConfig", Union[str, dict])
 
 
-def _resolve_literal(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_literal(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `literal` is simply a string or number constant used for FTM entity field
     """
-    return context.property_values + [StrProxy(command_config, meta=context.statements_meta)]
+    return context.property_values + [
+        StrProxy(command_config, meta=context.statements_meta)
+    ]
 
 
-def _resolve_entity(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_entity(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `entity` is a named reference to another entity available in the current context
     i.e as a constant entity or entity of the current collection and its parents
@@ -44,21 +55,28 @@ def _resolve_entity(command_config: CommandConfig, context: ResolveContext) -> L
     To fool the FTM we supply something that looks like entity ID which we can resolve later
     """
 
-    return context.property_values + [StrProxy(generate_pseudo_id(command_config), meta=context.statements_meta)]
+    return context.property_values + [
+        StrProxy(generate_pseudo_id(command_config), meta=context.statements_meta)
+    ]
 
 
-def _resolve_column(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_column(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `column` is a jmespath applied at the current level of the doc
     to collect all the needed values for the field from it
     """
 
     return context.property_values + [
-        StrProxy(val, meta=context.statements_meta) for val in jmespath_results_as_array(command_config, context.record)
+        StrProxy(val, meta=context.statements_meta)
+        for val in jmespath_results_as_array(command_config, context.record)
     ]
 
 
-def _resolve_regex_split(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_regex_split(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `regex_split` is an optional regex splitter to extract multiple
     values for the entity field from the single string.
@@ -67,13 +85,16 @@ def _resolve_regex_split(command_config: CommandConfig, context: ResolveContext)
 
     for property_value in context.property_values:
         new_property_values += [
-            property_value.inject_meta_to_str(val) for val in re.split(command_config, str(property_value), flags=re.V1)
+            property_value.inject_meta_to_str(val)
+            for val in re.split(command_config, str(property_value), flags=re.V1)
         ]
 
     return new_property_values
 
 
-def _resolve_regex_first(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_regex_first(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `regex_first` is an optional regex **matcher** to match the part of the extracted string
     and set it as a value for the entity field. It returns the first match
@@ -89,15 +110,21 @@ def _resolve_regex_first(command_config: CommandConfig, context: ResolveContext)
         if m:
             if m.groups():
                 # We support both, groups
-                extracted_property_values.append(property_value.inject_meta_to_str(m.group(1)))
+                extracted_property_values.append(
+                    property_value.inject_meta_to_str(m.group(1))
+                )
             else:
                 # And full match
-                extracted_property_values.append(property_value.inject_meta_to_str(m.group(0)))
+                extracted_property_values.append(
+                    property_value.inject_meta_to_str(m.group(0))
+                )
 
     return extracted_property_values
 
 
-def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_regex(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `regex` is an optional regex **matcher** to match the part of the extracted string
     and set it as a value for the entity field. It returns the first match
@@ -110,13 +137,16 @@ def _resolve_regex(command_config: CommandConfig, context: ResolveContext) -> Li
             continue
 
         extracted_property_values += [
-            property_value.inject_meta_to_str(v) for v in re.findall(command_config, property_value, flags=re.V1)
+            property_value.inject_meta_to_str(v)
+            for v in re.findall(command_config, property_value, flags=re.V1)
         ]
 
     return extracted_property_values
 
 
-def regex_replace_multiple(regex_list: list, replace_list: list, property_values: list) -> List[StrProxy]:
+def regex_replace_multiple(
+    regex_list: list, replace_list: list, property_values: list
+) -> List[StrProxy]:
     """
     `regex_list` is a list of regex expression to apply to input.
     `replace list` is a list of replacement strings, it MUST have length equal to `regex_list`.
@@ -131,14 +161,18 @@ def regex_replace_multiple(regex_list: list, replace_list: list, property_values
         string = property_value
 
         for regex, replace in zip(regex_list, replace_list):
-            string = property_value.inject_meta_to_str(re.sub(regex, replace, string, flags=re.V1))
+            string = property_value.inject_meta_to_str(
+                re.sub(regex, replace, string, flags=re.V1)
+            )
 
         extracted_property_values += [string]
 
     return extracted_property_values
 
 
-def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_regex_replace(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `regex_replace` is an optional regex **replacer** to replace content of extracted string.
 
@@ -158,7 +192,9 @@ def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContex
 
     if isinstance(replace, list):
         if len(replace) != len(regex_list):
-            raise ValueError("If 'replace' is an array, it must have same length as 'regex'")
+            raise ValueError(
+                "If 'replace' is an array, it must have same length as 'regex'"
+            )
         else:
             return regex_replace_multiple(regex_list, replace, context.property_values)
 
@@ -167,14 +203,18 @@ def _resolve_regex_replace(command_config: CommandConfig, context: ResolveContex
             continue
 
         for regex in regex_list:
-            property_value = property_value.inject_meta_to_str(re.sub(regex, replace, property_value, flags=re.V1))
+            property_value = property_value.inject_meta_to_str(
+                re.sub(regex, replace, property_value, flags=re.V1)
+            )
 
         extracted_property_values += [property_value]
 
     return extracted_property_values
 
 
-def _resolve_transformer(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_transformer(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `transformer` is a python function which (currently) accepts only a list of values
     applies some transform to it and returns the modified list. That list will be
@@ -188,17 +228,23 @@ def _resolve_transformer(command_config: CommandConfig, context: ResolveContext)
         fcfn = command_config
         params = {}
 
-    params_as_args = ", ".join(f"{param_name}={param_value}" for param_name, param_value in params.items())
+    params_as_args = ", ".join(
+        f"{param_name}={param_value}" for param_name, param_value in params.items()
+    )
 
     transformer_signature = f"{fcfn}({params_as_args})"
     property_values = resolve_callable(fcfn)(context.property_values, **params)
     for property_value in property_values:
-        property_value._meta = property_value._meta.set_field("transformation", transformer_signature)
+        property_value._meta = property_value._meta.set_field(
+            "transformation", transformer_signature
+        )
 
     return property_values
 
 
-def _resolve_augmentor(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_augmentor(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `augmentor` is a similar concept to the `transformer`, but modified list is added
     to the original values
@@ -207,7 +253,9 @@ def _resolve_augmentor(command_config: CommandConfig, context: ResolveContext) -
     return context.property_values + _resolve_transformer(command_config, context)
 
 
-def _resolve_template(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_template(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `template` is a jinja template str that will be rendered using the context
     which contains current half-finished entity and original
@@ -228,7 +276,9 @@ def _resolve_template(command_config: CommandConfig, context: ResolveContext) ->
     ]
 
 
-def _resolve_property(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_property(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `property` gets the property value from the current entity or $variable
     """
@@ -239,7 +289,9 @@ def _resolve_property(command_config: CommandConfig, context: ResolveContext) ->
         return context.property_values + context.entity.get(command_config)
 
 
-def _resolve_meta(command_config: CommandConfig, context: ResolveContext) -> List[StrProxy]:
+def _resolve_meta(
+    command_config: CommandConfig, context: ResolveContext
+) -> List[StrProxy]:
     """
     `meta` collects the meta information and sets it for the current property values
     """
@@ -263,7 +315,9 @@ def _resolve_meta(command_config: CommandConfig, context: ResolveContext) -> Lis
     return context.property_values
 
 
-def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callable], **kwargs) -> List[StrProxy]:
+def _resolve_configs(
+    property_configs: List, commands_mapping: Dict[str, Callable], **kwargs
+) -> List[StrProxy]:
     """
     A general function that applies all the command from the config to the kwargs
     """
@@ -276,7 +330,9 @@ def _resolve_configs(property_configs: List, commands_mapping: Dict[str, Callabl
         for command, command_config in property_config.items():
             if command in commands_mapping:
                 ctx.property_values = curr_property_values
-                curr_property_values = commands_mapping[command](command_config=command_config, context=ctx)
+                curr_property_values = commands_mapping[command](
+                    command_config=command_config, context=ctx
+                )
             else:
                 pass
                 # TODO: signal to show our disrespect?
@@ -320,7 +376,10 @@ def resolve_property_values(
 
 
 def resolve_meta_values(
-    property_configs: List, record: Union[List, Dict], statements_meta: Dict[str, str], entity: Optional[Schema]
+    property_configs: List,
+    record: Union[List, Dict],
+    statements_meta: Dict[str, str],
+    entity: Optional[Schema],
 ) -> List[StrProxy]:
     """
     A wrapper for _resolve_configs for the meta values on property level (everything except meta is allowed)

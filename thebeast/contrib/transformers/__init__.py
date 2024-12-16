@@ -38,7 +38,9 @@ def mixed_charset_fixer(values: List[StrProxy]) -> List[StrProxy]:
     And vice versa
     """
     # TODO: add different locales in accordance to the way the str was fixed
-    return [value.inject_meta_to_str(try_to_fix_mixed_charset(value)) for value in values]
+    return [
+        value.inject_meta_to_str(try_to_fix_mixed_charset(value)) for value in values
+    ]
 
 
 def anydate_parser(values: List[StrProxy], silent=False, **kwargs) -> List[StrProxy]:
@@ -67,7 +69,9 @@ def anydatetime_parser(values: List[StrProxy], **kwargs) -> List[StrProxy]:
     return [value.inject_meta_to_str(dt_parse(value, **kwargs)) for value in values]
 
 
-def from_unixtime(values: List[StrProxy], silent=False, skip_zero_date=True) -> List[StrProxy]:
+def from_unixtime(
+    values: List[StrProxy], silent=False, skip_zero_date=True
+) -> List[StrProxy]:
     """
     Trying to create datetime from unix timestamp (utc)
 
@@ -90,7 +94,13 @@ def from_unixtime(values: List[StrProxy], silent=False, skip_zero_date=True) -> 
             # according to the timezone of the machine it was run on.
             # To keep the same behavior, we need to replace the timezone with UTC and
             # then remove tzinfo.
-            res.append(value.inject_meta_to_str(datetime.datetime.fromtimestamp(int(value), tz=datetime.timezone.utc).replace(tzinfo=None)))
+            res.append(
+                value.inject_meta_to_str(
+                    datetime.datetime.fromtimestamp(
+                        int(value), tz=datetime.timezone.utc
+                    ).replace(tzinfo=None)
+                )
+            )
         except Exception:
             if silent:
                 pass
@@ -113,12 +123,16 @@ def incomplete_date_converter(value: str) -> str:
                 formatted_date (str): Date as a string, expressed in ISO-8601 format
 
     """
-    formatted_date = "-".join(elem if elem.isdigit() else "-" for elem in value.split(".")[::-1])
+    formatted_date = "-".join(
+        elem if elem.isdigit() else "-" for elem in value.split(".")[::-1]
+    )
     return formatted_date
 
 
 def iso_date_parser(values: List[StrProxy]) -> List[StrProxy]:
-    return [value.inject_meta_to_str(incomplete_date_converter(value)) for value in values]
+    return [
+        value.inject_meta_to_str(incomplete_date_converter(value)) for value in values
+    ]
 
 
 def names_transliteration(values: List[StrProxy]) -> List[StrProxy]:
@@ -141,7 +155,9 @@ def do_normalize_email(value: str) -> str:
     """
 
     # if it's not a email - return it as is
-    if not re.fullmatch(r"^[0-9a-z._+-]+\@[0-9a-z._+-]+\.[0-9a-z._+-]{2,}$", value, re.IGNORECASE):
+    if not re.fullmatch(
+        r"^[0-9a-z._+-]+\@[0-9a-z._+-]+\.[0-9a-z._+-]{2,}$", value, re.IGNORECASE
+    ):
         return value
 
     name, domain = value.split("@", 1)
@@ -162,7 +178,10 @@ def normalize_phone(values: List[StrProxy]) -> List[StrProxy]:
     For example:
         79787458007 => +79787458007
     """
-    return [value.inject_meta_to_str("+" + value) if not value.startswith("+") else value for value in values]
+    return [
+        value.inject_meta_to_str("+" + value) if not value.startswith("+") else value
+        for value in values
+    ]
 
 
 def decode_html_entities(values: List[StrProxy]) -> List[StrProxy]:
@@ -182,9 +201,14 @@ def do_pad_string(value: str, length, pad_char=" ", align="left") -> str:
         raise ValueError("Invalid align value, expecting left or right")
 
 
-def pad_string(values: List[StrProxy], length, pad_char=" ", align="left") -> List[StrProxy]:
+def pad_string(
+    values: List[StrProxy], length, pad_char=" ", align="left"
+) -> List[StrProxy]:
     """
     Pad string to desired length
     """
 
-    return [value.inject_meta_to_str(do_pad_string(value, int(length), pad_char, align)) for value in values]
+    return [
+        value.inject_meta_to_str(do_pad_string(value, int(length), pad_char, align))
+        for value in values
+    ]

@@ -6,7 +6,9 @@ from thebeast.conf.exc import InvalidOverridesException, InvalidMappingException
 
 class MappingReaderTests(unittest.TestCase):
     def test_valid_mapping(self):
-        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"))
+        mapping = SourceMapping(
+            Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml")
+        )
         items = list(mapping.ingestor)
 
         self.assertEqual(len(items), 983)
@@ -46,7 +48,8 @@ class MappingReaderTests(unittest.TestCase):
     def test_invalid_overrides(self):
         with self.assertRaises(InvalidOverridesException):
             SourceMapping(
-                Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"), ingest_overrides={"input_uri": 1337}
+                Path("thebeast/tests/sample/mappings/ukrainian_mps.yaml"),
+                ingest_overrides={"input_uri": 1337},
             )
 
     def test_regex_replace_mappings(self):
@@ -59,7 +62,11 @@ class MappingReaderTests(unittest.TestCase):
             "regex_replace_list_to_list_invalid_2.yaml",
         ]:
             with self.subTest("Test mapping", file=mapping_fname):
-                SourceMapping(Path(f"thebeast/tests/sample/mappings/regex_replace/{mapping_fname}"))
+                SourceMapping(
+                    Path(
+                        f"thebeast/tests/sample/mappings/regex_replace/{mapping_fname}"
+                    )
+                )
 
     def test_invalid_mapping_properties(self):
         for mapping_fname in [
@@ -75,4 +82,6 @@ class MappingReaderTests(unittest.TestCase):
         ]:
             with self.subTest("Test mapping", file=mapping_fname):
                 with self.assertRaises(InvalidMappingException):
-                    SourceMapping(Path(f"thebeast/tests/sample/mappings/{mapping_fname}"))
+                    SourceMapping(
+                        Path(f"thebeast/tests/sample/mappings/{mapping_fname}")
+                    )

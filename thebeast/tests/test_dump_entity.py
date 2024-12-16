@@ -49,10 +49,14 @@ class MappingDumpTests(unittest.TestCase):
 
             sys.stdout.seek(0)
             resp = sys.stdout.read()
-            self.assertEqual(json.loads(resp), {"id": None, "properties": {}, "schema": "Person"})
+            self.assertEqual(
+                json.loads(resp), {"id": None, "properties": {}, "schema": "Person"}
+            )
 
         with CaptureStdout():
-            dumper = FTMLinesWriter(output_uri="/dev/stdout", error_uri="/dev/stderr", meta_fields=[])
+            dumper = FTMLinesWriter(
+                output_uri="/dev/stdout", error_uri="/dev/stderr", meta_fields=[]
+            )
             entity = ftm.make_entity("Person")
             dumper.write_entities([deflate_entity(entity)])
 
@@ -62,12 +66,16 @@ class MappingDumpTests(unittest.TestCase):
 
             sys.stderr.seek(0)
             resp = sys.stderr.read()
-            self.assertEqual(json.loads(resp), {"id": None, "properties": {}, "schema": "Person"})
+            self.assertEqual(
+                json.loads(resp), {"id": None, "properties": {}, "schema": "Person"}
+            )
 
     def test_full_entity_dump(self):
         with CaptureStdout():
             # test different streams for dumping entities
-            dumper = FTMLinesWriter(output_uri="-", error_uri="/dev/stderr", meta_fields=[])
+            dumper = FTMLinesWriter(
+                output_uri="-", error_uri="/dev/stderr", meta_fields=[]
+            )
 
             entity = ftm.make_entity("Person")
             entity.set("name", "")
@@ -75,13 +83,19 @@ class MappingDumpTests(unittest.TestCase):
             entity.set("firstName", "Віктор")
             entity.set("lastName", "Ющенко")
             entity.set("fatherName", "Андрійович")
-            entity.set("sourceUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович")
-            entity.set("wikipediaUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович")
+            entity.set(
+                "sourceUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+            )
+            entity.set(
+                "wikipediaUrl", "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+            )
             entity.make_id(["foo", "bar"])
 
             empty_entity = ftm.make_entity("Person")
 
-            dumper.write_entities([deflate_entity(entity), deflate_entity(empty_entity)])
+            dumper.write_entities(
+                [deflate_entity(entity), deflate_entity(empty_entity)]
+            )
 
             sys.stdout.seek(0)
             self.assertEqual(
@@ -93,8 +107,12 @@ class MappingDumpTests(unittest.TestCase):
                         "firstName": ["Віктор"],
                         "lastName": ["Ющенко"],
                         "name": ["Ющенко Віктор Андрійович"],
-                        "sourceUrl": ["https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"],
-                        "wikipediaUrl": ["https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"],
+                        "sourceUrl": [
+                            "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+                        ],
+                        "wikipediaUrl": [
+                            "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+                        ],
                     },
                     "schema": "Person",
                 },
@@ -102,13 +120,17 @@ class MappingDumpTests(unittest.TestCase):
 
             sys.stderr.seek(0)
             resp = sys.stderr.read()
-            self.assertEqual(json.loads(resp), {"id": None, "properties": {}, "schema": "Person"})
+            self.assertEqual(
+                json.loads(resp), {"id": None, "properties": {}, "schema": "Person"}
+            )
 
         with CaptureStdout():
             # test both output into same stream
             dumper = FTMLinesWriter(output_uri="-", error_uri="-", meta_fields=[])
 
-            dumper.write_entities([deflate_entity(entity), deflate_entity(empty_entity)])
+            dumper.write_entities(
+                [deflate_entity(entity), deflate_entity(empty_entity)]
+            )
 
             sys.stdout.seek(0)
             self.assertEqual(
@@ -120,12 +142,19 @@ class MappingDumpTests(unittest.TestCase):
                         "firstName": ["Віктор"],
                         "lastName": ["Ющенко"],
                         "name": ["Ющенко Віктор Андрійович"],
-                        "sourceUrl": ["https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"],
-                        "wikipediaUrl": ["https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"],
+                        "sourceUrl": [
+                            "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+                        ],
+                        "wikipediaUrl": [
+                            "https://uk.wikipedia.org/wiki/Ющенко_Віктор_Андрійович"
+                        ],
                     },
                     "schema": "Person",
                 },
             )
-            self.assertEqual(json.loads(sys.stdout.readline()), {"id": None, "properties": {}, "schema": "Person"})
+            self.assertEqual(
+                json.loads(sys.stdout.readline()),
+                {"id": None, "properties": {}, "schema": "Person"},
+            )
 
     # TODO: tests with real files

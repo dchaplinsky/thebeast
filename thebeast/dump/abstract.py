@@ -10,7 +10,9 @@ class AbstractWriter:
     Abstract class to write entities in a given format
     """
 
-    def __init__(self, output_uri: str, meta_fields: List[str], error_uri: str = "/dev/null") -> None:
+    def __init__(
+        self, output_uri: str, meta_fields: List[str], error_uri: str = "/dev/null"
+    ) -> None:
         """
         Error_uri (defaulted to /dev/null). By changing it you might route invalid entites
         to /dev/null, same file as valid ones or separate file for the debugging
@@ -44,7 +46,9 @@ class AbstractWriter:
         else:
             return smart_open.open(uri, "w")
 
-    def write_entities(self, entities: Iterable[RedGreenEntity], flush: bool = True) -> None:
+    def write_entities(
+        self, entities: Iterable[RedGreenEntity], flush: bool = True
+    ) -> None:
         raise NotImplementedError("You have to redefine it")
 
     def close(self):

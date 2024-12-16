@@ -16,11 +16,15 @@ from thebeast.contrib.ftm_ext import meta_factory
 
 class EntityKeysTests(unittest.TestCase):
     def test_asterisk_key_generator(self):
-        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/keys_resolver/asterisk_keys.yaml"))
+        mapping = SourceMapping(
+            Path("thebeast/tests/sample/mappings/keys_resolver/asterisk_keys.yaml")
+        )
 
         items = [
             Record(payload={"name": "Ющенко Віктор Андрійович"}),
-            Record(payload={"name": "Ющенко Віктор Андрійович", "birth_date": "1954-02-23"}),
+            Record(
+                payload={"name": "Ющенко Віктор Андрійович", "birth_date": "1954-02-23"}
+            ),
             Record(
                 payload={
                     "name": "Ющенко Віктор Андрійович",
@@ -39,12 +43,18 @@ class EntityKeysTests(unittest.TestCase):
         self.assertEqual("4de61b4fc100bf0a397898a5067be46a28e26a16", entities[2]["id"])
 
     def test_asterisk_key_resolver_returns_same_keys_as_manual(self):
-        asterisk_mapping = SourceMapping(Path("thebeast/tests/sample/mappings/keys_resolver/asterisk_keys.yaml"))
-        manual_mapping = SourceMapping(Path("thebeast/tests/sample/mappings/keys_resolver/manual_keys.yaml"))
+        asterisk_mapping = SourceMapping(
+            Path("thebeast/tests/sample/mappings/keys_resolver/asterisk_keys.yaml")
+        )
+        manual_mapping = SourceMapping(
+            Path("thebeast/tests/sample/mappings/keys_resolver/manual_keys.yaml")
+        )
 
         items = [
             Record(payload={"name": "Ющенко Віктор Андрійович"}),
-            Record(payload={"name": "Ющенко Віктор Андрійович", "birth_date": "1954-02-23"}),
+            Record(
+                payload={"name": "Ющенко Віктор Андрійович", "birth_date": "1954-02-23"}
+            ),
             Record(
                 payload={
                     "name": "Ющенко Віктор Андрійович",
@@ -54,8 +64,12 @@ class EntityKeysTests(unittest.TestCase):
             ),
         ]
 
-        asterisk_entities = list(ent.payload for ent in asterisk_mapping.digestor.extract(items))
-        manual_entities = list(ent.payload for ent in manual_mapping.digestor.extract(items))
+        asterisk_entities = list(
+            ent.payload for ent in asterisk_mapping.digestor.extract(items)
+        )
+        manual_entities = list(
+            ent.payload for ent in manual_mapping.digestor.extract(items)
+        )
 
         # keys will be same for 1st and 2nd rows because both have the same keys
         self.assertEqual(manual_entities[0]["id"], asterisk_entities[0]["id"])
@@ -67,7 +81,9 @@ class EntityKeysTests(unittest.TestCase):
     def test_entity_keys_on_entity_field(self):
         for path in [
             Path("thebeast/tests/sample/mappings/keys_resolver/entity_keys.yaml"),
-            Path("thebeast/tests/sample/mappings/keys_resolver/entity_keys_wildcard.yaml"),
+            Path(
+                "thebeast/tests/sample/mappings/keys_resolver/entity_keys_wildcard.yaml"
+            ),
         ]:
             mapping = SourceMapping(path)
 
@@ -87,9 +103,15 @@ class EntityKeysTests(unittest.TestCase):
             self.assertTrue(entities[1].valid)
             self.assertTrue(entities[2].valid)
 
-            self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[0].payload["id"])
-            self.assertEqual("178e4423135e4b92d81049984b41ff524c1f5641", entities[1].payload["id"])
-            self.assertEqual("60781e1346aa5d396d3d6ed19743f8ae91dc9058", entities[2].payload["id"])
+            self.assertEqual(
+                "17dec550a297076989f408f075db145c3f72b80a", entities[0].payload["id"]
+            )
+            self.assertEqual(
+                "178e4423135e4b92d81049984b41ff524c1f5641", entities[1].payload["id"]
+            )
+            self.assertEqual(
+                "60781e1346aa5d396d3d6ed19743f8ae91dc9058", entities[2].payload["id"]
+            )
 
             self.assertEqual("Person", entities[3].payload["schema"])
             self.assertEqual("Company", entities[4].payload["schema"])
@@ -107,7 +129,11 @@ class EntityKeysTests(unittest.TestCase):
             self.assertNotEqual(entities[2].payload["id"], entities[5].payload["id"])
 
     def test_entity_keys_on_entity_field_with_wrong_mapping_entity_order(self):
-        mapping = SourceMapping(Path("thebeast/tests/sample/mappings/keys_resolver/entity_keys_wildcard_shuffled.yaml"))
+        mapping = SourceMapping(
+            Path(
+                "thebeast/tests/sample/mappings/keys_resolver/entity_keys_wildcard_shuffled.yaml"
+            )
+        )
 
         items = [
             Record(payload={"name": "Ivan Sraka", "company": "Sraka, LTD."}),
@@ -129,7 +155,9 @@ class EntityKeysTests(unittest.TestCase):
         self.assertFalse(entities[0].valid)
         self.assertFalse(entities[3].valid)
 
-        self.assertEqual("17dec550a297076989f408f075db145c3f72b80a", entities[2].payload["id"])
+        self.assertEqual(
+            "17dec550a297076989f408f075db145c3f72b80a", entities[2].payload["id"]
+        )
 
         # Second `Company` is also None since it's empty
         self.assertEqual(None, entities[4].payload["id"])

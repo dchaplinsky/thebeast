@@ -9,7 +9,10 @@ from followthemoney.exc import InvalidData  # type: ignore
 
 from followthemoney import model  # type: ignore
 from followthemoney.types import registry  # type: ignore
-from thebeast.contrib.ftm_ext.rigged_entity_proxy import RiggedEntityProxy as EntityProxy, StrProxy
+from thebeast.contrib.ftm_ext.rigged_entity_proxy import (
+    RiggedEntityProxy as EntityProxy,
+    StrProxy,
+)
 
 
 ENTITY = {
