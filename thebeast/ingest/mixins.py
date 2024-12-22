@@ -91,5 +91,8 @@ class JSONReaderMixin:
         self.filemode = "rb"
 
     def reader(self, iterator: Iterator) -> Generator[Dict, None, None]:
+        """
+        Read json arrays using ijson lib. Accepts an extra option to filter the content
+        """
         for line in ijson.items(iterator, self.ijson_prefix):
             yield line

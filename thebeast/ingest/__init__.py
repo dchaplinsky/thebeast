@@ -47,3 +47,4 @@ class JSONGlobReader(JSONReaderMixin, GlobSourcerMixin, AbstractIngestor):
     """
 
     pass
+

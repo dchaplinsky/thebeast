@@ -22,6 +22,14 @@ class AbstractIngestor:
     def __init__(
         self, input_uri: str, input_encoding: str = "utf-8", *args, **kwargs
     ) -> None:
+        """
+        Basic constructor of the Ingestor class
+
+        Args:
+            input_uri: the uri of the file to read
+            input_encoding: the encoding of the file to read
+            filemode: the mode to open the file
+        """
         self.input_uri = input_uri
         self.input_encoding = input_encoding
         self.filemode = "rt"

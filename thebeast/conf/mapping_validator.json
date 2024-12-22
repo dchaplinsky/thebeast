@@ -207,7 +207,15 @@
             "$id": "/definitions/fqcn",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$",
-            "type": "string"
+            "type": "string",
+            "description": "Fully qualified class name (e.g thebeast.digest.SingleProcessDigestor)"
+        },
+        "fqmn": {
+            "$id": "/definitions/fqmn",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$",
+            "type": "string",
+            "description": "Fully qualified module name (e.g thebeast.contrib.useful)"
         },
         "fqfn":
         {
@@ -232,7 +240,8 @@
                     "required": ["name"],
                     "type": "object"
                 }
-            ]
+            ],
+            "description": "Fully qualified function name and params (e.g thebeast.contrib.useful.my_function)"
         },
         "properties":
         {
@@ -488,6 +497,13 @@
             "description": "Optional path to the dir with a custom FTM ontology to use",
             "type": "string"
         },
+        "import": {
+            "description": "List of third-party packaged or contribs with transformers and jinja routines to import",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
         "meta":
         {
             "description": "Optional list of statements meta fields (if omitted, the default DEFAULT_META_FIELDS is used)",
@@ -523,6 +539,11 @@
                         "input_uri":
                         {
                             "type": "string"
+                        },
+                        "input_encoding":
+                        {
+                            "type": "string",
+                            "description": "Encoding of the input file"
                         }
                     },
                     "type": "object"
