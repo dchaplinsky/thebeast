@@ -1,11 +1,19 @@
-from typing import List
-from dateutil.parser import parse as dt_parse  # type: ignore
+from typing import List, Any
 import datetime
-
-from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
-from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
-import regex as re
 import html
+
+from dateutil.parser import parse as dt_parse  # type: ignore
+import regex as re
+from names_translator.name_utils import try_to_fix_mixed_charset, parse_and_generate  # type: ignore
+
+from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
+
+
+def install():
+    """
+    Autodiscover all the transformers in the module
+    """
+    # Custom install code, if needed
 
 
 # TODO: split into dates/names/others files
@@ -110,6 +118,10 @@ def from_unixtime(
     return res
 
 
+from thebeast.digest import jinja_utils
+
+
+@jinja_utils.filter()
 def incomplete_date_converter(value: str) -> str:
     """
     Transforms strings of the form \\w{2}.\\w{2}.\\w{4} to dates as strings, expressed in ISO-8601 format:
@@ -127,6 +139,32 @@ def incomplete_date_converter(value: str) -> str:
         elem if elem.isdigit() else "-" for elem in value.split(".")[::-1]
     )
     return formatted_date
+
+
+@jinja_utils.filter
+def ukr_plural(value: Any, *args) -> str:
+    """
+    Ukrainian pluralization filter
+
+    Args:
+        value: int
+        args: list of strings, 3 elements: singular, plural, genitive plural
+
+    Returns:
+        str: pluralized string
+    """
+    assert len(args) == 3, "ukr_plural filter requires exactly 3 arguments"
+
+    value = int(value) % 100
+    rem = value % 10
+    if value > 4 and value < 20:
+        return args[2]
+    elif rem == 1:
+        return args[0]
+    elif rem > 1 and rem < 5:
+        return args[1]
+
+    return args[2]
 
 
 def iso_date_parser(values: List[StrProxy]) -> List[StrProxy]:
