@@ -3,9 +3,12 @@ from pathlib import Path
 from typing import Union, Callable, Dict, Any, List
 import json
 
-
 import fastjsonschema  # type: ignore
-from .exc import InvalidMappingException, InvalidOverridesException
+
+from .exc import (
+    InvalidMappingException,
+    InvalidOverridesException,
+)
 from .utils import import_string, ordered_load
 from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls, DEFAULT_META_FIELDS
 
@@ -25,7 +28,6 @@ class SourceMapping:
         """
         You might provide an alternative jsonschema file for the validation (for example, to bypass it)
         """
-
         if ingest_overrides is None:
             ingest_overrides = {}
         if dump_overrides is None:
@@ -35,7 +37,7 @@ class SourceMapping:
         if schema_file is None:
             schema_file = Path(curr_dir / "mapping_validator.json")
 
-        with schema_file.open("r") as fp:
+        with schema_file.open("r", encoding="utf-8") as fp:
             schema: Callable = fastjsonschema.compile(json.load(fp))
 
         with mapping_file.open("r") as fp:

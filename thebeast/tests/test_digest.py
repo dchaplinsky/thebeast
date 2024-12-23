@@ -37,7 +37,7 @@ class MappingDigestTests(unittest.TestCase):
                         "party": "Блок Віктора Ющенка «Наша Україна»",
                         "district": "Багатомандатний округ",
                         "date_from": "14.05.2002",
-                        "date_to": "23.01.2005[п. 1]",
+                        "date_to": "21.01.2005[п. 1]", # This is an incorrect date, actually
                         "link": "https://uk.wikipedia.org/wiki/%D0%AE%D1%89%D0%B5%D0%BD%D0%BA%D0%BE_"
                         "%D0%92%D1%96%D0%BA%D1%82%D0%BE%D1%80_%D0%90%D0%BD%D0%B4%D1%80%D1%96%D0%B9%D0"
                         "%BE%D0%B2%D0%B8%D1%87",
@@ -88,7 +88,7 @@ class MappingDigestTests(unittest.TestCase):
                     ],
                 )
 
-            self.assertIn("Був депутатов 985 днів", entity["properties"]["notes"])
+            self.assertIn("Був депутатом 983 дні", entity["properties"]["notes"])
             self.assertIn(
                 "Початок каденції: 2002-05-14, Блок Віктора Ющенка «Наша Україна»",
                 entity["properties"]["notes"][0]._meta.test_field,
@@ -116,7 +116,7 @@ class MappingDigestTests(unittest.TestCase):
             entity = entities_by_schema["Membership"][0]
             self.assertIsNotNone(entity["id"])
             self.assertIn("2002-05-14", entity["properties"]["startDate"])
-            self.assertIn("2005-01-23", entity["properties"]["endDate"])
+            self.assertIn("2005-01-21", entity["properties"]["endDate"])
             self.assertIn(
                 entities_by_schema["PublicBody"][0]["id"],
                 entity["properties"]["organization"],
@@ -142,7 +142,7 @@ class MappingDigestTests(unittest.TestCase):
                             entity in entities_by_schema["Person"]
                             or entity in entities_by_schema["Membership"]
                         ):
-                            self.assertEqual(prop._meta.date, "2005-01-23")
+                            self.assertEqual(prop._meta.date, "2005-01-21")
                             self.assertEqual(
                                 "/dev/random",
                                 prop._meta.input_uri,

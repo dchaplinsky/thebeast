@@ -68,7 +68,7 @@ digest:
             political:
               column: party
             notes:
-              template: "Був депутатов {{ record.days_served }} днів"
+              template: "Був депутатом {{ record.days_served }} {{ record.days_served|ukr_plural('день', 'дні', 'днів') }}"
               meta:
                 test_field:
                   column: date_from
