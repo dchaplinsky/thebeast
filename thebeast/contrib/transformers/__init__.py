@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from dateutil.parser import parse as dt_parse  # type: ignore
 import datetime
 
@@ -212,3 +212,51 @@ def pad_string(
         value.inject_meta_to_str(do_pad_string(value, int(length), pad_char, align))
         for value in values
     ]
+
+
+def map_values(
+    values: List[StrProxy], mapping: Dict[str, str], default: str = None
+) -> List[StrProxy]:
+    """
+    Maps input values to new values based on a provided mapping dictionary.
+
+    Parameters:
+    -----------
+    values : List[StrProxy]
+        The list of values to transform
+    mapping : Dict[str, str]
+        Dictionary mapping input values to output values
+    default : str, optional
+        Default value to use when input value is not found in mapping
+
+    Returns:
+    --------
+    List[StrProxy]
+        Transformed values
+
+    Examples:
+    ---------
+    >>> map_values(["PAS"], {"PAS": "Russian Passport", "PSF": "Foreign Passport"})
+    ["Russian Passport"]
+
+    >>> map_values(["ABC"], {"PAS": "Russian Passport"}, "Unknown")
+    ["Unknown"]
+    """
+    result = []
+
+    for value in values:
+        if not value:
+            # Skip empty values
+            continue
+
+        # Get mapped value or default
+        if str(value) in mapping:
+            mapped_value = mapping[str(value)]
+        else:
+            mapped_value = default
+
+        # Only add if we have a result (either from mapping or default)
+        if mapped_value is not None:
+            result.append(value.inject_meta_to_str(mapped_value))
+
+    return result
