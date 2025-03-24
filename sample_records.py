@@ -67,9 +67,9 @@ if __name__ == "__main__":
                 stats["entities_by_schema"].update([entity.payload["schema"]])
                 for field in entity.payload["properties"]:
                     stats["fields_count"].update(
-                        [f"{entity.payload["schema"]}.{field}"]
+                        [f"{entity.payload['schema']}.{field}"]
                     )
-                    stats["field_values"][f"{entity.payload["schema"]}.{field}"].update(
+                    stats["field_values"][f"{entity.payload['schema']}.{field}"].update(
                         entity.payload["properties"][field]
                     )
 
