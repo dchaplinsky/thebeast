@@ -66,7 +66,9 @@ if __name__ == "__main__":
                 stats["total_entities"] += 1
                 stats["entities_by_schema"].update([entity.payload["schema"]])
                 for field in entity.payload["properties"]:
-                    stats["fields_count"].update([f"{entity.payload["schema"]}.{field}"])
+                    stats["fields_count"].update(
+                        [f"{entity.payload["schema"]}.{field}"]
+                    )
                     stats["field_values"][f"{entity.payload["schema"]}.{field}"].update(
                         entity.payload["properties"][field]
                     )
@@ -75,10 +77,12 @@ if __name__ == "__main__":
 
     mapping.dumper.write_entities(entity_generator())
 
-    if stats['total_records']:
+    if stats["total_records"]:
         print(f"Total records: {stats['total_records']}")
         print(f"Total entities: {stats['total_entities']}")
-        print(f"Average entities per record: {stats['total_entities'] / stats['total_records']}")
+        print(
+            f"Average entities per record: {stats['total_entities'] / stats['total_records']}"
+        )
 
         print("\n\nEntities count per record:")
         for count, entities in stats["entities_count"].most_common():
@@ -92,7 +96,7 @@ if __name__ == "__main__":
         for field, count in stats["fields_count"].most_common():
             schema, _ = field.split(".")
             print(
-                f"\t{field}: {count} (per entity: {round(count / stats["entities_by_schema"][schema], 2)})"
+                f"\t{field}: {count} (per entity: {round(count / stats['entities_by_schema'][schema], 2)})"
             )
 
         print("\n\nField values (top-10):")
