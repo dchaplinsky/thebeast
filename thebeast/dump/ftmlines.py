@@ -15,7 +15,9 @@ class FTMLinesWriter(AbstractWriter):
         self, entities: Iterable[RedGreenEntity], flush: bool = True
     ) -> None:
         for entity in entities:
-            line: str = json.dumps(entity.payload, sort_keys=True) + "\n"
+            line: str = (
+                json.dumps(entity.payload, sort_keys=True, ensure_ascii=False) + "\n"
+            )
 
             if entity.valid:
                 self.output_fh.write(line)
