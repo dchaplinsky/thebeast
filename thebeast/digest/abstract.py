@@ -9,11 +9,14 @@ from typing import (
     Union,
     Tuple,
 )
+import warnings
 
 from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 from thebeast.types import Record
+
+from thebeast.conf.exc import RemovedInBeast20Warning
 
 from .utils import (
     generate_pseudo_id,
@@ -25,6 +28,9 @@ from .utils import (
     deflate_entity,
     ENTITY_TYPE,
 )
+
+from .autodiscover import autodiscover
+
 from .resolvers import (
     resolve_property_values,
     resolve_constant_meta_values,
@@ -114,7 +120,7 @@ def main_cog(
     # TODO: inject parent record as __parent or something
     parent_record: Optional[Any],
 ) -> Generator[Schema, None, None]:
-    for collection_name, collection_config in config.get("collections", {}).items():
+    for collection_config in config.get("collections", {}).values():
         # Applying optional record level transformer
         record_transformer: Callable = (
             resolve_callable(collection_config["record_transformer"])
@@ -190,6 +196,21 @@ class AbstractDigestor:
     def __init__(self, mapping_config: Dict, meta_fields: List[str]) -> None:
         self.mapping_config: Dict = mapping_config
         self.meta_fields: List[str] = meta_fields
+
+        # Now we are importing external modules to autodiscover the transformers and
+        # jinja filters
+        if self.mapping_config.get("import", None) is None:
+            warnings.warn(
+                "If you are using thebeast.contrib.transformers.* as transformers, you should "
+                + "import it explicitly in the mapping file. The implicit import will be removed "
+                + "in the next major release.",
+                RemovedInBeast20Warning,
+            )
+            self.mapping_config["import"] = [
+                "thebeast.contrib.transformers",
+            ]
+
+        autodiscover(self.mapping_config["import"])
 
     def extract(self, records: Iterable[Record]) -> Generator[Dict, None, None]:
         # First let's get some global level meta values for our statements

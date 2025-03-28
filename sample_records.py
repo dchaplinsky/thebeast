@@ -9,12 +9,31 @@ from tqdm import tqdm
 
 from thebeast.conf.mapping import SourceMapping
 
+
+def mask_characters(text: str) -> str:
+    """
+    Mask characters in a string:
+    - Replace digits with 'd'
+    - Replace alphanumeric characters with 'x'
+    - Keep other characters unchanged
+    """
+    result = ""
+    for char in text:
+        if char.isdigit():
+            result += "d"
+        elif char.isalnum():
+            result += "x"
+        else:
+            result += char
+    return result
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Sample records from a mapping file and export them as entities"
     )
     parser.add_argument("mapping_file", type=Path)
-    parser.add_argument("output_file", type=Path)
+    parser.add_argument("--output_file", type=Path, default="/dev/null")
     parser.add_argument(
         "--fraction", type=float, default=0.001, help="Fraction of records to sample"
     )
@@ -57,6 +76,7 @@ if __name__ == "__main__":
         "total_records": 0,
         "total_entities": 0,
         "field_values": defaultdict(Counter),
+        "masked_fields": defaultdict(Counter),
     }
 
     def entity_generator():
@@ -71,16 +91,28 @@ if __name__ == "__main__":
                 stats["total_entities"] += 1
                 stats["entities_by_schema"].update([entity.payload["schema"]])
                 for field in entity.payload["properties"]:
-                    stats["fields_count"].update(
-                        [f"{entity.payload['schema']}.{field}"]
-                    )
-                    stats["field_values"][f"{entity.payload['schema']}.{field}"].update(
+                    fq_prop_name = f"{entity.payload['schema']}.{field}"
+                    stats["fields_count"].update([fq_prop_name])
+                    stats["field_values"][fq_prop_name].update(
                         entity.payload["properties"][field]
                     )
 
+                    if fq_prop_name in [
+                        "Person.phone",
+                        "Person.birthDate",
+                        "Passport.passportNumber",
+                        "Passport.number",
+                        "Identification.number",
+                        "Identification.date",
+                    ]:
+                        for value in entity.payload["properties"][field]:
+                            stats["masked_fields"][fq_prop_name].update(
+                                [mask_characters(value)]
+                            )
+
                 yield entity
 
-    mapping.dumper.write_entities(entity_generator())
+    mapping.dumper.write_entities(tqdm(entity_generator(), desc="Entities out"))
 
     if stats["total_records"]:
         print(f"Total records: {stats['total_records']}")
@@ -106,6 +138,12 @@ if __name__ == "__main__":
 
         print("\n\nField values (top-10):")
         for field, values in stats["field_values"].items():
+            print(f"\t{field}: ")
+            for value, count in values.most_common(10):
+                print(f"\t\t{value}: {count}")
+
+        print("\nPatterns (top-10):")
+        for field, values in stats["masked_fields"].items():
             print(f"\t{field}: ")
             for value, count in values.most_common(10):
                 print(f"\t\t{value}: {count}")
