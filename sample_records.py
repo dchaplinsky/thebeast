@@ -23,6 +23,11 @@ if __name__ == "__main__":
     with args.mapping_file.open("r", encoding="utf-8") as f:
         mapping_data = yaml.safe_load(f)
 
+    mapping_data["digest"]["cls"] = "thebeast.digest.SingleProcessDigestor"
+    if "params" in mapping_data["digest"]:
+        if "processes" in mapping_data["digest"]["params"]:
+            del mapping_data["digest"]["params"]["processes"]
+
     # Replace the dump.cls with the desired value
     mapping_data["dump"]["cls"] = "thebeast.dump.FTMLinesWriter"
     if "params" in mapping_data["dump"]:
