@@ -80,7 +80,7 @@ if __name__ == "__main__":
     }
 
     def entity_generator():
-        global stats
+        global stats # noqa: F824
         for record in filter(lambda x: random() < args.fraction, records):
             stats["total_records"] += 1
             entities = list(mapping.digestor.extract([record]))
