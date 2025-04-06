@@ -19,3 +19,5 @@ RUN pip install --upgrade pip \
  && pip install --no-binary=:pyicu: pyicu \
  && pip install --no-cache-dir -r requirements.txt \
  && pip install black
+
+RUN pip install flake8 pytest
