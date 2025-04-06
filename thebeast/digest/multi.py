@@ -1,10 +1,13 @@
+import os
 from typing import List, Dict, Generator, Iterable, Any
 from multiprocessing import Pool, cpu_count
+
 from followthemoney.schema import Schema  # type: ignore
 
 from thebeast.contrib.ftm_ext.meta_factory import get_meta_cls
 from .abstract import AbstractDigestor, main_cog
 from thebeast.types import Record
+from .autodiscover import autodiscover
 
 from .utils import flatten
 
@@ -44,6 +47,7 @@ def worker_init(
     # When doing multiprocessing you cannot access the dynamically initialized class
     # in the scope of the parent process, so you need to redo it for each process
     get_meta_cls(meta_fields)
+    autodiscover(mapping_config["import"])
 
     # assign the global variable
     main_cog_ctx = {
