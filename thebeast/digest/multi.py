@@ -15,7 +15,7 @@ def task(record: Record) -> List[Schema]:
     # To overcome an issue with passing multiple parameters into the
     # mapped function we declare and use global variable main_cog_ctx
     # https://superfastpython.com/multiprocessing-pool-initializer/
-    global main_cog_ctx
+    global main_cog_ctx # noqa: F824
 
     return list(
         main_cog(
