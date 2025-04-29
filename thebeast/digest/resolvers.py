@@ -2,8 +2,9 @@ import regex as re  # type: ignore
 from typing import Optional, List, Dict, Union, Any, Callable, NewType
 from dataclasses import dataclass
 
-
 from jinja2 import Environment, BaseLoader, select_autoescape
+
+
 from followthemoney.schema import Schema  # type: ignore
 from thebeast.contrib.ftm_ext.rigged_entity_proxy import StrProxy
 
@@ -13,10 +14,6 @@ from .utils import (
     resolve_callable,
     ensure_list,
 )
-
-# TODO: expose jmespath to templates as a filter?
-jinja_env = Environment(loader=BaseLoader(), autoescape=select_autoescape())
-
 
 @dataclass
 class ResolveContext:
@@ -28,6 +25,9 @@ class ResolveContext:
 
 
 CommandConfig = NewType("CommandConfig", Union[str, dict])
+
+
+JINJA_ENV = Environment(loader=BaseLoader(), autoescape=select_autoescape())
 
 
 def _resolve_literal(
@@ -260,7 +260,7 @@ def _resolve_template(
     `template` is a jinja template str that will be rendered using the context
     which contains current half-finished entity and original
     """
-    template = jinja_env.from_string(command_config)
+    template = JINJA_ENV.from_string(command_config)
     return [
         StrProxy(
             template.render(

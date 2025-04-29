@@ -4,3 +4,7 @@ class InvalidMappingException(Exception):
 
 class InvalidOverridesException(Exception):
     pass
+
+
+class RemovedInBeast20Warning(DeprecationWarning):
+    pass

@@ -1,25 +1,18 @@
 {
-    "$defs":
-    {
-        "collection":
-        {
+    "$defs": {
+        "collection": {
             "$id": "/schemas/collection",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "properties":
-            {
-                "entities":
-                {
-                    "patternProperties":
-                    {
-                        "":
-                        {
+            "properties": {
+                "entities": {
+                    "patternProperties": {
+                        "": {
                             "$ref": "/schemas/entity"
                         }
                     },
                     "type": "object"
                 },
-                "path":
-                {
+                "path": {
                     "description": "jmespath to apply to the current level of the document to retrieve a collection",
                     "type": "string"
                 },
@@ -29,56 +22,45 @@
                 },
                 "meta": {
                     "description": "Record level statement meta values",
-                    "patternProperties":
-                    {
-                        "": {"$ref": "/schemas/property"}
+                    "patternProperties": {
+                        "": {
+                            "$ref": "/schemas/property"
+                        }
                     },
                     "type": "object"
                 },
-                "collections":
-                {
-                    "patternProperties":
-                    {
-                        "":
-                        {
+                "collections": {
+                    "patternProperties": {
+                        "": {
                             "$ref": "/schemas/collection"
                         }
                     },
                     "type": "object"
                 }
             },
-            "required":
-            [
+            "required": [
                 "path",
                 "entities"
             ],
             "type": "object",
             "additionalProperties": false
         },
-        "constant_entity":
-        {
+        "constant_entity": {
             "$id": "/schemas/constant_entity",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "properties":
-            {
-                "keys":
-                {
-                    "items":
-                    {
+            "properties": {
+                "keys": {
+                    "items": {
                         "type": "string"
                     },
                     "minItems": 1,
                     "type": "array",
                     "uniqueItems": true
                 },
-                "properties":
-                {
-                    "patternProperties":
-                    {
-                        "":
-                        {
-                            "anyOf":
-                            [
+                "properties": {
+                    "patternProperties": {
+                        "": {
+                            "anyOf": [
                                 {
                                     "$ref": "/schemas/constant_property"
                                 },
@@ -90,62 +72,50 @@
                     },
                     "type": "object"
                 },
-                "schema":
-                {
+                "schema": {
                     "description": "Name of the FTM entity to yield",
                     "type": "string"
                 }
             },
-            "required":
-            [
+            "required": [
                 "schema",
                 "keys",
                 "properties"
             ],
             "type": "object"
         },
-        "constant_properties":
-        {
+        "constant_properties": {
             "$id": "/schemas/constant_properties",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "items":
-            {
+            "items": {
                 "$ref": "/schemas/constant_property"
             },
             "minItems": 1,
             "type": "array"
         },
-        "constant_property":
-        {
+        "constant_property": {
             "$id": "/schemas/constant_property",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "oneOf":
-            [
+            "oneOf": [
                 {
-                    "required":
-                    [
+                    "required": [
                         "literal"
                     ]
                 },
                 {
-                    "required":
-                    [
+                    "required": [
                         "entity"
                     ]
                 }
             ],
-            "properties":
-            {
-                "entity":
-                {
+            "properties": {
+                "entity": {
                     "description": "A name of the entity in the current context to link to",
                     "type": "string"
                 },
-                "literal":
-                {
+                "literal": {
                     "description": "A string literal or number to add to all the entities generated from current collection",
-                    "type":
-                    [
+                    "type": [
                         "string",
                         "number"
                     ]
@@ -153,30 +123,22 @@
             },
             "type": "object"
         },
-        "entity":
-        {
+        "entity": {
             "$id": "/schemas/entity",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "properties":
-            {
-                "keys":
-                {
-                    "items":
-                    {
+            "properties": {
+                "keys": {
+                    "items": {
                         "type": "string"
                     },
                     "minItems": 1,
                     "type": "array",
                     "uniqueItems": true
                 },
-                "properties":
-                {
-                    "patternProperties":
-                    {
-                        "":
-                        {
-                            "anyOf":
-                            [
+                "properties": {
+                    "patternProperties": {
+                        "": {
+                            "anyOf": [
                                 {
                                     "$ref": "/schemas/property"
                                 },
@@ -188,22 +150,19 @@
                     },
                     "type": "object"
                 },
-                "schema":
-                {
+                "schema": {
                     "description": "Name of the FTM entity to yield",
                     "type": "string"
                 }
             },
-            "required":
-            [
+            "required": [
                 "schema",
                 "keys",
                 "properties"
             ],
             "type": "object"
         },
-        "fqcn":
-        {
+        "fqcn": {
             "$id": "/definitions/fqcn",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "pattern": "(?i)^(\\w+)\\.((\\w+).)*(\\w+)$",
@@ -217,18 +176,15 @@
             "type": "string",
             "description": "Fully qualified module name (e.g thebeast.contrib.useful)"
         },
-        "fqfn":
-        {
+        "fqfn": {
             "$id": "/definitions/fqfn",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "anyOf":
-            [
+            "anyOf": [
                 {
                     "$ref": "/definitions/fqcn"
                 },
                 {
-                    "properties":
-                    {
+                    "properties": {
                         "name": {
                             "$ref": "/definitions/fqcn"
                         },
@@ -236,103 +192,86 @@
                             "type": "object"
                         }
                     },
-
-                    "required": ["name"],
+                    "required": [
+                        "name"
+                    ],
                     "type": "object"
                 }
             ],
             "description": "Fully qualified function name and params (e.g thebeast.contrib.useful.my_function)"
         },
-        "properties":
-        {
+        "properties": {
             "$id": "/schemas/properties",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "description": "An ordered dict (order matters!) of an operations that will be applied to the source record to extract the property of an entity",
-            "items":
-            {
+            "items": {
                 "$ref": "/schemas/property"
             },
             "minItems": 1,
             "type": "array"
         },
-        "property":
-        {
+        "property": {
             "$id": "/schemas/property",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "description": "A list of instructions on how to get the data for the property and modify/validate it",
-            "anyOf":
-            [
+            "anyOf": [
                 {
-                    "required":
-                    [
+                    "required": [
                         "column"
                     ]
                 },
                 {
-                    "required":
-                    [
+                    "required": [
                         "entity"
                     ]
                 },
                 {
-                    "required":
-                    [
+                    "required": [
                         "template"
                     ]
                 },
                 {
-                    "required":
-                    [
+                    "required": [
                         "literal"
                     ]
                 },
                 {
-                    "required":
-                    [
+                    "required": [
                         "property"
                     ]
                 }
             ],
-            "properties":
-            {
-                "augmentor":
-                {
+            "properties": {
+                "augmentor": {
                     "$ref": "/definitions/fqfn",
                     "description": "Fully qualified python function that *appends* a transformation to the list of string values"
                 },
-                "column":
-                {
+                "column": {
                     "description": "A jmespath to extract value(-s) for a given FTM field on a current subdocument",
                     "type": "string"
                 },
-                "entity":
-                {
+                "entity": {
                     "description": "A name of the entity in the current context to link to",
                     "type": "string"
                 },
-                "literal":
-                {
+                "literal": {
                     "description": "A string literal or number to add to all the entities generated from current collection",
-                    "type":
-                    [
+                    "type": [
                         "string",
                         "number"
                     ]
                 },
-                "regex":
-                {
+                "regex": {
                     "description": "regex to apply to extracted values",
                     "format": "regex",
                     "type": "string"
                 },
-                "regex_first":
-                {
+                "regex_first": {
                     "description": "regex to apply to extracted values and return first match",
                     "format": "regex",
                     "type": "string"
                 },
-                "regex_replace":
-                {
+                "regex_replace": {
                     "description": "regex or regex list to apply to extracted values for replacing substring(-s)",
                     "properties": {
                         "regex": {
@@ -344,48 +283,40 @@
                         },
                         "replace": {
                             "type": "string",
-                             "type": [
+                            "type": [
                                 "string",
                                 "array"
                             ]
                         }
                     },
-                    "required":
-                    [
+                    "required": [
                         "regex",
                         "replace"
                     ],
                     "type": "object"
                 },
-                "split_regex":
-                {
+                "split_regex": {
                     "description": "regex to split extracted values with",
                     "format": "regex",
                     "type": "string"
                 },
-                "template":
-                {
+                "template": {
                     "description": "Jinja2 template which can resolve variables through the jmespath",
                     "type": "string"
                 },
-                "property":
-                {
+                "property": {
                     "description": "Gets the values from a property of the current (incomplete) entity or variable",
                     "type": "string"
                 },
-                "transformer":
-                {
+                "transformer": {
                     "$ref": "/definitions/fqfn",
                     "description": "Fully qualified python function that *applies* a transformation to the list of string values"
                 },
                 "meta": {
                     "description": "Property level meta values",
-                    "patternProperties":
-                    {
-                        "":
-                        {
-                            "anyOf":
-                            [
+                    "patternProperties": {
+                        "": {
+                            "anyOf": [
                                 {
                                     "$ref": "/schemas/property"
                                 },
@@ -402,16 +333,11 @@
         }
     },
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "properties":
-    {
-        "digest":
-        {
-            "properties":
-            {
-                "cls":
-                {
-                    "allOf":
-                    [
+    "properties": {
+        "digest": {
+            "properties": {
+                "cls": {
+                    "allOf": [
                         {
                             "$ref": "/definitions/fqcn"
                         }
@@ -419,24 +345,18 @@
                     "default": "thebeast.digest.SingleProcessDigestor",
                     "description": "Fully qualified python class name for the digestor"
                 },
-                "collections":
-                {
-                    "patternProperties":
-                    {
-                        "":
-                        {
+                "collections": {
+                    "patternProperties": {
+                        "": {
                             "$ref": "/schemas/collection"
                         }
                     },
                     "type": "object"
                 },
-                "constant_entities":
-                {
+                "constant_entities": {
                     "description": "Entities that should be generated for the file, but not from the data",
-                    "patternProperties":
-                    {
-                        "":
-                        {
+                    "patternProperties": {
+                        "": {
                             "$ref": "/schemas/constant_entity"
                         }
                     },
@@ -444,44 +364,43 @@
                 },
                 "meta": {
                     "description": "Datasource level statement meta values for all the collections",
-                    "patternProperties":
-                    {
-                        "": {"$ref": "/schemas/constant_property"}
+                    "patternProperties": {
+                        "": {
+                            "$ref": "/schemas/constant_property"
+                        }
                     },
                     "type": "object"
+                },
+                "import": {
+                    "description": "List of third-party packaged or contribs with transformers and jinja routines to import and use in the mapping",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
-            "required":
-            [
+            "required": [
                 "collections"
             ],
             "type": "object"
         },
-        "dump":
-        {
-            "properties":
-            {
-                "cls":
-                {
-                    "allOf":
-                    [
+        "dump": {
+            "properties": {
+                "cls": {
+                    "allOf": [
                         {
                             "$ref": "/definitions/fqcn"
                         }
                     ],
                     "description": "Fully qualified python class name dumper, which is derived from []"
                 },
-                "params":
-                {
-                    "properties":
-                    {
-                        "output_uri":
-                        {
+                "params": {
+                    "properties": {
+                        "output_uri": {
                             "type": "string",
                             "description": "An uri to write valid entities to"
                         },
-                        "error_uri":
-                        {
+                        "error_uri": {
                             "type": "string",
                             "description": "An uri to write degenerated entities to",
                             "default": "/dev/null"
@@ -492,56 +411,37 @@
             },
             "type": "object"
         },
-        "ftm_ontology":
-        {
+        "ftm_ontology": {
             "description": "Optional path to the dir with a custom FTM ontology to use",
             "type": "string"
         },
-        "import": {
-            "description": "List of third-party packaged or contribs with transformers and jinja routines to import",
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-        "meta":
-        {
+        "meta": {
             "description": "Optional list of statements meta fields (if omitted, the default DEFAULT_META_FIELDS is used)",
-            "items":
-            {
+            "items": {
                 "type": "string"
             },
             "type": "array"
         },
-        "id":
-        {
+        "id": {
             "description": "(Somewhat) unique id of the mapping",
             "type": "string"
         },
-        "ingest":
-        {
-            "properties":
-            {
-                "cls":
-                {
-                    "allOf":
-                    [
+        "ingest": {
+            "properties": {
+                "cls": {
+                    "allOf": [
                         {
                             "$ref": "/definitions/fqcn"
                         }
                     ],
                     "description": "Fully qualified python class name, which is derived from AbstractIngestor"
                 },
-                "params":
-                {
-                    "properties":
-                    {
-                        "input_uri":
-                        {
+                "params": {
+                    "properties": {
+                        "input_uri": {
                             "type": "string"
                         },
-                        "input_encoding":
-                        {
+                        "input_encoding": {
                             "type": "string",
                             "description": "Encoding of the input file"
                         }
@@ -549,54 +449,43 @@
                     "type": "object"
                 }
             },
-            "required":
-            [
+            "required": [
                 "cls"
             ],
             "type": "object"
         },
-        "info":
-        {
-            "properties":
-            {
-                "author":
-                {
+        "info": {
+            "properties": {
+                "author": {
                     "description": "Optional reference to the mapping authors",
                     "type": "string"
                 },
-                "comments":
-                {
+                "comments": {
                     "description": "Optional comments",
                     "type": "string"
                 },
-                "created":
-                {
+                "created": {
                     "format": "date-time",
                     "type": "string"
                 },
-                "maintainer":
-                {
+                "maintainer": {
                     "description": "Optional reference to the maintainers of this mapping",
                     "type": "string"
                 },
-                "modified":
-                {
+                "modified": {
                     "format": "date-time",
                     "type": "string"
                 },
-                "publisher":
-                {
+                "publisher": {
                     "description": "Optional reference to publisher of source data",
                     "type": "string"
                 },
-                "tags":
-                {
+                "tags": {
                     "description": "Optional arbitrary list of mapping tags, e.g. 'unofficial', 'government', etc",
                     "type": "array",
                     "uniqueItems": true
                 },
-                "title":
-                {
+                "title": {
                     "description": "Optional title for the mapping",
                     "type": "string"
                 }
@@ -604,8 +493,7 @@
             "type": "object"
         }
     },
-    "required":
-    [
+    "required": [
         "id",
         "ingest",
         "digest",
