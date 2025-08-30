@@ -2,7 +2,7 @@ followthemoney~=3.7.0
 jmespath
 PyYAML==6.0.2
 smart-open==7.0.5
-ijson==3.3.0
+ijson~=3.4
 pytest
 pytest-subtests
 fastjsonschema==2.15.3
