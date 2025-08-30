@@ -480,6 +480,66 @@ Entities defined in the parent context are addressable from child collections us
 
 ---
 
+## 15) Sampling your inputs with `sample_record.py`
+
+Use the repository helper `scripts/sample_record.py` to run a **tiny random fraction** of rows through a mapping without modifying the mapping on disk. This is ideal for *sanity checks* and exploratory profiling on large inputs.
+
+**What it does**
+
+* Forces `digest.cls = thebeast.digest.SingleProcessDigestor` for quick, deterministic runs.
+* Forces `dump.cls = thebeast.dump.FTMLinesWriter` so you can inspect emitted FtM entity lines.
+* Sets `dump.params.output_uri` to the path you pass via `--output_file`.
+* Prints lightweight **field statistics** to STDOUT (top values and masked patterns) for quick eyeballing of data quality.
+
+**CLI**
+
+```
+python scripts/sample_record.py <mapping_file> [--output_file <path>] [--fraction <float>]
+
+<mapping_file>   Path to your Beast mapping YAML
+--output_file    Where to write FTMLines output (default: /dev/null)
+--fraction       Random sampling fraction in (0,1]; default: 0.001 (0.1%)
+```
+
+**Examples**
+
+```bash
+# Sample 0.1% from a mapping and write to outputs/sample.ftm.jsonl
+python scripts/sample_record.py mappings/people.statements.yaml \
+  --output_file outputs/sample.ftm.jsonl \
+  --fraction 0.001
+```
+
+> Tip: pair this with a statements-focused dumper in your main mapping to compare entity-line output vs. statement rows.
+
+---
+
+## 16) Built-in ingestors, digestors, and dumpers (cheat sheet)
+
+Below are commonly used classes you can reference in your mapping via fully-qualified names (`cls:` fields). Where applicable, set parameters under `params:`.
+
+### 16.1 Ingestors
+
+* **`thebeast.ingest.CSVDictReader`** — Read a single CSV file into dict rows. Supports `input_uri`, `input_encoding`, delimiters via params.
+* **`thebeast.ingest.CSVDictGlobReader`** — Read **multiple** CSV files matched by a glob (e.g., `data/*.csv`), streaming row dicts across files.
+* **`thebeast.ingest.TSVDictGlobReader`** — Like the CSV glob reader, but with tab delimiter defaults.
+* **`thebeast.ingest.JSONLinesGlobReader`** — Read one or many **JSON Lines** (NDJSON) files matched by a glob; each line is a JSON object → record.
+* **`thebeast.ingest.JSONGlobReader`** — Read JSON files matched by a glob; expects top-level arrays or objects you can traverse via `collections[*].path`.
+
+### 16.2 Digestors
+
+* **`thebeast.digest.SingleProcessDigestor`** — Execute mappings serially in-process; best for iteration, testing, and low-latency sampling.
+* **`thebeast.digest.MultiProcessDigestor`** — Parallelize across CPU processes. Typical params: `processes: <int>` (falls back to CPU count). Use when ingestion and mapping steps are CPU-bound and pure.
+
+### 16.3 Dumpers
+
+* **`thebeast.dump.FTMLinesWriter`** — Emit FtM entity lines (one JSON per entity) suitable for FtM-native tooling.
+* **`thebeast.dump.StatementsCSVWriter`** — Emit **statement** rows to CSV (one row per property value) with statement metadata columns.
+
+> Choose the dumper based on downstream consumers: FtM lines for entity-centric pipelines, like Aleph; statements CSV for columnar storage and efficient entity merging
+
+---
+
 ### Appendix A — Property operation quick reference
 
 * `column: <jmespath>`
