@@ -264,7 +264,7 @@ def _resolve_template(
     return [
         StrProxy(
             template.render(
-                entity=context.entity.properties,
+                entity=context.entity.properties if context.entity else None,
                 record=context.record,
                 meta=context.statements_meta,
                 property_value=property_value,
