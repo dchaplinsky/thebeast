@@ -1,6 +1,6 @@
 # Beast Mapping Format – Comprehensive Guide & Examples
 
-**Version:** 1.0 • **Date:** 2025‑08‑30  • **Audience:** Data engineers & OSINT practitioners using *the beast* to generate FollowTheMoney (FtM) entities and statement streams.
+**Version:** 1.1 • **Date:** 2025‑09‑17  • **Audience:** Data engineers & OSINT practitioners using *the beast* to generate FollowTheMoney (FtM) entities and statement streams.
 
 ---
 
@@ -8,7 +8,7 @@
 
 A Beast **mapping** is a declarative YAML file that tells the platform how to:
 
-1. **Ingest** source data (CSV/JSON/SQL/etc.).
+1. **Ingest** source data (CSV/TSV/JSON/JSONL/etc). The current set of ingestors uses smart_open to read from compressed and even remote files, and iterative parsers like ijson handle very big JSONs memory-efficiently. Some of the ingestors can also accept glob-like patterns to ingest more than one file.
 2. **Digest** the records into FtM **entities** (and relationships) using JMESPath & Jinja, plus optional Python helpers.
 3. **Dump** (emit) either *entities* or *statements* (tabular rows describing each property value + its metadata).
 
@@ -18,7 +18,7 @@ Mappings are self‑contained and portable: they specify the extractor, the tran
 
 ## 2) Anatomy of a mapping file
 
-At the top level a mapping has these sections:
+At the top level, a mapping has these sections:
 
 ```yaml
 id: my_dataset_v1            # Optional but recommended
@@ -33,7 +33,9 @@ import:                      # Optional: Python packages or contrib modules to i
 
 ftm_ontology: ./ontology     # Optional path to a custom FtM model directory
 
-meta:                        # Optional whitelist of statement metadata fields permitted in this mapping
+# Optional whitelist of statement metadata fields permitted in this mapping
+# applies only to statement export format
+meta:
   - dataset
   - origin
   - lang
@@ -108,21 +110,21 @@ digest:                      # REQUIRED: how to turn records into entities/state
 * **`info`**: free‑form provenance for the *mapping file* (author, created/modified, comments, maintainer).
 * **`import`**: modules that register transformers/augmentors or Jinja helpers.
 * **`ftm_ontology`**: filesystem path to a custom FtM model (use when extending or constraining the standard ontology).
-* **`meta`**: optional list *whitelisting* metadata keys permitted on statements. If omitted, Beast falls back to its internal default set.
+* **`meta`**: optional list *whitelisting* metadata keys permitted on statements. If omitted, Beast falls back to its internal default set. Metadata is only added to the statement export format.
 
 ### 2.2 `ingest`
 
-* **`cls` (FQCN)**: the ingestor class (must subclass Beast’s `AbstractIngestor`).
+* **`cls` (FQCN)**: the ingestor class (must subclass Beast’s `AbstractIngestor`). List of ingestors is available at `/ingest/__init__.py`.
 * **`params`**: class‑specific parameters. Common ones:
 
-  * `input_uri`: file path/URL/stream locator
+  * `input_uri`: file path/URL/stream locator. You can use s3:// and sftp:// urls and read directly from compressed formats like .bz2 (see [smart_open](https://github.com/piskvorky/smart_open) for details).
   * `input_encoding`: text encoding for line‑based inputs
 
 ### 2.3 `digest`
 
-* **`cls` (FQCN)**: the digestor class. Default is `thebeast.digest.SingleProcessDigestor`.
+* **`cls` (FQCN)**: the digestor class. Default is `thebeast.digest.SingleProcessDigestor`. List of digestors is available at `/digest/__init__.py`.
 * **`meta`**: dataset‑level **statement** metadata to apply everywhere (overridden by collection/property meta when present).
-* **`constant_entities`**: a map of *always‑present* entities (e.g., a source Organization, Publisher, Dataset). Each item has:
+* **`constant_entities`**: a map of *always‑present* entities (e.g., a source Organization, Publisher, Dataset) that are created regardless of input mapping data. For example, you are processing the list of public body employees, which is not explicitly mentioned in the dataset. You can use constant entities to create such a Company and its Address and connect all Persons to that body. Each item has:
 
   * `schema`: FtM schema name
   * `keys`: list of key fields (strings or literals)
@@ -166,7 +168,7 @@ A property definition is an ordered list (or a single step) of **operations** ap
 
 | Operation                               | What it does                                                                                    | Typical use                                                                     |                                                                   |                                       |
 | --------------------------------------- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------- | ------------------------------------- |
-| `column: <jmespath>`                    | Extract values from the current record via JMESPath. Returns a scalar or list.                  | `column: name`, `column: emails[*]`.                                            |                                                                   |                                       |
+| `column: <jmespath>`                    | Extract values from the current record in collection via JMESPath. Returns a scalar or list.                  | `column: name`, `column: emails[*]`.                                            |                                                                   |                                       |
 | `literal: <str\|number>`                                                                                       | Emit a fixed value.                                                             | `jurisdiction: { literal: "UA"}`.                                |                                       |
 | `template: <Jinja2>`                    | Render a string using Jinja2. Inputs can reference fields from the current record/context.      | `template: "{{ first }} {{ last }}"`.                                           |                                                                   |                                       |
 | `entity: <name>`                        | Link to another entity defined in the **current mapping context**.                              | In `Ownership.asset`, reference the `company` entity created from the same row. |                                                                   |                                       |
@@ -201,7 +203,7 @@ The `dump` section controls the output sink:
 
 ```yaml
 dump:
-  cls: my_pkg.dump.StatementsJSONLDumper   # or another Dumper subclass
+  cls: thebeast.dump.FTMLinesWriter   # or another Dumper subclass
   params:
     output_uri: s3://acme-bucket/exports/acme_statements.jsonl
     error_uri:  /dev/null                  # where to write malformed entities/statements
