@@ -1,12 +1,12 @@
 followthemoney~=3.7.0
 jmespath
 PyYAML==6.0.2
-smart-open==7.0.5
+smart-open[s3,ssh]==7.3.1
 ijson~=3.4
 pytest
 pytest-subtests
 fastjsonschema==2.15.3
-Jinja2==3.1.2
+Jinja2==3.1.6
 tqdm==4.67.1
 regex==2024.11.6
 python-dateutil==2.9.0.post0

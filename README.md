@@ -1,19 +1,24 @@
 # The Beast
 
-The beast is an experimental, flexible, declarative-oriented toolkit to read
-machinereadable data from the various sources and transform them into follow the money entities.
+The Beast is an experimental, flexible, declarative-oriented toolkit to read
+machine-readable data from the various sources and transform them into follow-the-money entities (FTM).
 
-Do not rely on this one until it is out of alpha. Everything is very volatile 
+~~Do not rely on this one until it is out of alpha. Everything is very volatile.~~
+
+The Beast is currently in beta and is quite stable. While we can foresee some changes to the mapping format to allow for better flexibility, we are slow to implement them, and we are cautious.
+
+The Beast is battle-tested. Complete documentation is available [here](docs/README.md).
+
 
 
 ## More reading
 The FTM proposal:
 https://github.com/alephdata/followthemoney/issues/717
 
-The sample mapping with tons of comments to make you understand an idea better (beware, it's just an example, format is the subject to change):
+The sample mapping with tons of comments to make you understand an idea better (beware, it's just an example, format is subject to change):
 https://github.com/dchaplinsky/thebeast/blob/main/thebeast/tests/sample/mappings/ukrainian_mps.yaml
 
-Validator for the mappings in [json schema](https://json-schema.org) format (again, work in progress and tons of comments):
+Validator for the mappings in [JSON schema](https://json-schema.org) format (again, work in progress and tons of comments):
 https://github.com/dchaplinsky/thebeast/blob/main/thebeast/conf/mapping_validator.json
 
 First proposal of the mapping (obsolete, but can give you a better idea)
@@ -53,8 +58,8 @@ Done
 - [x] Advanced ingest routines: split string into multiple values
 - [x] Advanced ingest routines: full entity validation and red/green sorting
 - [X] Advanced ingest routines: augmentations/transformations
-- [X] Advanced ingest routines: records transformations
-- [X] Tests for records transformations
+- [X] Advanced ingest routines: record transformations
+- [X] Tests for record transformations
 - [X] Tests for the individual resolvers
 - [X] Tests for digest routines
 - [X] Advanced digest routines: multiprocessing
@@ -76,11 +81,11 @@ python -m pytest
 
 ## Run using Docker
 
-`/bin/` directory contains scripts to run Beast inside Docker container.
+The `/bin/` directory contains scripts to run Beast inside a Docker container.
 
 Use `/bin/run data/mapping.yaml` to run Beast with selected mapping. 
-Note: mapping and source file(s) must be in Beast root (sub-)directory. E.g. `./data/mapping.yaml`
-You can't point Beast to a file outside it's root directory.
+Note: mapping and source file(s) must be in the Beast root (sub-)directory. E.g. `./data/mapping.yaml`
+You can't point Beast to a file outside its root directory.
 
 Use `/bin/tests` to run tests.
 
