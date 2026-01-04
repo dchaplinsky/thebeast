@@ -81,7 +81,7 @@ digest:                      # REQUIRED: how to turn records into entities/state
           keys: [id, name]   # values must be available from the row after any record_transformer
           properties:
             name:       { column: name }
-            alias:      { column: alt_names, split_regex: "[;,]" }
+            alias:      { column: alt_names, regex_split: "[;,]" }
             address:    { column: address }
             incorporationDate: { column: incorporation_date, regex_first: "(\\d{4}-\\d{2}-\\d{2})" }
             jurisdiction: { literal: US }
@@ -176,12 +176,37 @@ A property definition is an ordered list (or a single step) of **operations** ap
 | `regex: <re>`                           | Keep **all matches** of the pattern from each extracted value.                                  | Pull dates/IDs embedded in free text.                                           |                                                                   |                                       |
 | `regex_first: <re>`                     | Keep the **first match** only.                                                                  | Extract YYYY‑MM‑DD from a messy field.                                          |                                                                   |                                       |
 | `regex_replace: { regex: <re>\|[...], replace: <str>\|[...] }`                                                                      | Replace substrings using one or multiple regex→replacement pairs. | Strip prefixes, normalize whitespace. |
-| `split_regex: <re>`                     | Split a string into multiple values.                                                            | Turn `"a; b, c"` into `a`, `b`, `c`.                                            |                                                                   |                                       |
+| `regex_split: <re>`                     | Split a string into multiple values.                                                            | Turn `"a; b, c"` into `a`, `b`, `c`.                                            |                                                                   |                                       |
 | `transformer: <FQFN or {name, params}>` | Apply a Python function **to the list of string values** and replace with the result.           | Name cleanup, ISO‐date parsing.                                                 |                                                                   |                                       |
 | `augmentor: <FQFN or {name, params}>`   | Like `transformer`, but **append** its result to the current list instead of replacing it.      | Add derived aliases without losing originals.                                   |                                                                   |                                       |
 | `meta: {...}`                           | Attach **statement metadata** for the values emitted by this property.                          | Flag `sourceUrl` statements with a special origin.                              |                                                                   |                                       |
 
-> **Ordering matters.** Steps are executed in the order written. For example, you might `column → regex_replace → split_regex → transformer`.
+> **Ordering matters.** Steps are executed in the order written. For example, you might `column → regex_replace → regex_split → transformer`.
+
+### 4.1 Operation Availability by Context
+
+Not all operations are available in all contexts. The table below shows which operations can be used where:
+
+| Operation       | Property Values | Property Meta | Collection Meta | Dataset Meta |
+|----------------|-----------------|---------------|-----------------|--------------|
+| `column`       | ✓               | ✓             | ✓               | ✗            |
+| `literal`      | ✓               | ✓             | ✓               | ✓            |
+| `template`     | ✓               | ✓             | ✓               | ✗            |
+| `entity`       | ✓               | ✗             | ✗               | ✗            |
+| `property`     | ✓               | ✓             | ✗               | ✗            |
+| `regex`        | ✓               | ✓             | ✓               | ✗            |
+| `regex_first`  | ✓               | ✓             | ✓               | ✗            |
+| `regex_replace`| ✓               | ✓             | ✗               | ✗            |
+| `regex_split`  | ✓               | ✓             | ✓               | ✗            |
+| `transformer`  | ✓               | ✓             | ✓               | ✗            |
+| `augmentor`    | ✓               | ✓             | ✓               | ✗            |
+| `meta`         | ✓               | ✗             | ✗               | ✗            |
+
+**Contexts explained:**
+- **Property Values**: Regular entity property pipelines (most common use case)
+- **Property Meta**: Metadata attached to specific properties
+- **Collection Meta**: Metadata applied at the collection level
+- **Dataset Meta**: Metadata applied at the dataset level (most restrictive)
 
 ---
 
@@ -247,7 +272,7 @@ digest:
           properties:
             name:       { template: "{{ first }} {{ last }}" }
             birthDate:  { column: birth }
-            email:      { column: emails, split_regex: "[;,]" }
+            email:      { column: emails, regex_split: "[;,]" }
 ```
 
 **What gets emitted (statements, conceptual)**
@@ -339,7 +364,7 @@ digest:
                 regex: ["^ТОВ\\s+", "\\s+ЛТД$"]
                 replace: ["", ""]
               transformer: my_project.contrib.cleaning.squeeze_whitespace
-            alias: { column: alt_names, split_regex: ";|,|\\|" }
+            alias: { column: alt_names, regex_split: ";|,|\\|" }
             registrationNumber: { column: reg_no }
             sourceUrl:
               template: "https://usr.minjust.gov.ua/company/{{ reg_no }}"
@@ -445,7 +470,7 @@ print("OK: mapping validates.")
 
 * **Choose good keys**: combine stable identifiers; for events use participant keys.
 * **Normalize early**: simple regex/transformers in the mapping reduce downstream cleaning.
-* **Prefer `split_regex` over ad‑hoc splitting** so you can keep it declarative.
+* **Prefer `regex_split` over ad‑hoc splitting** so you can keep it declarative.
 * **Use `constant_entities`** for sources/publishers/datasets to keep provenance explicit and re‑linkable.
 * **Layer metadata** thoughtfully: dataset → collection → property.
 * **Keep transformers pure** (idempotent, no network IO) to ease reproducibility.
@@ -459,7 +484,7 @@ print("OK: mapping validates.")
 Yes, via `property: <name>`.
 
 **Q: How do I handle multi‑value inputs (e.g., emails)?**\
-Extract with `column`, then `split_regex`, then optional `transformer` to clean each value.
+Extract with `column`, then `regex_split`, then optional `transformer` to clean each value.
 
 **Q: What’s the difference between `transformer` and `augmentor`?**\
 `transformer` replaces the current value list; `augmentor` appends to it.
@@ -482,9 +507,9 @@ Entities defined in the parent context are addressable from child collections us
 
 ---
 
-## 15) Sampling your inputs with `sample_record.py`
+## 15) Sampling your inputs with `sample_records.py`
 
-Use the repository helper `scripts/sample_record.py` to run a **tiny random fraction** of rows through a mapping without modifying the mapping on disk. This is ideal for *sanity checks* and exploratory profiling on large inputs.
+Use the repository helper `sample_records.py` to run a **tiny random fraction** of rows through a mapping without modifying the mapping on disk. This is ideal for *sanity checks* and exploratory profiling on large inputs.
 
 **What it does**
 
@@ -496,7 +521,7 @@ Use the repository helper `scripts/sample_record.py` to run a **tiny random frac
 **CLI**
 
 ```
-python scripts/sample_record.py <mapping_file> [--output_file <path>] [--fraction <float>]
+python sample_records.py <mapping_file> [--output_file <path>] [--fraction <float>]
 
 <mapping_file>   Path to your Beast mapping YAML
 --output_file    Where to write FTMLines output (default: /dev/null)
@@ -507,7 +532,7 @@ python scripts/sample_record.py <mapping_file> [--output_file <path>] [--fractio
 
 ```bash
 # Sample 0.1% from a mapping and write to outputs/sample.ftm.jsonl
-python scripts/sample_record.py mappings/people.statements.yaml \
+python sample_records.py mappings/people.statements.yaml \
   --output_file outputs/sample.ftm.jsonl \
   --fraction 0.001
 ```
@@ -552,7 +577,7 @@ Below are commonly used classes you can reference in your mapping via fully-qual
 * `regex: <re>`
 * `regex_first: <re>`
 * `regex_replace: { regex: <re>|[...], replace: <str>|[...] }`
-* `split_regex: <re>`
+* `regex_split: <re>`
 * `transformer: <FQFN or {name, params}>`
 * `augmentor: <FQFN or {name, params}>`
 * `meta: { <metakey>: (constant | property pipeline) }`

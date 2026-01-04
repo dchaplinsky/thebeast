@@ -357,7 +357,7 @@
                     ],
                     "type": "object"
                 },
-                "split_regex":
+                "regex_split":
                 {
                     "description": "regex to split extracted values with",
                     "format": "regex",
